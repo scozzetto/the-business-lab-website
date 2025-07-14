@@ -1,0 +1,64 @@
+[build]
+  publish = "."
+  command = "echo 'Business Lab static site ready for deployment'"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[[redirects]]
+  from = "/partner-portal"
+  to = "/partner-portal.html"
+  status = 200
+
+[[redirects]]
+  from = "/privacy"
+  to = "/privacy-policy.html"
+  status = 200
+
+[[redirects]]
+  from = "/terms"
+  to = "/terms-of-service.html"
+  status = 200
+
+# Catch-all redirect for SPA behavior
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[context.production.environment]
+  ENVIRONMENT = "production"
+
+[context.deploy-preview.environment]
+  ENVIRONMENT = "staging"
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'"
+
+# Cache static assets
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
