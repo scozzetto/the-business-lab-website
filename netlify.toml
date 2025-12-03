@@ -20,6 +20,16 @@
   to = "/terms-of-service.html"
   status = 200
 
+[[redirects]]
+  from = "/investors"
+  to = "/investors.html"
+  status = 200
+
+[[redirects]]
+  from = "/switch"
+  to = "/switch.html"
+  status = 200
+
 # Catch-all redirect for SPA behavior
 [[redirects]]
   from = "/*"

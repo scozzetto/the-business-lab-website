@@ -1329,3 +1329,85 @@ body {
     text-align: center;
     letter-spacing: 1px;
 }
+
+/* Process Section Styles */
+.process {
+    padding: 5rem 0;
+    background: #f8fafc;
+}
+
+.process-steps {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin: 3rem 0;
+    position: relative;
+}
+
+.process-steps::before {
+    content: '';
+    position: absolute;
+    top: 30px;
+    left: 50px;
+    right: 50px;
+    height: 2px;
+    background: linear-gradient(to right, #d4af37, #d4af37 25%, #e5e7eb 25%, #e5e7eb);
+    z-index: 1;
+}
+
+.process-step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+.step-number {
+    width: 60px;
+    height: 60px;
+    background: #d4af37;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 auto 1rem;
+    position: relative;
+}
+
+.process-step h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #1a1a1a;
+}
+
+.process-step p {
+    color: #666;
+    line-height: 1.6;
+    max-width: 200px;
+    margin: 0 auto;
+}
+
+/* About Section */
+.about {
+    padding: 5rem 0;
+}
+
+/* Responsive Process Steps */
+@media (max-width: 768px) {
+    .process-steps {
+        flex-direction: column;
+        gap: 2rem;
+    }
+    
+    .process-steps::before {
+        display: none;
+    }
+    
+    .process-step {
+        width: 100%;
+    }
+}
