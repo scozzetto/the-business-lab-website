@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reconciliation — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-chart-line"></i> Module 8</div>
+        <h1>Reconciliation</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 5 min read</span></div>
+      </div>
+
+      <p>Reconciliation is the process of matching your system's payment records with your bank account and payment processor (Stripe) to ensure everything aligns. It catches errors and missing transactions.</p>
+
+      <h2 id="why-reconcile">Why Reconcile</h2>
+      <ul>
+        <li>Verify all card payments were deposited to your bank</li>
+        <li>Confirm cash deposits match recorded cash payments</li>
+        <li>Catch duplicate or missing entries</li>
+        <li>Identify processing fees and deductions</li>
+      </ul>
+
+      <h2 id="card-reconciliation">Card Payment Reconciliation</h2>
+      <ol class="steps">
+        <li><div class="step-title">Run a Payment Report</div><div class="step-desc">Generate a card payment report for the period you're reconciling (typically one week).</div></li>
+        <li><div class="step-title">Compare with Stripe</div><div class="step-desc">Log into your payment processor dashboard and view payouts for the same period.</div></li>
+        <li><div class="step-title">Match Totals</div><div class="step-desc">The system total should match the payout total (minus processing fees). Note: payouts may be delayed by 1-2 business days.</div></li>
+        <li><div class="step-title">Investigate Discrepancies</div><div class="step-desc">If totals don't match, look for refunds, chargebacks, or transactions on different dates due to payout timing.</div></li>
+      </ol>
+
+      <h2 id="cash-reconciliation">Cash Reconciliation</h2>
+      <ol class="steps">
+        <li><div class="step-title">Run a Cash Payment Report</div><div class="step-desc">Filter payments to "Cash" only for the period.</div></li>
+        <li><div class="step-title">Compare with Deposits</div><div class="step-desc">Match the system's cash total against your bank deposit amounts.</div></li>
+        <li><div class="step-title">Account for Drawer</div><div class="step-desc">Remember to subtract the cash drawer float (it stays in the drawer, not deposited).</div></li>
+      </ol>
+
+      <div class="callout callout-important">
+        <i class="fa-solid fa-circle-info"></i>
+        <div><p><strong>Reconcile weekly.</strong> Monthly reconciliation works but makes it harder to track down issues. Weekly is the recommended cadence.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Card reconciliation</td><td>Compare Payment Report (Card) vs. Stripe payouts</td></tr>
+          <tr><td>Cash reconciliation</td><td>Compare Payment Report (Cash) vs. bank deposits</td></tr>
+          <tr><td>Recommended frequency</td><td>Weekly</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

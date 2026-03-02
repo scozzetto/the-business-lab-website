@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exporting Data — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-users"></i> Module 2</div>
+        <h1>Exporting Data</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 3 min read</span></div>
+      </div>
+
+      <p>Export your client data as CSV files for reporting, mail merges, external analysis, or backup purposes.</p>
+
+      <h2 id="exporting-clients">Exporting Client Records</h2>
+      <ol class="steps">
+        <li>
+          <div class="step-title">Apply Filters (Optional)</div>
+          <div class="step-desc">If you only want to export a subset of clients, apply search terms or column filters first. The export will include only the visible records.</div>
+        </li>
+        <li>
+          <div class="step-title">Click <span class="ui-element">Export</span></div>
+          <div class="step-desc">Click the Export button (download icon) in the toolbar above the table.</div>
+        </li>
+        <li>
+          <div class="step-title">Choose Columns</div>
+          <div class="step-desc">A dialog lets you select which columns to include in the export. By default, all visible columns are selected.</div>
+        </li>
+        <li>
+          <div class="step-title">Download the File</div>
+          <div class="step-desc">Click <span class="ui-element">Download CSV</span>. The file downloads to your computer's default download location.</div>
+        </li>
+      </ol>
+
+      <h2 id="export-contents">What's in the Export</h2>
+      <p>The CSV file contains one row per client with the columns you selected. The first row is headers. The file opens in Excel, Google Sheets, or any spreadsheet app.</p>
+
+      <div class="callout callout-warning">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div><p><strong>Handle exports securely.</strong> Client data exports contain personal information. Don't email CSV files unencrypted, and delete exports when no longer needed.</p></div>
+      </div>
+
+      <h2 id="common-uses">Common Export Uses</h2>
+      <table>
+        <thead><tr><th>Use Case</th><th>Recommended Filters</th></tr></thead>
+        <tbody>
+          <tr><td>Marketing mail merge</td><td>Status = Active, has email address</td></tr>
+          <tr><td>Birthday promotions</td><td>Date of birth in target month</td></tr>
+          <tr><td>Inactive client outreach</td><td>Status = Inactive</td></tr>
+          <tr><td>Full backup</td><td>No filters (all clients)</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Export all clients</td><td><span class="ui-element">Export</span> &rarr; select columns &rarr; <span class="ui-element">Download CSV</span></td></tr>
+          <tr><td>Export filtered set</td><td>Apply filters first &rarr; then Export</td></tr>
+          <tr><td>File format</td><td>CSV (comma-separated values)</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Billing Overview — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-credit-card"></i> Module 3</div>
+        <h1>Billing Overview</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 5 min read</span></div>
+      </div>
+
+      <p>Every client has a billing tab that shows their financial relationship with your business — charges, payments, and running balance. This lesson explains how it all fits together.</p>
+
+      <h2 id="accessing-billing">Accessing a Client's Billing</h2>
+      <ol class="steps">
+        <li><div class="step-title">Open the Client Profile</div><div class="step-desc">Search for and open the client in the database.</div></li>
+        <li><div class="step-title">Click the <span class="ui-element">Billing</span> Tab</div><div class="step-desc">The client profile has multiple tabs. Click "Billing" to see their financial summary.</div></li>
+      </ol>
+
+      <h2 id="billing-interface">The Billing Interface</h2>
+      <p>The billing tab shows:</p>
+      <ul>
+        <li><strong>Balance Summary</strong> — Total charges, total payments, and current balance at the top</li>
+        <li><strong>Transaction List</strong> — Chronological list of all charges and payments</li>
+        <li><strong>Action Buttons</strong> — Buttons for new charge, new payment, statement, receipt</li>
+      </ul>
+
+      <h2 id="charges-vs-payments">Understanding Charges vs. Payments</h2>
+      <table>
+        <thead><tr><th>Type</th><th>What It Does</th><th>Effect on Balance</th></tr></thead>
+        <tbody>
+          <tr><td>Charge</td><td>Adds an amount the client owes</td><td>Increases balance</td></tr>
+          <tr><td>Payment</td><td>Records money received</td><td>Decreases balance</td></tr>
+          <tr><td>Adjustment</td><td>Corrects errors or applies credits</td><td>Can increase or decrease</td></tr>
+          <tr><td>Write-off</td><td>Forgives an unpayable amount</td><td>Decreases balance</td></tr>
+        </tbody>
+      </table>
+
+      <p>The formula is simple: <strong>Balance = Total Charges - Total Payments - Adjustments - Write-offs</strong></p>
+
+      <div class="callout callout-important">
+        <i class="fa-solid fa-circle-info"></i>
+        <div><p><strong>A zero balance means the client has paid in full.</strong> A positive balance means they owe money. A negative balance means they've overpaid (you owe them a credit or refund).</p></div>
+      </div>
+
+      <h2 id="payment-methods">Payment Methods Supported</h2>
+      <table>
+        <thead><tr><th>Method</th><th>How It's Processed</th></tr></thead>
+        <tbody>
+          <tr><td>Credit / Debit Card</td><td>Processed through Stripe (integrated)</td></tr>
+          <tr><td>Cash</td><td>Recorded manually in the system</td></tr>
+          <tr><td>Check</td><td>Recorded manually with check number</td></tr>
+          <tr><td>Saved Card on File</td><td>Charge a previously saved card</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>View billing</td><td>Client profile &rarr; <span class="ui-element">Billing</span> tab</td></tr>
+          <tr><td>Check balance</td><td>Balance summary at top of billing tab</td></tr>
+          <tr><td>Add a charge</td><td><span class="ui-element">+ New Charge</span> button</td></tr>
+          <tr><td>Record a payment</td><td><span class="ui-element">+ New Payment</span> button</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Card Payments — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-credit-card"></i> Module 3</div>
+        <h1>Card Payments</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 5 min read</span></div>
+      </div>
+
+      <p>Card payments are processed through an integrated payment system (Stripe). The client can pay by entering their card details, or you can charge a card already on file.</p>
+
+      <h2 id="processing-card-payment">Processing a Card Payment</h2>
+      <ol class="steps">
+        <li><div class="step-title">Open the Client's Billing Tab</div><div class="step-desc">Navigate to the client's profile and click the <span class="ui-element">Billing</span> tab.</div></li>
+        <li><div class="step-title">Click <span class="ui-element">+ New Payment</span></div><div class="step-desc">Click the New Payment button to open the payment form.</div></li>
+        <li><div class="step-title">Enter the Amount</div><div class="step-desc">Type the dollar amount to charge. The system may suggest the outstanding balance amount.</div></li>
+        <li><div class="step-title">Select "Card" as Payment Method</div><div class="step-desc">Choose "Credit/Debit Card" from the payment method dropdown.</div></li>
+        <li><div class="step-title">Enter Card Details</div><div class="step-desc">The client enters their card number, expiration date, and CVV in the secure card form. Alternatively, select a saved card if one is on file.</div></li>
+        <li><div class="step-title">Add a Description (Optional)</div><div class="step-desc">Add a note like "Monthly service payment" or "Product purchase" for record-keeping.</div></li>
+        <li><div class="step-title">Click <span class="ui-element">Process Payment</span></div><div class="step-desc">Click to process. The system contacts the payment processor and shows a success or failure message within seconds.</div></li>
+      </ol>
+
+      <div class="callout callout-success">
+        <i class="fa-solid fa-circle-check"></i>
+        <div><p><strong>On success:</strong> The payment is recorded, the client's balance updates immediately, and a receipt can be generated or emailed.</p></div>
+      </div>
+
+      <h2 id="handling-failures">Handling Payment Failures</h2>
+      <table>
+        <thead><tr><th>Error</th><th>Meaning</th><th>What to Do</th></tr></thead>
+        <tbody>
+          <tr><td>Card declined</td><td>Bank rejected the charge</td><td>Ask client to try a different card</td></tr>
+          <tr><td>Insufficient funds</td><td>Not enough money on the card</td><td>Try a smaller amount or different card</td></tr>
+          <tr><td>Expired card</td><td>Card is past its expiration</td><td>Client needs to use a current card</td></tr>
+          <tr><td>Invalid CVV</td><td>Security code doesn't match</td><td>Re-enter the CVV carefully</td></tr>
+          <tr><td>Processing error</td><td>Temporary system issue</td><td>Wait a moment and try again</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warning">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div><p><strong>Never write down card numbers.</strong> Card details are handled securely through the integrated payment form. Never ask a client to write their card number on paper or store it outside the system.</p></div>
+      </div>
+
+      <h2 id="offer-save-card">Offering to Save the Card</h2>
+      <p>After a successful payment, you can offer to save the card for future use. Check the "Save card for future payments" option before processing. See <a href="saved-cards.html">Saved Cards</a> for details.</p>
+
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <div class="trouble-item">
+        <strong>Payment form not loading</strong>
+        <p>This usually indicates a network issue. Refresh the page. If the form still doesn't appear, check your internet connection.</p>
+      </div>
+      <div class="trouble-item">
+        <strong>Client was charged but system shows failure</strong>
+        <p>This is rare. Check the payment history for the transaction. Contact your manager — they can verify the charge status in the payment processor dashboard.</p>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>New card payment</td><td>Billing tab &rarr; <span class="ui-element">+ New Payment</span> &rarr; Card</td></tr>
+          <tr><td>Charge saved card</td><td>Select saved card from dropdown</td></tr>
+          <tr><td>Save card for later</td><td>Check "Save card" box during payment</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

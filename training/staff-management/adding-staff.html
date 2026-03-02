@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adding Staff Members — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-user-shield"></i> Module 9</div>
+        <h1>Adding Staff Members</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 5 min read</span></div>
+      </div>
+
+      <p>When a new team member joins, create their account so they can log into the system with their own credentials.</p>
+
+      <h2 id="creating-account">Creating a Staff Account</h2>
+      <ol class="steps">
+        <li><div class="step-title">Go to Settings &rarr; Staff</div><div class="step-desc">Navigate to the Staff Management area from the sidebar.</div></li>
+        <li><div class="step-title">Click <span class="ui-element">+ Add Staff</span></div><div class="step-desc">Open the new staff member form.</div></li>
+        <li><div class="step-title">Enter Their Information</div><div class="step-desc">Fill in: <strong>Full name</strong>, <strong>Email</strong> (used for login), and <strong>Phone</strong>.</div></li>
+        <li><div class="step-title">Assign a Role</div><div class="step-desc">Select their role: Front Desk, Staff, Manager, or Admin. This controls what they can see and do.</div></li>
+        <li><div class="step-title">Assign Location(s)</div><div class="step-desc">Select which location(s) they can access.</div></li>
+        <li><div class="step-title">Set Initial Password</div><div class="step-desc">Create a temporary password or use the "Send Invite" option to let them set their own.</div></li>
+        <li><div class="step-title">Save</div><div class="step-desc">Click <span class="ui-element">Create Account</span>. If you chose "Send Invite," they'll receive an email to set their password.</div></li>
+      </ol>
+
+      <div class="callout callout-tip">
+        <i class="fa-solid fa-lightbulb"></i>
+        <div><p><strong>Use "Send Invite."</strong> It's more secure than setting a password yourself — the staff member creates their own password from the start.</p></div>
+      </div>
+
+      <h2 id="deactivating">Deactivating a Staff Account</h2>
+      <p>When someone leaves the team, deactivate their account instead of deleting it. This preserves their activity history:</p>
+      <ol class="steps">
+        <li><div class="step-title">Find the Staff Member</div><div class="step-desc">Go to Settings &rarr; Staff and find their account.</div></li>
+        <li><div class="step-title">Click <span class="ui-element">Deactivate</span></div><div class="step-desc">Their account is disabled immediately — they can no longer log in. Their historical data (tasks, payments processed, etc.) remains intact.</div></li>
+      </ol>
+
+      <div class="callout callout-warning">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div><p><strong>Deactivate departing staff immediately.</strong> When someone leaves, disable their access the same day to protect your business data.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Add staff</td><td>Settings &rarr; Staff &rarr; <span class="ui-element">+ Add Staff</span></td></tr>
+          <tr><td>Deactivate</td><td>Staff list &rarr; select member &rarr; <span class="ui-element">Deactivate</span></td></tr>
+          <tr><td>Reactivate</td><td>Staff list &rarr; show inactive &rarr; <span class="ui-element">Reactivate</span></td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

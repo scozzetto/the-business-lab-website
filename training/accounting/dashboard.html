@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics Dashboard — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-chart-line"></i> Module 8</div>
+        <h1>Analytics Dashboard</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 5 min read</span></div>
+      </div>
+
+      <p>The analytics dashboard gives you a real-time view of your business performance — revenue trends, client activity, appointment volume, and more.</p>
+
+      <h2 id="dashboard-widgets">Dashboard Widgets</h2>
+      <table>
+        <thead><tr><th>Widget</th><th>What It Shows</th></tr></thead>
+        <tbody>
+          <tr><td>Revenue Today</td><td>Total revenue collected today vs. same day last week</td></tr>
+          <tr><td>Revenue This Month</td><td>Month-to-date revenue with trend chart</td></tr>
+          <tr><td>Appointments</td><td>Today's appointments (completed, in-progress, upcoming)</td></tr>
+          <tr><td>New Clients</td><td>New client registrations this week/month</td></tr>
+          <tr><td>Top Services</td><td>Most-booked services with revenue contribution</td></tr>
+          <tr><td>Payment Methods</td><td>Pie chart of card vs. cash vs. other</td></tr>
+          <tr><td>Outstanding Balances</td><td>Total unpaid balances across all clients</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="date-ranges">Changing Date Ranges</h2>
+      <ol class="steps">
+        <li><div class="step-title">Click the Date Selector</div><div class="step-desc">In the top-right of the dashboard, click the date range dropdown.</div></li>
+        <li><div class="step-title">Choose a Preset or Custom Range</div><div class="step-desc">Quick options: Today, This Week, This Month, Last Month, This Year. Or set custom start/end dates.</div></li>
+        <li><div class="step-title">Dashboard Updates</div><div class="step-desc">All widgets refresh to show data for the selected period.</div></li>
+      </ol>
+
+      <h2 id="location-filter">Location Filtering</h2>
+      <p>If you manage multiple locations, use the location filter to view data for a specific site or all locations combined. The default follows your current location setting.</p>
+
+      <div class="callout callout-tip">
+        <i class="fa-solid fa-lightbulb"></i>
+        <div><p><strong>Morning routine:</strong> Open the analytics dashboard first thing each day to check yesterday's revenue and today's appointment count. It takes 30 seconds and sets your day up.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Open dashboard</td><td>Sidebar &rarr; <span class="ui-element">Reports</span> &rarr; Dashboard</td></tr>
+          <tr><td>Change date range</td><td>Date selector dropdown</td></tr>
+          <tr><td>Filter by location</td><td>Location dropdown at top</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

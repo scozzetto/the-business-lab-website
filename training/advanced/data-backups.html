@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data & Backups — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-wand-magic-sparkles"></i> Module 10</div>
+        <h1>Data & Backups</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 4 min read</span></div>
+      </div>
+
+      <p>Your business data is valuable. Understanding how backups work gives you peace of mind and helps you recover from unexpected issues.</p>
+
+      <h2 id="automatic-backups">Automatic Backups</h2>
+      <p>The platform automatically backs up all data:</p>
+      <ul>
+        <li><strong>Database backups</strong> — Full database backups run daily</li>
+        <li><strong>Point-in-time recovery</strong> — The database can be restored to any point in the last 30 days</li>
+        <li><strong>Redundancy</strong> — Data is stored across multiple geographic regions</li>
+      </ul>
+
+      <div class="callout callout-success">
+        <i class="fa-solid fa-circle-check"></i>
+        <div><p><strong>You don't need to do anything.</strong> Backups happen automatically. This section is for your awareness so you understand how your data is protected.</p></div>
+      </div>
+
+      <h2 id="manual-exports">Manual Data Exports</h2>
+      <p>For extra safety or for moving data to another system, you can manually export:</p>
+      <ul>
+        <li><strong>Client data</strong> — Export from the <a href="../client-database/exporting.html">Client Database</a></li>
+        <li><strong>Financial reports</strong> — Export from <a href="../accounting/export-reports.html">Accounting Reports</a></li>
+        <li><strong>Full data export</strong> — Request a complete data export from Settings &rarr; Data Management</li>
+      </ul>
+
+      <h2 id="data-recovery">Data Recovery</h2>
+      <p>If you accidentally delete something important:</p>
+      <ol class="steps">
+        <li><div class="step-title">Check the Trash</div><div class="step-desc">Deleted client records go to the trash first (30-day retention). Restore from there.</div></li>
+        <li><div class="step-title">Contact Support</div><div class="step-desc">For other data recovery needs, contact your system administrator. They can restore from backups.</div></li>
+      </ol>
+
+      <div class="callout callout-warning">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div><p><strong>Export files contain sensitive data.</strong> Store exports securely and delete them when no longer needed. Never email unencrypted data exports.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Auto backup frequency</td><td>Daily (automatic, no action needed)</td></tr>
+          <tr><td>Restore deleted record</td><td>Check Trash first (30-day window)</td></tr>
+          <tr><td>Full data export</td><td>Settings &rarr; Data Management &rarr; Export</td></tr>
+          <tr><td>Recovery from backup</td><td>Contact system administrator</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

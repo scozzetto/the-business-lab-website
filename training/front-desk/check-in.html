@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Check-In — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-bell-concierge"></i> Module 4</div>
+        <h1>Client Check-In</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 5 min read</span></div>
+      </div>
+
+      <p>When clients arrive, they check in through a self-service kiosk or you check them in manually from the front desk. Check-ins update the dashboard and notify service providers.</p>
+
+      <h2 id="kiosk-check-in">Kiosk Self-Service Check-In</h2>
+      <ol class="steps">
+        <li><div class="step-title">Client Approaches the Kiosk</div><div class="step-desc">A tablet or screen near the entrance displays the check-in kiosk interface.</div></li>
+        <li><div class="step-title">Client Enters Their Name or Phone</div><div class="step-desc">The client types their name, phone number, or scans a QR code to identify themselves.</div></li>
+        <li><div class="step-title">Client Selects Their Appointment</div><div class="step-desc">If they have an appointment, it appears for selection. If they're a walk-in, they select that option.</div></li>
+        <li><div class="step-title">Check-In Confirmed</div><div class="step-desc">A confirmation screen appears. The front desk dashboard updates automatically with the new check-in.</div></li>
+      </ol>
+
+      <h2 id="manual-check-in">Manual Check-In (From Front Desk)</h2>
+      <ol class="steps">
+        <li><div class="step-title">Click <span class="ui-element">Check In Client</span></div><div class="step-desc">On the front desk dashboard, click the Check In Client button.</div></li>
+        <li><div class="step-title">Search for the Client</div><div class="step-desc">Type the client's name to find their record and today's appointment.</div></li>
+        <li><div class="step-title">Confirm Check-In</div><div class="step-desc">Select their appointment and click <span class="ui-element">Check In</span>. Their status changes to "Checked In."</div></li>
+      </ol>
+
+      <div class="callout callout-tip">
+        <i class="fa-solid fa-lightbulb"></i>
+        <div><p><strong>Tip:</strong> If a client can't find themselves on the kiosk, check them in manually. The most common issue is a misspelled name — search by phone number instead.</p></div>
+      </div>
+
+      <h2 id="after-check-in">What Happens After Check-In</h2>
+      <ul>
+        <li>The client appears in the "Checked In" queue on the dashboard</li>
+        <li>The assigned service provider receives a notification</li>
+        <li>The appointment status updates to "Checked In"</li>
+        <li>Check-in time is recorded for wait time tracking</li>
+      </ul>
+
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <div class="trouble-item">
+        <strong>Client not found on kiosk</strong>
+        <p>They may be registered under a different name or phone. Check them in manually from the front desk.</p>
+      </div>
+      <div class="trouble-item">
+        <strong>No appointment showing</strong>
+        <p>The appointment might be for a different date or location. Verify in the booking calendar.</p>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Method</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Kiosk check-in</td><td>Client enters name/phone on kiosk tablet</td></tr>
+          <tr><td>Manual check-in</td><td>Dashboard &rarr; <span class="ui-element">Check In Client</span></td></tr>
+          <tr><td>Walk-in check-in</td><td>See <a href="walk-ins.html">Handling Walk-Ins</a></td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory Tracking — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-tags"></i> Module 7</div>
+        <h1>Inventory Tracking</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 4 min read</span></div>
+      </div>
+
+      <p>For physical products, inventory tracking monitors stock levels and alerts you when items are running low so you can reorder in time.</p>
+
+      <h2 id="enabling-inventory">Enabling Inventory Tracking</h2>
+      <ol class="steps">
+        <li><div class="step-title">Open the Product</div><div class="step-desc">Navigate to the catalog item.</div></li>
+        <li><div class="step-title">Enable "Track Inventory"</div><div class="step-desc">Toggle the Track Inventory switch to On.</div></li>
+        <li><div class="step-title">Set Current Stock</div><div class="step-desc">Enter the current quantity on hand.</div></li>
+        <li><div class="step-title">Set Reorder Point</div><div class="step-desc">Enter the minimum quantity that triggers a low-stock alert (e.g., 5 units).</div></li>
+        <li><div class="step-title">Save</div><div class="step-desc">Inventory tracking is now active. Stock decreases automatically when sold through the POS.</div></li>
+      </ol>
+
+      <h2 id="stock-adjustments">Adjusting Stock</h2>
+      <p>Stock changes for reasons other than sales — receiving a shipment, damage, theft, or counting errors:</p>
+      <ol class="steps">
+        <li><div class="step-title">Go to Item &rarr; Inventory</div><div class="step-desc">Open the product's inventory section.</div></li>
+        <li><div class="step-title">Click <span class="ui-element">Adjust Stock</span></div><div class="step-desc">Choose "Add" (received shipment) or "Remove" (damage, loss).</div></li>
+        <li><div class="step-title">Enter Quantity and Reason</div><div class="step-desc">Enter the number of units and a note (e.g., "Received 50 units from supplier").</div></li>
+      </ol>
+
+      <h2 id="low-stock-alerts">Low-Stock Alerts</h2>
+      <p>When stock reaches the reorder point, the system:</p>
+      <ul>
+        <li>Shows a <strong>Low Stock</strong> badge on the item in the catalog</li>
+        <li>Sends a notification to managers</li>
+        <li>Highlights the item in red on the inventory dashboard</li>
+      </ul>
+
+      <div class="callout callout-important">
+        <i class="fa-solid fa-circle-info"></i>
+        <div><p><strong>Services don't need inventory tracking.</strong> Only enable it for physical products that have a countable quantity on hand.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Enable tracking</td><td>Product &rarr; Toggle "Track Inventory"</td></tr>
+          <tr><td>Set reorder point</td><td>Product &rarr; Inventory &rarr; Reorder Point</td></tr>
+          <tr><td>Adjust stock</td><td>Product &rarr; Inventory &rarr; <span class="ui-element">Adjust Stock</span></td></tr>
+          <tr><td>View low-stock items</td><td>Catalog &rarr; filter by "Low Stock"</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

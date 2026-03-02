@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Returns & Refunds — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-cash-register"></i> Module 5</div>
+        <h1>Returns & Refunds</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 5 min read</span></div>
+      </div>
+
+      <p>Returns, refunds, and exchanges are part of daily retail. This lesson covers how to process each type correctly.</p>
+
+      <h2 id="processing-return">Processing a Return</h2>
+      <ol class="steps">
+        <li><div class="step-title">Click <span class="ui-element">Returns</span></div><div class="step-desc">On the POS terminal, click the Returns button to enter return mode.</div></li>
+        <li><div class="step-title">Find the Original Transaction</div><div class="step-desc">Search by receipt number, client name, or date. Select the original sale.</div></li>
+        <li><div class="step-title">Select Items to Return</div><div class="step-desc">Check the items being returned. You can return individual items or the entire order.</div></li>
+        <li><div class="step-title">Select Refund Method</div><div class="step-desc">Choose how to refund: original payment method (card refund), cash, or store credit.</div></li>
+        <li><div class="step-title">Process the Return</div><div class="step-desc">Click <span class="ui-element">Process Return</span>. Card refunds go back to the original card. Cash refunds come from the drawer.</div></li>
+      </ol>
+
+      <div class="callout callout-important">
+        <i class="fa-solid fa-circle-info"></i>
+        <div><p><strong>Card refunds take 5-10 business days</strong> to appear on the client's statement. Inform the client of this timeline.</p></div>
+      </div>
+
+      <h2 id="exchanges">Processing an Exchange</h2>
+      <p>An exchange is a return + a new sale in one step:</p>
+      <ol class="steps">
+        <li><div class="step-title">Process the Return</div><div class="step-desc">Follow the return steps above, but select "Exchange" instead of "Refund."</div></li>
+        <li><div class="step-title">Add the New Item</div><div class="step-desc">Scan or select the replacement item. The system calculates the price difference.</div></li>
+        <li><div class="step-title">Settle the Difference</div><div class="step-desc">If the new item costs more, collect the difference. If it costs less, refund the difference.</div></li>
+      </ol>
+
+      <h2 id="voiding">Voiding a Transaction</h2>
+      <p>If a transaction was just completed (same day) and needs to be completely reversed, use <span class="ui-element">Void</span> instead of Return. Voids cancel the transaction as if it never happened.</p>
+
+      <div class="callout callout-warning">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div><p><strong>Check your return policy.</strong> Follow your business's return policy regarding time limits, condition requirements, and receipt requirements. The system may enforce these automatically.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th><th>When to Use</th></tr></thead>
+        <tbody>
+          <tr><td>Return</td><td>POS &rarr; <span class="ui-element">Returns</span></td><td>Client brings back an item</td></tr>
+          <tr><td>Exchange</td><td>Return flow &rarr; "Exchange"</td><td>Client swaps for different item</td></tr>
+          <tr><td>Void</td><td>POS &rarr; <span class="ui-element">Void</span></td><td>Cancel same-day transaction</td></tr>
+          <tr><td>Card refund</td><td>Auto-refund to original card</td><td>Original payment was by card</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

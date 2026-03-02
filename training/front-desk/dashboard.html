@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Front Desk Dashboard — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-bell-concierge"></i> Module 4</div>
+        <h1>Front Desk Dashboard</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 5 min read</span></div>
+      </div>
+
+      <p>The front desk dashboard gives you a real-time overview of your day — who's coming in, who's checked in, pending tasks, and today's key numbers. It refreshes automatically.</p>
+
+      <h2 id="dashboard-sections">Dashboard Sections</h2>
+
+      <ol class="steps">
+        <li>
+          <div class="step-title">Today's Stats Bar</div>
+          <div class="step-desc">At the top, see at-a-glance numbers: scheduled appointments, checked-in clients, walk-ins today, and revenue collected.</div>
+        </li>
+        <li>
+          <div class="step-title">Appointment Queue</div>
+          <div class="step-desc">A list of today's appointments sorted by time. Each entry shows client name, service, provider, and status (Scheduled, Checked In, In Progress, Complete).</div>
+        </li>
+        <li>
+          <div class="step-title">Check-In Feed</div>
+          <div class="step-desc">Real-time feed showing clients as they check in. New check-ins appear at the top with a notification sound (if enabled).</div>
+        </li>
+        <li>
+          <div class="step-title">Quick Actions</div>
+          <div class="step-desc">Buttons for common tasks: <span class="ui-element">Check In Client</span>, <span class="ui-element">New Walk-In</span>, <span class="ui-element">New Task</span>, <span class="ui-element">Quick Payment</span>.</div>
+        </li>
+      </ol>
+
+      <h2 id="auto-refresh">Auto-Refresh</h2>
+      <p>The dashboard refreshes every 30 seconds to show the latest data. You'll see new check-ins and status changes without manually reloading the page.</p>
+
+      <div class="callout callout-tip">
+        <i class="fa-solid fa-lightbulb"></i>
+        <div><p><strong>Keep it open.</strong> The front desk dashboard is designed to stay open all day on a dedicated screen or tab. It's your real-time view of everything happening at your location.</p></div>
+      </div>
+
+      <h2 id="appointment-statuses">Appointment Status Flow</h2>
+      <table>
+        <thead><tr><th>Status</th><th>Color</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>Scheduled</td><td>Blue</td><td>Booked but client hasn't arrived yet</td></tr>
+          <tr><td>Checked In</td><td>Green</td><td>Client has arrived and checked in</td></tr>
+          <tr><td>In Progress</td><td>Yellow</td><td>Service is currently being provided</td></tr>
+          <tr><td>Completed</td><td>Gray</td><td>Visit is done</td></tr>
+          <tr><td>No Show</td><td>Red</td><td>Client didn't arrive</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>View dashboard</td><td>Sidebar &rarr; <span class="ui-element">Front Desk</span></td></tr>
+          <tr><td>Check in a client</td><td><span class="ui-element">Check In Client</span> button</td></tr>
+          <tr><td>Log a walk-in</td><td><span class="ui-element">New Walk-In</span> button</td></tr>
+          <tr><td>Refresh manually</td><td><kbd>Ctrl</kbd>+<kbd>R</kbd> or <kbd>Cmd</kbd>+<kbd>R</kbd></td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

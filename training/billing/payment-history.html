@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment History — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-credit-card"></i> Module 3</div>
+        <h1>Payment History</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 3 min read</span></div>
+      </div>
+
+      <p>Every payment ever recorded for a client is preserved in their payment history. This is your audit trail — use it to resolve disputes, verify transactions, and review accounts.</p>
+
+      <h2 id="viewing-history">Viewing Payment History</h2>
+      <ol class="steps">
+        <li><div class="step-title">Open the Billing Tab</div><div class="step-desc">Navigate to the client's profile and click Billing.</div></li>
+        <li><div class="step-title">Scroll Through Transactions</div><div class="step-desc">The transaction list shows all charges, payments, adjustments, and write-offs in chronological order (newest first).</div></li>
+      </ol>
+
+      <h2 id="filtering-history">Filtering and Searching</h2>
+      <p>Use the filters above the transaction list to narrow down results:</p>
+      <ul>
+        <li><strong>Date range</strong> — View transactions within a specific period</li>
+        <li><strong>Type</strong> — Show only charges, only payments, or only adjustments</li>
+        <li><strong>Payment method</strong> — Filter by card, cash, check, etc.</li>
+        <li><strong>Amount range</strong> — Find transactions above or below a certain amount</li>
+      </ul>
+
+      <h2 id="transaction-details">Transaction Details</h2>
+      <p>Click any transaction to see its full details:</p>
+      <ul>
+        <li>Date and time</li>
+        <li>Amount</li>
+        <li>Payment method and last 4 digits (if card)</li>
+        <li>Description/note</li>
+        <li>Who processed it (staff member name)</li>
+        <li>Transaction reference number</li>
+      </ul>
+
+      <div class="callout callout-important">
+        <i class="fa-solid fa-circle-info"></i>
+        <div><p><strong>Payment history cannot be edited or deleted.</strong> This is by design — it maintains the integrity of your financial records. If a payment was recorded incorrectly, create an adjustment instead of trying to modify the original entry.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>View all payments</td><td>Client Billing tab &rarr; transaction list</td></tr>
+          <tr><td>Filter by date</td><td>Set date range above transaction list</td></tr>
+          <tr><td>View details</td><td>Click any transaction row</td></tr>
+          <tr><td>Resend receipt</td><td>Click transaction &rarr; receipt icon</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

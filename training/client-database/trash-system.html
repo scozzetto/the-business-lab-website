@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trash & Recovery — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-users"></i> Module 2</div>
+        <h1>Trash & Recovery</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 3 min read</span></div>
+      </div>
+
+      <p>When you delete a client record, it goes to the trash bin — not permanently deleted. You have 30 days to recover it before it's gone for good.</p>
+
+      <h2 id="deleting-a-record">Deleting a Client Record</h2>
+      <ol class="steps">
+        <li>
+          <div class="step-title">Open the Client Profile</div>
+          <div class="step-desc">Find and open the client record you want to delete.</div>
+        </li>
+        <li>
+          <div class="step-title">Click <span class="ui-element">Delete</span></div>
+          <div class="step-desc">Click the Delete button (trash can icon) at the top of the profile. A confirmation dialog appears.</div>
+        </li>
+        <li>
+          <div class="step-title">Confirm Deletion</div>
+          <div class="step-desc">Read the warning and click <span class="ui-element">Move to Trash</span>. The record is moved to the trash bin and disappears from the main list.</div>
+        </li>
+      </ol>
+
+      <div class="callout callout-warning">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div><p><strong>Clients with outstanding balances cannot be deleted.</strong> Resolve the balance first (through payment, write-off, or adjustment) before deleting the record.</p></div>
+      </div>
+
+      <h2 id="viewing-trash">Viewing the Trash Bin</h2>
+      <ol class="steps">
+        <li>
+          <div class="step-title">Go to the Client Database</div>
+          <div class="step-desc">Navigate to the main Clients page.</div>
+        </li>
+        <li>
+          <div class="step-title">Click <span class="ui-element">Trash</span></div>
+          <div class="step-desc">Click the Trash button (near the top of the page) to view deleted records. Each entry shows the delete date and who deleted it.</div>
+        </li>
+      </ol>
+
+      <h2 id="recovering-records">Recovering a Record</h2>
+      <ol class="steps">
+        <li>
+          <div class="step-title">Open the Trash Bin</div>
+          <div class="step-desc">Click the Trash button on the Clients page.</div>
+        </li>
+        <li>
+          <div class="step-title">Find the Record</div>
+          <div class="step-desc">Browse or search the trash list for the record you want to restore.</div>
+        </li>
+        <li>
+          <div class="step-title">Click <span class="ui-element">Restore</span></div>
+          <div class="step-desc">Click Restore next to the record. It's immediately moved back to the active client list with all its data intact.</div>
+        </li>
+      </ol>
+
+      <div class="callout callout-important">
+        <i class="fa-solid fa-circle-info"></i>
+        <div><p><strong>30-day retention.</strong> Trashed records are automatically permanently deleted after 30 days. If you need to recover something, act promptly.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Delete a client</td><td>Open profile &rarr; <span class="ui-element">Delete</span> &rarr; confirm</td></tr>
+          <tr><td>View trash</td><td>Clients &rarr; <span class="ui-element">Trash</span> button</td></tr>
+          <tr><td>Restore a client</td><td>Trash &rarr; click <span class="ui-element">Restore</span></td></tr>
+          <tr><td>Retention period</td><td>30 days before permanent deletion</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

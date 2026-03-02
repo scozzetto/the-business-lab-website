@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Family Relationships — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-users"></i> Module 2</div>
+        <h1>Family Relationships</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 3 min read</span></div>
+      </div>
+
+      <p>Link client records as family members to manage household accounts, shared billing, and family packages. Each person keeps their own individual record but is connected to their relatives.</p>
+
+      <h2 id="linking-family">Linking Family Members</h2>
+      <ol class="steps">
+        <li>
+          <div class="step-title">Open a Client Profile</div>
+          <div class="step-desc">Open the profile of one family member (e.g., the parent).</div>
+        </li>
+        <li>
+          <div class="step-title">Find the Family Section</div>
+          <div class="step-desc">Scroll down to the "Family & Relationships" section of the profile.</div>
+        </li>
+        <li>
+          <div class="step-title">Click <span class="ui-element">+ Link Family Member</span></div>
+          <div class="step-desc">Click the button and search for the other family member by name, email, or client ID.</div>
+        </li>
+        <li>
+          <div class="step-title">Set the Relationship</div>
+          <div class="step-desc">Choose the relationship type: Spouse, Parent, Child, Sibling, or Other. The link is created in both directions — if you add a "Child" link on the parent's profile, the child's profile automatically shows a "Parent" link back.</div>
+        </li>
+      </ol>
+
+      <h2 id="relationship-types">Relationship Types</h2>
+      <table>
+        <thead><tr><th>Type</th><th>Inverse</th><th>Use Case</th></tr></thead>
+        <tbody>
+          <tr><td>Spouse</td><td>Spouse</td><td>Married/partnered couples</td></tr>
+          <tr><td>Parent</td><td>Child</td><td>Parent paying for child's services</td></tr>
+          <tr><td>Child</td><td>Parent</td><td>Minor child of client</td></tr>
+          <tr><td>Sibling</td><td>Sibling</td><td>Brothers/sisters</td></tr>
+          <tr><td>Other</td><td>Other</td><td>Caretakers, guardians, etc.</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="household-benefits">Household Benefits</h2>
+      <p>When clients are linked as family:</p>
+      <ul>
+        <li><strong>Shared billing</strong> — One family member can pay for another's services</li>
+        <li><strong>Family view</strong> — See all family members from any linked profile</li>
+        <li><strong>Family packages</strong> — If your business offers family pricing, linked accounts are eligible</li>
+      </ul>
+
+      <h2 id="removing-links">Removing a Family Link</h2>
+      <p>To unlink family members, open either person's profile, find the relationship in the Family section, and click <span class="ui-element">Remove Link</span>. This removes the connection in both directions.</p>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Link family member</td><td>Profile &rarr; Family &rarr; <span class="ui-element">+ Link Family Member</span></td></tr>
+          <tr><td>Remove link</td><td>Profile &rarr; Family &rarr; <span class="ui-element">Remove Link</span></td></tr>
+          <tr><td>View family</td><td>Profile &rarr; Family section shows all linked members</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

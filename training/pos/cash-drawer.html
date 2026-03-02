@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cash Drawer Management — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-cash-register"></i> Module 5</div>
+        <h1>Cash Drawer Management</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 4 min read</span></div>
+      </div>
+
+      <p>If your business accepts cash, you'll need to manage the cash drawer — set the opening float, track cash in/out, and balance at the end of your shift.</p>
+
+      <h2 id="opening-drawer">Opening the Cash Drawer</h2>
+      <ol class="steps">
+        <li><div class="step-title">Start Your POS Session</div><div class="step-desc">When you open the POS, you'll be prompted to enter the opening float (starting cash amount).</div></li>
+        <li><div class="step-title">Count the Cash</div><div class="step-desc">Count the bills and coins in the drawer and enter the total. This is usually a standard amount set by management (e.g., $200).</div></li>
+        <li><div class="step-title">Confirm</div><div class="step-desc">Click <span class="ui-element">Open Drawer</span>. The system records the opening amount and you're ready for cash transactions.</div></li>
+      </ol>
+
+      <h2 id="during-shift">During Your Shift</h2>
+      <p>The system automatically tracks:</p>
+      <ul>
+        <li>Cash received from sales</li>
+        <li>Change given to clients</li>
+        <li>Cash refunds issued</li>
+      </ul>
+      <p>The expected cash total is always available by clicking <span class="ui-element">Drawer Status</span>.</p>
+
+      <h2 id="closing-drawer">Closing and Balancing</h2>
+      <ol class="steps">
+        <li><div class="step-title">Click <span class="ui-element">Close Drawer</span></div><div class="step-desc">At the end of your shift, click Close Drawer.</div></li>
+        <li><div class="step-title">Count the Cash</div><div class="step-desc">Physically count all bills and coins in the drawer.</div></li>
+        <li><div class="step-title">Enter Your Count</div><div class="step-desc">Enter the total. The system compares it to the expected amount and shows any difference.</div></li>
+        <li><div class="step-title">Note Any Discrepancy</div><div class="step-desc">If there's a discrepancy, add a note explaining it (e.g., "Gave $1 too much change to client"). Click <span class="ui-element">Close Drawer</span>.</div></li>
+      </ol>
+
+      <div class="callout callout-warning">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div><p><strong>Report large discrepancies.</strong> Small differences (under $5) are common. Anything over $5 should be reported to your manager immediately.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Open drawer</td><td>POS start &rarr; enter opening float</td></tr>
+          <tr><td>Check expected total</td><td><span class="ui-element">Drawer Status</span></td></tr>
+          <tr><td>Close drawer</td><td><span class="ui-element">Close Drawer</span> &rarr; enter cash count</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

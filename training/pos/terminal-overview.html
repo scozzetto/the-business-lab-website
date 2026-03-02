@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terminal Overview — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-cash-register"></i> Module 5</div>
+        <h1>Terminal Overview</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 4 min read</span></div>
+      </div>
+
+      <p>The POS terminal is a dedicated screen optimized for fast transactions. Learn where everything is so you can ring up sales efficiently.</p>
+
+      <h2 id="screen-layout">Screen Layout</h2>
+      <p>The POS terminal has four main areas:</p>
+      <ol class="steps">
+        <li><div class="step-title">Product Grid (Left)</div><div class="step-desc">Buttons for your most popular items organized by category. Click an item to add it to the cart. Use the search bar above to find items not shown in the grid.</div></li>
+        <li><div class="step-title">Cart / Order Summary (Right)</div><div class="step-desc">Shows items added to the current transaction with quantities, prices, and a running total. Remove items by clicking the &times; next to them.</div></li>
+        <li><div class="step-title">Category Tabs (Top of Grid)</div><div class="step-desc">Filter the product grid by category. Click a tab to show only items in that category.</div></li>
+        <li><div class="step-title">Payment Area (Bottom Right)</div><div class="step-desc">Shows the total amount due and payment method buttons: Card, Cash, Split Payment.</div></li>
+      </ol>
+
+      <h2 id="opening-pos">Opening the POS</h2>
+      <ol class="steps">
+        <li><div class="step-title">Navigate to POS</div><div class="step-desc">Click <span class="ui-element">POS</span> in the sidebar to open the terminal.</div></li>
+        <li><div class="step-title">Select Register (if multiple)</div><div class="step-desc">If your location has multiple registers, select which one you're using.</div></li>
+        <li><div class="step-title">Open Cash Drawer (if applicable)</div><div class="step-desc">Enter the starting cash float amount to begin accepting cash payments.</div></li>
+      </ol>
+
+      <div class="callout callout-tip">
+        <i class="fa-solid fa-lightbulb"></i>
+        <div><p><strong>Full-screen mode:</strong> Click the expand icon to put the POS in full-screen mode, hiding the sidebar for a cleaner register experience.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Area</th><th>Location</th><th>Function</th></tr></thead>
+        <tbody>
+          <tr><td>Product grid</td><td>Left side</td><td>Browse and add items</td></tr>
+          <tr><td>Cart</td><td>Right side</td><td>Current order items and totals</td></tr>
+          <tr><td>Categories</td><td>Top of grid</td><td>Filter items by category</td></tr>
+          <tr><td>Payment</td><td>Bottom right</td><td>Process payment</td></tr>
+          <tr><td>Search</td><td>Top of grid</td><td>Find items by name or code</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

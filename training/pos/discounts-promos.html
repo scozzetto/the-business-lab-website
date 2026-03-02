@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discounts & Promotions — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-cash-register"></i> Module 5</div>
+        <h1>Discounts & Promotions</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 4 min read</span></div>
+      </div>
+
+      <p>Apply percentage or dollar-amount discounts during POS transactions. You can also enter promotional codes for special offers.</p>
+
+      <h2 id="applying-discount">Applying a Discount</h2>
+      <ol class="steps">
+        <li><div class="step-title">Add Items to Cart</div><div class="step-desc">Add the items the client is purchasing.</div></li>
+        <li><div class="step-title">Click <span class="ui-element">Discount</span></div><div class="step-desc">Click the Discount button below the cart total.</div></li>
+        <li><div class="step-title">Choose Discount Type</div><div class="step-desc">Select <strong>Percentage</strong> (e.g., 10% off) or <strong>Fixed Amount</strong> (e.g., $5 off).</div></li>
+        <li><div class="step-title">Enter the Value</div><div class="step-desc">Type the discount percentage or dollar amount.</div></li>
+        <li><div class="step-title">Apply</div><div class="step-desc">Click <span class="ui-element">Apply Discount</span>. The cart total updates to reflect the discount.</div></li>
+      </ol>
+
+      <h2 id="promo-codes">Promotional Codes</h2>
+      <ol class="steps">
+        <li><div class="step-title">Click <span class="ui-element">Promo Code</span></div><div class="step-desc">Click the Promo Code field in the cart area.</div></li>
+        <li><div class="step-title">Enter the Code</div><div class="step-desc">Type the promotional code exactly as provided (codes are not case-sensitive).</div></li>
+        <li><div class="step-title">Apply</div><div class="step-desc">Click Apply. If valid, the discount is applied automatically based on the promo's rules.</div></li>
+      </ol>
+
+      <div class="callout callout-warning">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div><p><strong>Manager approval may be required</strong> for discounts above a certain threshold (e.g., more than 20%). The system will prompt for manager override if needed.</p></div>
+      </div>
+
+      <h2 id="per-item-discounts">Per-Item vs. Order-Level Discounts</h2>
+      <table>
+        <thead><tr><th>Type</th><th>How</th><th>Use Case</th></tr></thead>
+        <tbody>
+          <tr><td>Order-level</td><td>Discount button (applies to total)</td><td>Loyalty discount, coupon</td></tr>
+          <tr><td>Per-item</td><td>Click item in cart &rarr; adjust price</td><td>Clearance item, price match</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Apply % discount</td><td><span class="ui-element">Discount</span> &rarr; Percentage &rarr; enter value</td></tr>
+          <tr><td>Apply $ discount</td><td><span class="ui-element">Discount</span> &rarr; Fixed Amount &rarr; enter value</td></tr>
+          <tr><td>Use promo code</td><td>Promo Code field &rarr; enter code &rarr; Apply</td></tr>
+          <tr><td>Remove discount</td><td>Click &times; next to discount in cart</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

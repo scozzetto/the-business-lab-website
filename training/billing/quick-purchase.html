@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Purchase — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-credit-card"></i> Module 3</div>
+        <h1>Quick Purchase</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 3 min read</span></div>
+      </div>
+
+      <p>Quick Purchase is a streamlined way to charge a client and collect payment in a single step — no separate charge and payment entries. Use it for simple, immediate transactions.</p>
+
+      <h2 id="when-to-use">When to Use Quick Purchase</h2>
+      <ul>
+        <li>Client buying a product or service and paying right now</li>
+        <li>Simple one-item transactions</li>
+        <li>Walk-in clients paying at the time of service</li>
+      </ul>
+      <p>For more complex transactions (multiple items, split payments), use the full billing workflow or the POS terminal.</p>
+
+      <h2 id="how-to">Processing a Quick Purchase</h2>
+      <ol class="steps">
+        <li><div class="step-title">Open the Client's Billing Tab</div><div class="step-desc">Find the client and go to their billing section.</div></li>
+        <li><div class="step-title">Click <span class="ui-element">Quick Purchase</span></div><div class="step-desc">Click the Quick Purchase button. A simplified form appears.</div></li>
+        <li><div class="step-title">Enter the Details</div><div class="step-desc">Fill in: <strong>Description</strong> (what they're buying), <strong>Amount</strong> (total price), and <strong>Payment Method</strong> (card, cash, or check).</div></li>
+        <li><div class="step-title">Process</div><div class="step-desc">Click <span class="ui-element">Complete Purchase</span>. The system creates both the charge and the payment in one step. Balance stays at zero.</div></li>
+      </ol>
+
+      <div class="callout callout-tip">
+        <i class="fa-solid fa-lightbulb"></i>
+        <div><p><strong>Quick Purchase = Charge + Payment combined.</strong> It creates two records behind the scenes: one charge (money owed) and one payment (money received). This keeps the accounting balanced.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Quick purchase</td><td>Billing tab &rarr; <span class="ui-element">Quick Purchase</span></td></tr>
+          <tr><td>Required info</td><td>Description, amount, payment method</td></tr>
+          <tr><td>Result</td><td>Creates matched charge + payment</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

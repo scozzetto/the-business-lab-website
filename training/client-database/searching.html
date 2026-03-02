@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Searching for Clients — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-users"></i> Module 2</div>
+        <h1>Searching for Clients</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 4 min read</span></div>
+      </div>
+
+      <p>Finding the right client quickly is essential for daily operations. The database offers instant search, column filters, and advanced query options.</p>
+
+      <h2 id="quick-search">Quick Search</h2>
+      <ol class="steps">
+        <li>
+          <div class="step-title">Click the Search Bar</div>
+          <div class="step-desc">At the top of the client table, click the search input field. You can also press <kbd>/</kbd> to jump to it.</div>
+        </li>
+        <li>
+          <div class="step-title">Type Your Query</div>
+          <div class="step-desc">Start typing a name, email, phone number, or client ID. Results filter instantly as you type — no need to press Enter.</div>
+        </li>
+        <li>
+          <div class="step-title">Click the Result</div>
+          <div class="step-desc">Click on the matching client row to open their full profile.</div>
+        </li>
+      </ol>
+
+      <div class="callout callout-tip">
+        <i class="fa-solid fa-lightbulb"></i>
+        <div><p><strong>Partial matches work.</strong> Typing "joh" will match "John", "Johnson", "Johnny", etc. The search checks first name, last name, email, phone, and client ID simultaneously.</p></div>
+      </div>
+
+      <h2 id="column-filters">Column Filters</h2>
+      <p>For more targeted searches, use column-specific filters:</p>
+      <ol class="steps">
+        <li>
+          <div class="step-title">Click the Filter Icon</div>
+          <div class="step-desc">Next to the search bar, click the <span class="ui-element">Filter</span> button (funnel icon) to reveal filter options.</div>
+        </li>
+        <li>
+          <div class="step-title">Select a Field</div>
+          <div class="step-desc">Choose which field to filter by: Status, Location, Tags, Date Added, or Balance.</div>
+        </li>
+        <li>
+          <div class="step-title">Set Your Criteria</div>
+          <div class="step-desc">Select the filter value (e.g., Status = "Active") and the table updates immediately.</div>
+        </li>
+      </ol>
+
+      <p>You can stack multiple filters. For example: Status = Active <strong>AND</strong> Location = Downtown.</p>
+
+      <h2 id="search-tips">Search Tips</h2>
+      <table>
+        <thead><tr><th>Search For</th><th>What to Type</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td>Name</td><td>First or last name</td><td><code>martinez</code></td></tr>
+          <tr><td>Phone</td><td>Full or partial number</td><td><code>555-1234</code></td></tr>
+          <tr><td>Email</td><td>Full or partial email</td><td><code>@gmail.com</code></td></tr>
+          <tr><td>Client ID</td><td>Full ID</td><td><code>BL-00000042</code></td></tr>
+          <tr><td>Multiple terms</td><td>Space-separated</td><td><code>john smith</code></td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="clearing-search">Clearing Search & Filters</h2>
+      <p>To reset your search: clear the search box and click <span class="ui-element">Clear All Filters</span> (if filters are active). The table will return to showing all clients.</p>
+
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <div class="trouble-item">
+        <strong>Can't find a client I know exists</strong>
+        <p>Check your location filter — the client might be registered at a different location. Try switching to "All Locations" if available.</p>
+      </div>
+      <div class="trouble-item">
+        <strong>Search seems slow</strong>
+        <p>For large databases, wait a moment after typing for results to load. Using more specific terms (full name instead of first letter) helps.</p>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Quick search</td><td>Type in search bar (or press <kbd>/</kbd>)</td></tr>
+          <tr><td>Filter by status</td><td>Filter &rarr; Status &rarr; choose value</td></tr>
+          <tr><td>Clear search</td><td>Clear text box + <span class="ui-element">Clear All Filters</span></td></tr>
+          <tr><td>Open client</td><td>Click client row in results</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

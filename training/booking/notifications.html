@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Notifications — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-calendar-check"></i> Module 6</div>
+        <h1>Booking Notifications</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 3 min read</span></div>
+      </div>
+
+      <p>Automated notifications reduce no-shows and keep clients informed. Configure what gets sent and when.</p>
+
+      <h2 id="notification-types">Notification Types</h2>
+      <table>
+        <thead><tr><th>Type</th><th>When Sent</th><th>Default</th></tr></thead>
+        <tbody>
+          <tr><td>Booking confirmation</td><td>Immediately after booking</td><td>On</td></tr>
+          <tr><td>Reminder (24 hours)</td><td>24 hours before appointment</td><td>On</td></tr>
+          <tr><td>Reminder (1 hour)</td><td>1 hour before appointment</td><td>Off</td></tr>
+          <tr><td>Reschedule notice</td><td>When appointment time changes</td><td>On</td></tr>
+          <tr><td>Cancellation notice</td><td>When appointment is cancelled</td><td>On</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="configuring">Configuring Notifications</h2>
+      <ol class="steps">
+        <li><div class="step-title">Go to Settings &rarr; Notifications</div><div class="step-desc">Navigate to the notification settings area.</div></li>
+        <li><div class="step-title">Toggle Notification Types</div><div class="step-desc">Turn each notification type on or off as needed.</div></li>
+        <li><div class="step-title">Choose Channels</div><div class="step-desc">Select whether notifications are sent via Email, SMS, or both.</div></li>
+        <li><div class="step-title">Customize Templates (Optional)</div><div class="step-desc">Edit the message text and include your business name, location, and other details.</div></li>
+      </ol>
+
+      <div class="callout callout-tip">
+        <i class="fa-solid fa-lightbulb"></i>
+        <div><p><strong>24-hour reminders reduce no-shows by up to 30%.</strong> Keep them enabled unless clients specifically ask to opt out.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Configure notifications</td><td>Settings &rarr; Notifications</td></tr>
+          <tr><td>Enable/disable</td><td>Toggle switch for each type</td></tr>
+          <tr><td>Edit template</td><td>Click notification type &rarr; Edit Template</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Handling Walk-Ins — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-bell-concierge"></i> Module 4</div>
+        <h1>Handling Walk-Ins</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 4 min read</span></div>
+      </div>
+
+      <p>Walk-in clients arrive without a prior appointment. You'll need to check availability, register them if they're new, and get them checked in for service.</p>
+
+      <h2 id="walk-in-workflow">Walk-In Workflow</h2>
+      <ol class="steps">
+        <li><div class="step-title">Greet the Client</div><div class="step-desc">Welcome them and ask what service they're looking for today.</div></li>
+        <li><div class="step-title">Check Availability</div><div class="step-desc">Look at the booking calendar to see if a provider is available for the requested service. If fully booked, offer the next available slot.</div></li>
+        <li><div class="step-title">Search for Existing Record</div><div class="step-desc">Search the client database by name or phone to see if they already have a profile.</div></li>
+        <li><div class="step-title">Register if New</div><div class="step-desc">If they're not in the system, create a quick new client record with their name and contact info. See <a href="../client-database/adding-clients.html">Adding New Clients</a>.</div></li>
+        <li><div class="step-title">Check Them In</div><div class="step-desc">Use the <span class="ui-element">New Walk-In</span> button on the dashboard to check them in as a walk-in. Select the service and provider.</div></li>
+      </ol>
+
+      <div class="callout callout-tip">
+        <i class="fa-solid fa-lightbulb"></i>
+        <div><p><strong>Speed matters.</strong> Walk-ins expect quick service. Have the new client form ready to go and keep the registration to essential fields only — you can complete the full profile later.</p></div>
+      </div>
+
+      <h2 id="when-full">When No Availability</h2>
+      <p>If no providers are available right now:</p>
+      <ul>
+        <li>Offer the next available time slot today</li>
+        <li>Offer to book them for a future date</li>
+        <li>Add them to a waitlist if one is available</li>
+        <li>Register them as a new client so they're in the system for next time</li>
+      </ul>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Log walk-in</td><td>Dashboard &rarr; <span class="ui-element">New Walk-In</span></td></tr>
+          <tr><td>Check availability</td><td>Booking calendar &rarr; check today's schedule</td></tr>
+          <tr><td>Register new client</td><td>Client Database &rarr; <span class="ui-element">+ New Client</span></td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

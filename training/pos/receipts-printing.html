@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Receipts & Printing — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-cash-register"></i> Module 5</div>
+        <h1>Receipts & Printing</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 3 min read</span></div>
+      </div>
+
+      <p>After each sale, offer the client a receipt. You can print a paper receipt, send one via email, or both.</p>
+
+      <h2 id="after-sale">After a Sale Completes</h2>
+      <ol class="steps">
+        <li><div class="step-title">Choose Receipt Method</div><div class="step-desc">After a sale completes, the POS prompts with options: <span class="ui-element">Print</span>, <span class="ui-element">Email</span>, <span class="ui-element">Both</span>, or <span class="ui-element">No Receipt</span>.</div></li>
+        <li><div class="step-title">Print</div><div class="step-desc">Sends to the configured receipt printer. The receipt prints automatically.</div></li>
+        <li><div class="step-title">Email</div><div class="step-desc">If the client is linked, sends to their email on file. If not, you can type an email address.</div></li>
+      </ol>
+
+      <h2 id="reprinting">Reprinting a Receipt</h2>
+      <ol class="steps">
+        <li><div class="step-title">Click <span class="ui-element">History</span> on the POS</div><div class="step-desc">View recent transactions.</div></li>
+        <li><div class="step-title">Find the Transaction</div><div class="step-desc">Search by client name, receipt number, or date.</div></li>
+        <li><div class="step-title">Click <span class="ui-element">Reprint</span></div><div class="step-desc">Prints or emails a duplicate receipt marked as "COPY."</div></li>
+      </ol>
+
+      <div class="callout callout-tip">
+        <i class="fa-solid fa-lightbulb"></i>
+        <div><p><strong>Go paperless:</strong> Encourage email receipts. They're searchable, can't be lost, and reduce paper waste.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Print receipt</td><td>After sale &rarr; <span class="ui-element">Print</span></td></tr>
+          <tr><td>Email receipt</td><td>After sale &rarr; <span class="ui-element">Email</span></td></tr>
+          <tr><td>Reprint past receipt</td><td>POS History &rarr; find transaction &rarr; <span class="ui-element">Reprint</span></td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

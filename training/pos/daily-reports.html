@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily POS Reports — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-cash-register"></i> Module 5</div>
+        <h1>Daily POS Reports</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 4 min read</span></div>
+      </div>
+
+      <p>Daily reports give you a summary of all POS transactions — total sales, payment method breakdown, items sold, returns, and discounts applied.</p>
+
+      <h2 id="generating-report">Generating a Daily Report</h2>
+      <ol class="steps">
+        <li><div class="step-title">Click <span class="ui-element">Reports</span> on the POS</div><div class="step-desc">Access the reports section from the POS menu.</div></li>
+        <li><div class="step-title">Select Date</div><div class="step-desc">Choose today's date (default) or a previous date.</div></li>
+        <li><div class="step-title">View the Report</div><div class="step-desc">The daily summary shows all key metrics at a glance.</div></li>
+      </ol>
+
+      <h2 id="report-contents">What the Report Shows</h2>
+      <table>
+        <thead><tr><th>Section</th><th>Details</th></tr></thead>
+        <tbody>
+          <tr><td>Total Sales</td><td>Gross sales, net sales (after returns), number of transactions</td></tr>
+          <tr><td>Payment Breakdown</td><td>Totals by card, cash, and other methods</td></tr>
+          <tr><td>Items Sold</td><td>List of items with quantities and revenue per item</td></tr>
+          <tr><td>Returns</td><td>Number and total value of returns</td></tr>
+          <tr><td>Discounts</td><td>Total discounts applied</td></tr>
+          <tr><td>Cash Drawer</td><td>Opening float, expected cash, actual count, variance</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="exporting">Exporting the Report</h2>
+      <p>Click <span class="ui-element">Export</span> to download the report as a CSV or PDF. You can also email it to your manager directly from the report screen.</p>
+
+      <div class="callout callout-tip">
+        <i class="fa-solid fa-lightbulb"></i>
+        <div><p><strong>Best practice:</strong> Review the daily report at end of day as part of your <a href="../front-desk/end-of-day.html">closing procedures</a>. It helps catch discrepancies early.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>View daily report</td><td>POS &rarr; <span class="ui-element">Reports</span> &rarr; select date</td></tr>
+          <tr><td>Export report</td><td>Report view &rarr; <span class="ui-element">Export</span></td></tr>
+          <tr><td>Email report</td><td>Report view &rarr; <span class="ui-element">Email</span></td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

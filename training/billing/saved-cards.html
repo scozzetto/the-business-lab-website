@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saved Cards — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-credit-card"></i> Module 3</div>
+        <h1>Saved Cards</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 4 min read</span></div>
+      </div>
+
+      <p>Clients can save a payment card on file for faster checkout and recurring payments. Card data is stored securely through the payment processor — your system never sees the full card number.</p>
+
+      <h2 id="saving-a-card">Saving a Card on File</h2>
+      <ol class="steps">
+        <li><div class="step-title">During a Payment</div><div class="step-desc">When processing a card payment, check the <span class="ui-element">Save card for future payments</span> checkbox before clicking Process Payment.</div></li>
+        <li><div class="step-title">Confirm with the Client</div><div class="step-desc">Always ask the client's permission before saving their card. They should understand it will be stored securely.</div></li>
+        <li><div class="step-title">Card Is Saved</div><div class="step-desc">After successful payment, the card appears in the client's "Saved Cards" section showing the last 4 digits and expiration date.</div></li>
+      </ol>
+
+      <h2 id="charging-saved-card">Charging a Saved Card</h2>
+      <ol class="steps">
+        <li><div class="step-title">Start a New Payment</div><div class="step-desc">On the client's billing tab, click <span class="ui-element">+ New Payment</span>.</div></li>
+        <li><div class="step-title">Select the Saved Card</div><div class="step-desc">Instead of entering new card details, select the saved card from the dropdown (shown as "Visa ending 4242").</div></li>
+        <li><div class="step-title">Enter Amount and Process</div><div class="step-desc">Enter the amount and click <span class="ui-element">Process Payment</span>. No card details need to be re-entered.</div></li>
+      </ol>
+
+      <div class="callout callout-warning">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div><p><strong>Client authorization required.</strong> Always get verbal or written consent before charging a saved card. Never charge a saved card without the client's knowledge.</p></div>
+      </div>
+
+      <h2 id="managing-saved-cards">Managing Saved Cards</h2>
+      <p>View and manage saved cards from the client's profile:</p>
+      <ul>
+        <li><strong>View</strong> — See last 4 digits, card brand (Visa, Mastercard, etc.), and expiration</li>
+        <li><strong>Delete</strong> — Remove a card from the client's account (click the trash icon next to the card)</li>
+        <li><strong>Set Default</strong> — Mark one card as the default for quick selection</li>
+      </ul>
+
+      <h2 id="security">Security Notes</h2>
+      <ul>
+        <li>Full card numbers are never stored in the system</li>
+        <li>Card data is encrypted and managed by the payment processor</li>
+        <li>Staff can only see the last 4 digits and card type</li>
+        <li>Deleting a saved card removes it permanently</li>
+      </ul>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Save a card</td><td>Check "Save card" during payment</td></tr>
+          <tr><td>Charge saved card</td><td>New Payment &rarr; select from saved cards</td></tr>
+          <tr><td>Delete saved card</td><td>Profile &rarr; Saved Cards &rarr; trash icon</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

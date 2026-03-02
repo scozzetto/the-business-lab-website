@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Activity Logs — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-wand-magic-sparkles"></i> Module 10</div>
+        <h1>Activity Logs</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 4 min read</span></div>
+      </div>
+
+      <p>The activity log records every significant action in the system — who did what, when, and to whom. It's your audit trail for security, compliance, and troubleshooting.</p>
+
+      <h2 id="viewing-logs">Viewing Activity Logs</h2>
+      <ol class="steps">
+        <li><div class="step-title">Go to Settings &rarr; Activity Log</div><div class="step-desc">Navigate to the Activity Log section (manager/admin only).</div></li>
+        <li><div class="step-title">Browse or Filter</div><div class="step-desc">The log shows recent activities in reverse chronological order. Use filters to narrow down.</div></li>
+      </ol>
+
+      <h2 id="what-is-logged">What Gets Logged</h2>
+      <table>
+        <thead><tr><th>Category</th><th>Examples</th></tr></thead>
+        <tbody>
+          <tr><td>Client changes</td><td>Created, edited, deleted, restored client records</td></tr>
+          <tr><td>Payments</td><td>Processed, refunded, voided payments</td></tr>
+          <tr><td>Bookings</td><td>Created, modified, cancelled appointments</td></tr>
+          <tr><td>Staff changes</td><td>Added, deactivated, role changed</td></tr>
+          <tr><td>System</td><td>Login/logout, settings changes, exports</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="filtering">Filtering the Log</h2>
+      <ul>
+        <li><strong>By staff member</strong> — See all actions by a specific person</li>
+        <li><strong>By action type</strong> — See only payments, only edits, etc.</li>
+        <li><strong>By date range</strong> — Narrow to a specific time period</li>
+        <li><strong>By client</strong> — See all actions related to a specific client</li>
+      </ul>
+
+      <div class="callout callout-important">
+        <i class="fa-solid fa-circle-info"></i>
+        <div><p><strong>Logs cannot be edited or deleted.</strong> This ensures the integrity of the audit trail. Even admins cannot modify log entries.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>View logs</td><td>Settings &rarr; Activity Log</td></tr>
+          <tr><td>Filter by person</td><td>Staff Member dropdown</td></tr>
+          <tr><td>Filter by type</td><td>Action Type dropdown</td></tr>
+          <tr><td>Export logs</td><td><span class="ui-element">Export</span> &rarr; CSV</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

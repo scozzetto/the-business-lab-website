@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Billing Statements — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-credit-card"></i> Module 3</div>
+        <h1>Billing Statements</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 3 min read</span></div>
+      </div>
+
+      <p>Billing statements provide a summary of a client's charges, payments, and balance for a date range. You can print them, email them, or save them as PDF.</p>
+
+      <h2 id="generating-statement">Generating a Statement</h2>
+      <ol class="steps">
+        <li><div class="step-title">Open the Client's Billing Tab</div><div class="step-desc">Navigate to the client's profile and click Billing.</div></li>
+        <li><div class="step-title">Click <span class="ui-element">Statement</span></div><div class="step-desc">Click the Statement button in the billing toolbar.</div></li>
+        <li><div class="step-title">Set the Date Range</div><div class="step-desc">Select start and end dates. The statement will include all transactions in this range.</div></li>
+        <li><div class="step-title">Preview and Send</div><div class="step-desc">Preview the statement, then choose to <span class="ui-element">Print</span>, <span class="ui-element">Email to Client</span>, or <span class="ui-element">Download PDF</span>.</div></li>
+      </ol>
+
+      <h2 id="statement-contents">What's on the Statement</h2>
+      <ul>
+        <li>Business name and contact info (header)</li>
+        <li>Client name and account number</li>
+        <li>Date range covered</li>
+        <li>Starting balance</li>
+        <li>Itemized charges and payments with dates</li>
+        <li>Ending balance</li>
+      </ul>
+
+      <div class="callout callout-tip">
+        <i class="fa-solid fa-lightbulb"></i>
+        <div><p><strong>Tip:</strong> If a client disputes a charge, pulling up their statement is the fastest way to review the history together.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Generate statement</td><td>Billing tab &rarr; <span class="ui-element">Statement</span></td></tr>
+          <tr><td>Email to client</td><td>Statement preview &rarr; <span class="ui-element">Email to Client</span></td></tr>
+          <tr><td>Download PDF</td><td>Statement preview &rarr; <span class="ui-element">Download PDF</span></td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

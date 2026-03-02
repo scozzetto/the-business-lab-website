@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editing Client Records — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-users"></i> Module 2</div>
+        <h1>Editing Client Records</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 4 min read</span></div>
+      </div>
+
+      <p>Client information changes — new phone numbers, updated addresses, corrected names. This lesson covers how to edit records safely with a full change history.</p>
+
+      <h2 id="opening-edit-mode">Opening a Record for Editing</h2>
+      <ol class="steps">
+        <li>
+          <div class="step-title">Find the Client</div>
+          <div class="step-desc">Use the <a href="searching.html">search feature</a> to locate the client's record.</div>
+        </li>
+        <li>
+          <div class="step-title">Open Their Profile</div>
+          <div class="step-desc">Click on the client's row to open their full profile page.</div>
+        </li>
+        <li>
+          <div class="step-title">Click <span class="ui-element">Edit</span></div>
+          <div class="step-desc">Click the Edit button (pencil icon) at the top of the profile. The fields become editable.</div>
+        </li>
+      </ol>
+
+      <h2 id="editable-fields">What You Can Edit</h2>
+      <table>
+        <thead><tr><th>Field</th><th>Editable By</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Name</td><td>All staff</td><td>Update for legal name changes</td></tr>
+          <tr><td>Email</td><td>All staff</td><td>Triggers duplicate check</td></tr>
+          <tr><td>Phone</td><td>All staff</td><td>Enter digits only, formatting is automatic</td></tr>
+          <tr><td>Address</td><td>All staff</td><td>Full mailing address</td></tr>
+          <tr><td>Date of Birth</td><td>All staff</td><td>Cannot be set to a future date</td></tr>
+          <tr><td>Notes</td><td>All staff</td><td>Internal notes visible to staff only</td></tr>
+          <tr><td>Status</td><td>Managers+</td><td>Active, Inactive, VIP</td></tr>
+          <tr><td>Location</td><td>Managers+</td><td>Primary location assignment</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="saving-changes">Saving Your Changes</h2>
+      <ol class="steps">
+        <li>
+          <div class="step-title">Make Your Edits</div>
+          <div class="step-desc">Update the fields that need changing. Changed fields are highlighted with a subtle border.</div>
+        </li>
+        <li>
+          <div class="step-title">Review Changes</div>
+          <div class="step-desc">Look over what you've changed before saving. The system shows which fields were modified.</div>
+        </li>
+        <li>
+          <div class="step-title">Click <span class="ui-element">Save Changes</span></div>
+          <div class="step-desc">Click Save to apply. All changes are logged in the activity history with your name and timestamp.</div>
+        </li>
+      </ol>
+
+      <div class="callout callout-important">
+        <i class="fa-solid fa-circle-info"></i>
+        <div><p><strong>All edits are tracked.</strong> Every change you make is recorded in the client's activity log, including who made the change and when. This audit trail cannot be deleted.</p></div>
+      </div>
+
+      <h2 id="canceling-edits">Canceling Edits</h2>
+      <p>If you change your mind, click <span class="ui-element">Cancel</span> to discard all unsaved changes and return to view mode.</p>
+
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <div class="trouble-item">
+        <strong>Can't edit certain fields</strong>
+        <p>Some fields (like Status and Location) are restricted to managers. Ask your manager to make these changes.</p>
+      </div>
+      <div class="trouble-item">
+        <strong>Save button is grayed out</strong>
+        <p>No changes were detected. Make sure you've actually modified a field value. If the form looks stuck, refresh the page and try again.</p>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Edit a record</td><td>Open client &rarr; click <span class="ui-element">Edit</span></td></tr>
+          <tr><td>Save changes</td><td>Click <span class="ui-element">Save Changes</span></td></tr>
+          <tr><td>Cancel edits</td><td>Click <span class="ui-element">Cancel</span></td></tr>
+          <tr><td>View edit history</td><td>Open client &rarr; Activity tab</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

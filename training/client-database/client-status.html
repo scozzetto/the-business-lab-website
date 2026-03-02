@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Status & Tags — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-users"></i> Module 2</div>
+        <h1>Client Status & Tags</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 4 min read</span></div>
+      </div>
+
+      <p>Every client has a status and can have multiple tags. These help you organize your database, segment clients for marketing, and quickly identify key accounts.</p>
+
+      <h2 id="client-statuses">Client Statuses</h2>
+      <table>
+        <thead><tr><th>Status</th><th>Meaning</th><th>Color</th></tr></thead>
+        <tbody>
+          <tr><td>Active</td><td>Current, engaged client</td><td>Green badge</td></tr>
+          <tr><td>Inactive</td><td>No recent visits; may need outreach</td><td>Gray badge</td></tr>
+          <tr><td>VIP</td><td>High-value or priority client</td><td>Gold badge</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="changing-status">Changing a Client's Status</h2>
+      <ol class="steps">
+        <li>
+          <div class="step-title">Open the Client Profile</div>
+          <div class="step-desc">Search for and open the client whose status you want to change.</div>
+        </li>
+        <li>
+          <div class="step-title">Click the Status Badge</div>
+          <div class="step-desc">Near the client's name, click on their current status badge. A dropdown appears with available statuses.</div>
+        </li>
+        <li>
+          <div class="step-title">Select the New Status</div>
+          <div class="step-desc">Choose the appropriate status. The change is saved automatically and logged.</div>
+        </li>
+      </ol>
+
+      <div class="callout callout-warning">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div><p><strong>Manager permission required.</strong> Only managers and admins can change client statuses. Front desk staff should request status changes from their manager.</p></div>
+      </div>
+
+      <h2 id="using-tags">Using Tags</h2>
+      <p>Tags are custom labels you can attach to clients for organization. Unlike status (which has fixed options), tags are flexible and you can create as many as you need.</p>
+
+      <p>Common tag examples:</p>
+      <ul>
+        <li><strong>Membership: Gold</strong> — Identifies membership tier</li>
+        <li><strong>Referral Source: Website</strong> — How the client found you</li>
+        <li><strong>Interest: Wellness</strong> — Areas of interest</li>
+        <li><strong>Follow-Up Needed</strong> — Flags for staff action</li>
+      </ul>
+
+      <h2 id="adding-tags">Adding Tags to a Client</h2>
+      <ol class="steps">
+        <li>
+          <div class="step-title">Open the Client Profile</div>
+          <div class="step-desc">Navigate to the client's full profile page.</div>
+        </li>
+        <li>
+          <div class="step-title">Find the Tags Section</div>
+          <div class="step-desc">Below the client's basic info, find the Tags section with a <span class="ui-element">+ Add Tag</span> button.</div>
+        </li>
+        <li>
+          <div class="step-title">Add a Tag</div>
+          <div class="step-desc">Click <span class="ui-element">+ Add Tag</span>, type the tag name, and press <kbd>Enter</kbd>. Existing tags appear as suggestions.</div>
+        </li>
+      </ol>
+
+      <p>To remove a tag, click the &times; next to it on the client's profile.</p>
+
+      <h2 id="filtering-by-tags">Filtering the Database by Tags</h2>
+      <p>Use column filters to find all clients with a specific tag. Go to Filter &rarr; Tags &rarr; select one or more tags. This is powerful for marketing campaigns and outreach.</p>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Change status</td><td>Client profile &rarr; click status badge &rarr; select new status</td></tr>
+          <tr><td>Add a tag</td><td>Client profile &rarr; Tags &rarr; <span class="ui-element">+ Add Tag</span></td></tr>
+          <tr><td>Remove a tag</td><td>Click &times; on the tag</td></tr>
+          <tr><td>Filter by tag</td><td>Database &rarr; Filter &rarr; Tags</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

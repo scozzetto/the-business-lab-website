@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cash & Check Payments — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-credit-card"></i> Module 3</div>
+        <h1>Cash & Check Payments</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 4 min read</span></div>
+      </div>
+
+      <p>When a client pays with cash or a check, you manually record the payment in the system. The process is similar for both — the difference is the documentation.</p>
+
+      <h2 id="recording-cash">Recording a Cash Payment</h2>
+      <ol class="steps">
+        <li><div class="step-title">Open the Client's Billing Tab</div><div class="step-desc">Navigate to the client and click <span class="ui-element">Billing</span>.</div></li>
+        <li><div class="step-title">Click <span class="ui-element">+ New Payment</span></div><div class="step-desc">Open the payment form.</div></li>
+        <li><div class="step-title">Enter the Amount</div><div class="step-desc">Enter the cash amount received from the client.</div></li>
+        <li><div class="step-title">Select "Cash" as Payment Method</div><div class="step-desc">Choose "Cash" from the dropdown.</div></li>
+        <li><div class="step-title">Add Notes (Recommended)</div><div class="step-desc">Note what the payment is for (e.g., "Service fee for March visit").</div></li>
+        <li><div class="step-title">Click <span class="ui-element">Record Payment</span></div><div class="step-desc">Submit the payment. The balance updates immediately.</div></li>
+      </ol>
+
+      <div class="callout callout-important">
+        <i class="fa-solid fa-circle-info"></i>
+        <div><p><strong>Always record cash immediately.</strong> Don't wait until the end of the day. Recording payments right away keeps balances accurate and prevents discrepancies during cash reconciliation.</p></div>
+      </div>
+
+      <h2 id="recording-check">Recording a Check Payment</h2>
+      <p>The process is the same as cash, with one addition:</p>
+      <ol class="steps">
+        <li><div class="step-title">Follow the Same Steps</div><div class="step-desc">Open billing tab, click New Payment, enter amount.</div></li>
+        <li><div class="step-title">Select "Check" as Payment Method</div><div class="step-desc">Choose "Check" from the dropdown.</div></li>
+        <li><div class="step-title">Enter the Check Number</div><div class="step-desc">A "Check Number" field appears. Enter the number printed on the check (usually in the top-right corner).</div></li>
+        <li><div class="step-title">Record the Payment</div><div class="step-desc">Click <span class="ui-element">Record Payment</span>. The check number is stored for reference.</div></li>
+      </ol>
+
+      <div class="callout callout-warning">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div><p><strong>Checks can bounce.</strong> If a check is returned by the bank, you'll need to reverse the payment and re-charge the client. See <a href="writeoffs-adjustments.html">Write-offs & Adjustments</a> for how to handle this.</p></div>
+      </div>
+
+      <h2 id="making-change">Making Change for Cash</h2>
+      <p>If a client pays more than the amount due (e.g., $50 bill for a $35 charge), give them change and record only the amount owed. Do not record the full $50 — record $35.</p>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Payment Type</th><th>Required Info</th><th>Special Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Cash</td><td>Amount, description</td><td>Record immediately after receiving</td></tr>
+          <tr><td>Check</td><td>Amount, check number, description</td><td>Store check securely until deposited</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

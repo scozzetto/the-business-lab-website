@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pricing & Variants — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-tags"></i> Module 7</div>
+        <h1>Pricing & Variants</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 4 min read</span></div>
+      </div>
+
+      <p>Some items come in different sizes, durations, or configurations — each with its own price. Use variants to manage these without creating separate catalog entries.</p>
+
+      <h2 id="setting-price">Setting a Base Price</h2>
+      <p>Every item has a base price set during creation. This is the default price shown in the POS and billing.</p>
+
+      <h2 id="creating-variants">Creating Variants</h2>
+      <ol class="steps">
+        <li><div class="step-title">Open the Item</div><div class="step-desc">Navigate to the catalog item you want to add variants to.</div></li>
+        <li><div class="step-title">Click <span class="ui-element">+ Add Variant</span></div><div class="step-desc">In the Variants section, click to add a new option.</div></li>
+        <li><div class="step-title">Define the Variant</div><div class="step-desc">Enter a <strong>Name</strong> (e.g., "Large", "60-minute", "3-pack") and its <strong>Price</strong>.</div></li>
+        <li><div class="step-title">Add More Variants</div><div class="step-desc">Repeat for each option. Example: Small ($10), Medium ($15), Large ($20).</div></li>
+        <li><div class="step-title">Save</div><div class="step-desc">Save the item. When selecting this item in the POS, staff will be prompted to choose a variant.</div></li>
+      </ol>
+
+      <h2 id="cost-tracking">Cost & Markup Tracking</h2>
+      <p>Optionally enter the <strong>cost price</strong> (what you pay for the item) to track margins:</p>
+      <table>
+        <thead><tr><th>Field</th><th>What It Means</th></tr></thead>
+        <tbody>
+          <tr><td>Selling price</td><td>What the client pays</td></tr>
+          <tr><td>Cost price</td><td>What you pay (wholesale, labor, etc.)</td></tr>
+          <tr><td>Margin</td><td>Selling price - Cost price</td></tr>
+          <tr><td>Markup %</td><td>Calculated automatically from cost and selling price</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-tip">
+        <i class="fa-solid fa-lightbulb"></i>
+        <div><p><strong>Tip:</strong> Setting cost prices enables profit reports in the Accounting module. Even rough estimates are better than leaving it blank.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Set base price</td><td>Item creation/edit &rarr; Price field</td></tr>
+          <tr><td>Add variants</td><td>Item &rarr; Variants &rarr; <span class="ui-element">+ Add Variant</span></td></tr>
+          <tr><td>Track costs</td><td>Item &rarr; Cost Price field</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

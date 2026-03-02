@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roles & Permissions — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-user-shield"></i> Module 9</div>
+        <h1>Roles & Permissions</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 5 min read</span></div>
+      </div>
+
+      <p>Roles control what each staff member can see and do in the system. Assign the right role to give people what they need without exposing sensitive data.</p>
+
+      <h2 id="built-in-roles">Built-In Roles</h2>
+      <table>
+        <thead><tr><th>Role</th><th>Access Level</th><th>Typical Use</th></tr></thead>
+        <tbody>
+          <tr><td>Front Desk</td><td>Check-ins, client lookup, basic billing, tasks</td><td>Receptionist, greeter</td></tr>
+          <tr><td>Staff</td><td>Front Desk + full billing, booking, own schedule</td><td>Service provider, technician</td></tr>
+          <tr><td>Manager</td><td>Staff + reports, staff management, adjustments, settings</td><td>Location manager, shift lead</td></tr>
+          <tr><td>Admin</td><td>Full access to everything, including multi-location and system settings</td><td>Owner, IT administrator</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="assigning-roles">Assigning a Role</h2>
+      <ol class="steps">
+        <li><div class="step-title">Go to Settings &rarr; Staff</div><div class="step-desc">Open the staff management area.</div></li>
+        <li><div class="step-title">Select the Staff Member</div><div class="step-desc">Click on their name to open their account settings.</div></li>
+        <li><div class="step-title">Change Role</div><div class="step-desc">Use the Role dropdown to select a different role.</div></li>
+        <li><div class="step-title">Save</div><div class="step-desc">Click Save. The new permissions take effect on their next login.</div></li>
+      </ol>
+
+      <h2 id="permission-details">What Each Role Can Do</h2>
+      <table>
+        <thead><tr><th>Feature</th><th>Front Desk</th><th>Staff</th><th>Manager</th><th>Admin</th></tr></thead>
+        <tbody>
+          <tr><td>View clients</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+          <tr><td>Add/edit clients</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+          <tr><td>Process payments</td><td>Basic</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+          <tr><td>Apply adjustments</td><td>No</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+          <tr><td>View reports</td><td>No</td><td>Own only</td><td>Yes</td><td>Yes</td></tr>
+          <tr><td>Manage staff</td><td>No</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+          <tr><td>System settings</td><td>No</td><td>No</td><td>Limited</td><td>Yes</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-important">
+        <i class="fa-solid fa-circle-info"></i>
+        <div><p><strong>Principle of least privilege.</strong> Give each person the minimum role they need. You can always upgrade later. It's harder to recover from an accidental deletion by someone with too much access.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>View roles</td><td>Settings &rarr; Staff &rarr; select member</td></tr>
+          <tr><td>Change role</td><td>Staff account &rarr; Role dropdown &rarr; Save</td></tr>
+          <tr><td>Available roles</td><td>Front Desk, Staff, Manager, Admin</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

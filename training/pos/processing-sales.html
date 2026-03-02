@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Processing Sales — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-cash-register"></i> Module 5</div>
+        <h1>Processing Sales</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 5 min read</span></div>
+      </div>
+
+      <p>This is the core POS workflow — adding items to the cart, adjusting quantities, linking a client, and completing the payment.</p>
+
+      <h2 id="basic-sale">Basic Sale Workflow</h2>
+      <ol class="steps">
+        <li><div class="step-title">Add Items to Cart</div><div class="step-desc">Click items in the product grid or use the search bar to find them. Each click adds one unit to the cart.</div></li>
+        <li><div class="step-title">Adjust Quantities</div><div class="step-desc">In the cart, use the +/- buttons or type a number to change quantities. Click &times; to remove an item entirely.</div></li>
+        <li><div class="step-title">Link a Client (Optional)</div><div class="step-desc">Click <span class="ui-element">Add Client</span> to link the transaction to a client record. This is required for billing integration and receipt emails.</div></li>
+        <li><div class="step-title">Review the Total</div><div class="step-desc">Check the subtotal, any applicable tax, and the final total at the bottom of the cart.</div></li>
+        <li><div class="step-title">Select Payment Method</div><div class="step-desc">Click <span class="ui-element">Card</span>, <span class="ui-element">Cash</span>, or <span class="ui-element">Split</span> for multiple methods.</div></li>
+        <li><div class="step-title">Complete the Transaction</div><div class="step-desc">For cards: the client taps, swipes, or enters their card. For cash: enter the amount tendered and the system calculates change. Click <span class="ui-element">Complete Sale</span>.</div></li>
+        <li><div class="step-title">Offer Receipt</div><div class="step-desc">Ask the client if they want a receipt (print, email, or text). Click the appropriate option.</div></li>
+      </ol>
+
+      <div class="callout callout-tip">
+        <i class="fa-solid fa-lightbulb"></i>
+        <div><p><strong>Speed tip:</strong> Use the search bar to type the first few letters of an item name. It's faster than scrolling through categories for less common items.</p></div>
+      </div>
+
+      <h2 id="split-payments">Split Payments</h2>
+      <p>If a client wants to pay with multiple methods (e.g., $30 on card and $20 cash):</p>
+      <ol class="steps">
+        <li><div class="step-title">Click <span class="ui-element">Split</span></div><div class="step-desc">The split payment form appears.</div></li>
+        <li><div class="step-title">Enter Amounts per Method</div><div class="step-desc">Enter how much to charge to each payment method. The system ensures the total matches.</div></li>
+        <li><div class="step-title">Process Each</div><div class="step-desc">Process the card payment first, then record the cash amount.</div></li>
+      </ol>
+
+      <h2 id="voiding-sale">Voiding an In-Progress Sale</h2>
+      <p>If you need to cancel a sale before completing it, click <span class="ui-element">Clear Cart</span> to remove all items and start fresh.</p>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Add item</td><td>Click in grid or search by name</td></tr>
+          <tr><td>Change quantity</td><td>+/- buttons or type number</td></tr>
+          <tr><td>Link client</td><td><span class="ui-element">Add Client</span> &rarr; search name</td></tr>
+          <tr><td>Split payment</td><td><span class="ui-element">Split</span> &rarr; enter amounts</td></tr>
+          <tr><td>Cancel sale</td><td><span class="ui-element">Clear Cart</span></td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logging In — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-rocket"></i> Module 1</div>
+        <h1>Logging In</h1>
+        <div class="page-meta">
+          <span><i class="fa-regular fa-clock"></i> 4 min read</span>
+        </div>
+      </div>
+
+      <p>Your first step is accessing the staff portal. You'll use the email and password provided by your manager. This lesson covers the login process, password resets, and common troubleshooting.</p>
+
+      <h2 id="step-by-step">Step-by-Step Login</h2>
+
+      <ol class="steps">
+        <li>
+          <div class="step-title">Open the Staff Portal</div>
+          <div class="step-desc">Navigate to your business portal URL in a web browser (Chrome, Safari, Firefox, or Edge). Your manager will provide the exact URL for your organization.</div>
+        </li>
+        <li>
+          <div class="step-title">Enter Your Credentials</div>
+          <div class="step-desc">Type your <strong>email address</strong> in the first field and your <strong>password</strong> in the second field. Passwords are case-sensitive.</div>
+        </li>
+        <li>
+          <div class="step-title">Click <span class="ui-element">Sign In</span></div>
+          <div class="step-desc">Press the Sign In button or hit <kbd>Enter</kbd> on your keyboard. If your credentials are correct, you'll be taken to the staff dashboard.</div>
+        </li>
+        <li>
+          <div class="step-title">Select Your Location (if prompted)</div>
+          <div class="step-desc">If your account has access to multiple locations, you may be asked to select your current working location. This filters the data you see throughout the system.</div>
+        </li>
+      </ol>
+
+      <h2 id="password-reset">Resetting Your Password</h2>
+
+      <p>If you've forgotten your password or need to change it:</p>
+
+      <ol class="steps">
+        <li>
+          <div class="step-title">Click <span class="ui-element">Forgot Password</span></div>
+          <div class="step-desc">On the login page, click the "Forgot Password" link below the password field.</div>
+        </li>
+        <li>
+          <div class="step-title">Enter Your Email</div>
+          <div class="step-desc">Enter the email address associated with your staff account and click <span class="ui-element">Send Reset Link</span>.</div>
+        </li>
+        <li>
+          <div class="step-title">Check Your Inbox</div>
+          <div class="step-desc">You'll receive an email with a password reset link. Click the link within 1 hour — it expires after that.</div>
+        </li>
+        <li>
+          <div class="step-title">Create a New Password</div>
+          <div class="step-desc">Enter a new password (minimum 8 characters). Use a mix of letters, numbers, and symbols for security.</div>
+        </li>
+      </ol>
+
+      <div class="callout callout-warning">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div>
+          <p><strong>Don't share your login.</strong> Each staff member must use their own credentials. Shared logins create security risks and make activity tracking unreliable.</p>
+        </div>
+      </div>
+
+      <h2 id="staying-signed-in">Staying Signed In</h2>
+      <p>Your session will stay active as long as your browser tab is open. If you close the browser or remain inactive for an extended period, you'll be asked to log in again. This is a security feature to protect client data.</p>
+
+      <div class="callout callout-tip">
+        <i class="fa-solid fa-lightbulb"></i>
+        <div>
+          <p><strong>Tip:</strong> Bookmark the login page for quick access. On shared computers (like front desk stations), always log out when you're done.</p>
+        </div>
+      </div>
+
+      <h2 id="troubleshooting">Troubleshooting</h2>
+
+      <div class="trouble-item">
+        <strong>"Invalid email or password" error</strong>
+        <p>Double-check for typos. Passwords are case-sensitive. If you've tried multiple times, use the password reset link.</p>
+      </div>
+
+      <div class="trouble-item">
+        <strong>Not receiving the reset email</strong>
+        <p>Check your spam/junk folder. Make sure you're using the email address your manager registered. If you still don't see it, ask your manager to verify your account email.</p>
+      </div>
+
+      <div class="trouble-item">
+        <strong>Reset link expired</strong>
+        <p>Password reset links expire after 1 hour. Request a new one by going through the "Forgot Password" flow again.</p>
+      </div>
+
+      <div class="trouble-item">
+        <strong>Account locked</strong>
+        <p>After multiple failed login attempts, your account may be temporarily locked. Wait 15 minutes and try again, or contact your manager to unlock it.</p>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead>
+          <tr><th>Action</th><th>How</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Log in</td><td>Enter email + password, click <span class="ui-element">Sign In</span></td></tr>
+          <tr><td>Reset password</td><td>Click <span class="ui-element">Forgot Password</span> on login page</td></tr>
+          <tr><td>Log out</td><td>Click your profile icon &rarr; <span class="ui-element">Sign Out</span></td></tr>
+          <tr><td>Switch location</td><td>Use the location dropdown in the top bar</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

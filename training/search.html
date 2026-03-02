@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <h1>Search Training</h1>
+      </div>
+
+      <div class="search-input-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="searchInput" placeholder="Search for topics, features, or keywords..." autofocus>
+      </div>
+
+      <p id="resultCount" style="font-size: 13px; color: var(--slate-500); margin-bottom: 1rem;"></p>
+
+      <div id="searchResults"></div>
+
+    </div>
+  </div>
+</div>
+
+<script src="js/nav-data.js"></script>
+<script src="js/components.js"></script>
+<script src="js/search-index.js"></script>
+<script src="js/search.js"></script>
+</body>
+</html>

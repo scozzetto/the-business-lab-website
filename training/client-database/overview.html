@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Database Overview — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-users"></i> Module 2</div>
+        <h1>Database Overview</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 5 min read</span></div>
+      </div>
+
+      <p>The Master Client Database stores every client's profile, contact details, billing history, and visit records. This lesson gives you a tour of the interface so you know where everything is.</p>
+
+      <h2 id="accessing-database">Accessing the Database</h2>
+      <ol class="steps">
+        <li>
+          <div class="step-title">Open the Sidebar</div>
+          <div class="step-desc">Click <span class="ui-element">Clients</span> in the sidebar navigation (or tap the hamburger menu on mobile first).</div>
+        </li>
+        <li>
+          <div class="step-title">View the Client Table</div>
+          <div class="step-desc">The main area shows a data table with all clients for your selected location. Each row is one client record.</div>
+        </li>
+      </ol>
+
+      <h2 id="table-layout">Table Layout</h2>
+      <p>The client table shows columns that you can sort, resize, and reorder:</p>
+      <table>
+        <thead><tr><th>Column</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>Client ID</td><td>Unique identifier (e.g., BL-00000042)</td></tr>
+          <tr><td>Name</td><td>First and last name</td></tr>
+          <tr><td>Email</td><td>Primary email address</td></tr>
+          <tr><td>Phone</td><td>Primary phone number</td></tr>
+          <tr><td>Status</td><td>Active, Inactive, or VIP</td></tr>
+          <tr><td>Location</td><td>Home location for this client</td></tr>
+          <tr><td>Last Visit</td><td>Date of most recent check-in</td></tr>
+          <tr><td>Balance</td><td>Outstanding balance (if any)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-tip">
+        <i class="fa-solid fa-lightbulb"></i>
+        <div><p><strong>Click any column header</strong> to sort the table by that column. Click again to reverse the sort order.</p></div>
+      </div>
+
+      <h2 id="summary-stats">Summary Statistics</h2>
+      <p>Above the table, you'll see summary cards showing:</p>
+      <ul>
+        <li><strong>Total Clients</strong> — Count of all records at this location</li>
+        <li><strong>Active Clients</strong> — Currently active clients</li>
+        <li><strong>New This Month</strong> — Clients added in the current month</li>
+        <li><strong>Outstanding Balances</strong> — Total unpaid balances</li>
+      </ul>
+
+      <h2 id="pagination">Pagination & Loading</h2>
+      <p>The database loads records in pages (typically 50 per page) for performance. Use the pagination controls at the bottom to navigate between pages, or use search to find a specific client directly.</p>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Open database</td><td>Sidebar &rarr; <span class="ui-element">Clients</span></td></tr>
+          <tr><td>Sort by column</td><td>Click column header</td></tr>
+          <tr><td>Open a client</td><td>Click the client's row</td></tr>
+          <tr><td>Change page</td><td>Use pagination controls at bottom</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

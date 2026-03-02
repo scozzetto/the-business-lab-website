@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adding New Clients — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-users"></i> Module 2</div>
+        <h1>Adding New Clients</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 5 min read</span></div>
+      </div>
+
+      <p>When a new client visits your business, you'll register them in the database. The system auto-generates a unique Client ID and guides you through the required fields.</p>
+
+      <h2 id="creating-a-client">Creating a Client Record</h2>
+
+      <ol class="steps">
+        <li>
+          <div class="step-title">Click <span class="ui-element">+ New Client</span></div>
+          <div class="step-desc">From the client database page, click the green "New Client" button in the top-right corner. A new client form opens.</div>
+        </li>
+        <li>
+          <div class="step-title">Enter Required Information</div>
+          <div class="step-desc">Fill in the required fields: <strong>First Name</strong>, <strong>Last Name</strong>, and at least one contact method (email or phone). The Client ID is generated automatically — you don't need to enter it.</div>
+        </li>
+        <li>
+          <div class="step-title">Add Optional Details</div>
+          <div class="step-desc">Optionally fill in: date of birth, address, emergency contact, preferred communication method, and any notes.</div>
+        </li>
+        <li>
+          <div class="step-title">Select Location</div>
+          <div class="step-desc">The client's home location defaults to your current location. Change it if the client primarily visits a different branch.</div>
+        </li>
+        <li>
+          <div class="step-title">Click <span class="ui-element">Save Client</span></div>
+          <div class="step-desc">Review the information and click Save. The system creates the record and assigns a unique Client ID (e.g., BL-00000042).</div>
+        </li>
+      </ol>
+
+      <h2 id="required-fields">Required vs. Optional Fields</h2>
+      <table>
+        <thead><tr><th>Field</th><th>Required?</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>First Name</td><td>Yes</td><td>Legal first name</td></tr>
+          <tr><td>Last Name</td><td>Yes</td><td>Legal last name</td></tr>
+          <tr><td>Email or Phone</td><td>At least one</td><td>Needed for communication</td></tr>
+          <tr><td>Date of Birth</td><td>No</td><td>Useful for age verification</td></tr>
+          <tr><td>Address</td><td>No</td><td>Useful for billing and mail</td></tr>
+          <tr><td>Emergency Contact</td><td>No</td><td>Recommended for service businesses</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="client-id">Understanding Client IDs</h2>
+      <p>Each client gets a unique ID in the format <code>BL-00000001</code>. This ID:</p>
+      <ul>
+        <li>Is generated automatically — never enter it manually</li>
+        <li>Is permanent — it never changes even if the client's name changes</li>
+        <li>Works across all locations — the same client has the same ID everywhere</li>
+        <li>Appears on receipts, invoices, and reports</li>
+      </ul>
+
+      <div class="callout callout-warning">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div><p><strong>Check for duplicates first!</strong> Before adding a new client, search the database to make sure they don't already exist. Duplicate records cause billing confusion and inaccurate reports.</p></div>
+      </div>
+
+      <h2 id="duplicate-prevention">Duplicate Prevention</h2>
+      <p>The system helps prevent duplicates by:</p>
+      <ul>
+        <li>Warning you if an email or phone number already exists</li>
+        <li>Showing potential matches when you enter a name</li>
+        <li>Blocking exact duplicate email addresses</li>
+      </ul>
+      <p>If you find a duplicate after creation, see the client merge tools in the advanced section.</p>
+
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <div class="trouble-item">
+        <strong>"Email already exists" error</strong>
+        <p>Another client record already uses this email. Search for the existing record instead of creating a new one.</p>
+      </div>
+      <div class="trouble-item">
+        <strong>Client doesn't appear after saving</strong>
+        <p>Check your location filter. The client is assigned to the location you were viewing when you created them.</p>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Add new client</td><td>Click <span class="ui-element">+ New Client</span> button</td></tr>
+          <tr><td>Required fields</td><td>First name, last name, email or phone</td></tr>
+          <tr><td>Client ID format</td><td>BL-00000000 (auto-generated)</td></tr>
+          <tr><td>Check for duplicates</td><td>Search by name/email/phone first</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

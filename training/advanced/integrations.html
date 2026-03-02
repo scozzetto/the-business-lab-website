@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Integrations — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-wand-magic-sparkles"></i> Module 10</div>
+        <h1>Integrations</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 4 min read</span></div>
+      </div>
+
+      <p>The Business Lab platform connects with third-party services to extend its capabilities. Here's an overview of available integrations and how they work.</p>
+
+      <h2 id="available-integrations">Available Integrations</h2>
+      <table>
+        <thead><tr><th>Service</th><th>Purpose</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Stripe</td><td>Payment processing (cards)</td><td>Core — always enabled</td></tr>
+          <tr><td>Email service</td><td>Transactional emails and marketing</td><td>Core — always enabled</td></tr>
+          <tr><td>SMS provider</td><td>Appointment reminders and notifications</td><td>Optional</td></tr>
+          <tr><td>Google Calendar</td><td>Sync bookings to provider calendars</td><td>Optional</td></tr>
+          <tr><td>Accounting software</td><td>Export transactions to QuickBooks, Xero, etc.</td><td>Optional</td></tr>
+          <tr><td>Custom webhooks</td><td>Send event data to any external service</td><td>Advanced</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="managing-integrations">Managing Integrations</h2>
+      <ol class="steps">
+        <li><div class="step-title">Go to Settings &rarr; Integrations</div><div class="step-desc">View all available integrations and their status.</div></li>
+        <li><div class="step-title">Click on an Integration</div><div class="step-desc">See details, connection status, and configuration options.</div></li>
+        <li><div class="step-title">Connect or Configure</div><div class="step-desc">Follow the setup instructions for each integration. Most require entering API keys or authorizing access.</div></li>
+      </ol>
+
+      <h2 id="stripe">Payment Processing (Stripe)</h2>
+      <p>Stripe is the core payment processor and is configured during initial setup. It handles:</p>
+      <ul>
+        <li>Credit and debit card processing</li>
+        <li>Saved card management (tokenized for security)</li>
+        <li>Refund processing</li>
+        <li>Payout management to your bank account</li>
+      </ul>
+
+      <div class="callout callout-important">
+        <i class="fa-solid fa-circle-info"></i>
+        <div><p><strong>Integration setup is admin-only.</strong> Only administrators can connect or disconnect integrations. This protects your business from unauthorized changes.</p></div>
+      </div>
+
+      <h2 id="webhooks">Custom Webhooks</h2>
+      <p>For advanced users, webhooks send real-time data to external systems when events happen (e.g., new booking created, payment received). This is useful for custom dashboards, CRMs, or automation tools.</p>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>View integrations</td><td>Settings &rarr; Integrations</td></tr>
+          <tr><td>Connect new service</td><td>Click integration &rarr; follow setup guide</td></tr>
+          <tr><td>Check status</td><td>Green = connected, Gray = not configured</td></tr>
+          <tr><td>Disconnect</td><td>Integration settings &rarr; <span class="ui-element">Disconnect</span></td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

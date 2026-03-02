@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Location Management — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-rocket"></i> Module 1</div>
+        <h1>Location Management</h1>
+        <div class="page-meta">
+          <span><i class="fa-regular fa-clock"></i> 4 min read</span>
+        </div>
+      </div>
+
+      <p>If your business operates from multiple locations, the platform filters data by your selected location. This lesson explains how location filtering works and how to switch between sites.</p>
+
+      <h2 id="how-locations-work">How Locations Work</h2>
+
+      <p>Every piece of data in the system — clients, bookings, payments, inventory — is associated with a location. When you select a location, you only see data relevant to that site. This keeps things organized and prevents confusion between branches.</p>
+
+      <ul>
+        <li><strong>Single-location businesses</strong> — Your location is set automatically. No action needed.</li>
+        <li><strong>Multi-location businesses</strong> — You choose your working location at login and can switch anytime.</li>
+      </ul>
+
+      <h2 id="switching-locations">Switching Locations</h2>
+
+      <ol class="steps">
+        <li>
+          <div class="step-title">Find the Location Dropdown</div>
+          <div class="step-desc">In the top bar, look for the location name displayed near the search bar. It shows your currently selected location.</div>
+        </li>
+        <li>
+          <div class="step-title">Click to Open</div>
+          <div class="step-desc">Click on the location name to reveal a dropdown list of all locations you have access to.</div>
+        </li>
+        <li>
+          <div class="step-title">Select a New Location</div>
+          <div class="step-desc">Click the desired location. The page will refresh and all data will update to reflect the new location.</div>
+        </li>
+      </ol>
+
+      <div class="callout callout-important">
+        <i class="fa-solid fa-circle-info"></i>
+        <div>
+          <p><strong>Data changes immediately.</strong> When you switch locations, the client list, bookings, POS items, and reports all update to show data for the selected location. Make sure you're on the right location before taking actions like creating bookings or processing payments.</p>
+        </div>
+      </div>
+
+      <h2 id="all-locations-view">"All Locations" View</h2>
+
+      <p>Some features offer an "All Locations" option that shows combined data across all your sites. This is useful for:</p>
+
+      <ul>
+        <li>Managers reviewing total revenue across branches</li>
+        <li>Searching for a client who may be registered at a different location</li>
+        <li>Generating company-wide reports</li>
+      </ul>
+
+      <div class="callout callout-warning">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div>
+          <p><strong>Be careful with "All Locations":</strong> Some actions (like creating a booking or processing a payment) require a specific location. Switch to the correct location before performing these actions.</p>
+        </div>
+      </div>
+
+      <h2 id="location-permissions">Location Permissions</h2>
+
+      <p>Your manager controls which locations you can access. You'll only see locations assigned to your account in the dropdown.</p>
+
+      <table>
+        <thead>
+          <tr><th>Role</th><th>Typical Access</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Front Desk Staff</td><td>Single assigned location</td></tr>
+          <tr><td>Float Staff</td><td>Multiple locations (as needed)</td></tr>
+          <tr><td>Manager</td><td>All locations + "All Locations" view</td></tr>
+          <tr><td>Owner / Admin</td><td>Full access to everything</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="troubleshooting">Troubleshooting</h2>
+
+      <div class="trouble-item">
+        <strong>I can only see one location</strong>
+        <p>Your account may only be assigned to one location. Contact your manager if you need access to additional sites.</p>
+      </div>
+
+      <div class="trouble-item">
+        <strong>Data looks wrong after switching</strong>
+        <p>Give the page a moment to refresh. If data still looks incorrect, try a full page refresh (<kbd>Ctrl</kbd>+<kbd>R</kbd> or <kbd>Cmd</kbd>+<kbd>R</kbd>).</p>
+      </div>
+
+      <div class="trouble-item">
+        <strong>I don't see the location dropdown</strong>
+        <p>If your business has only one location, the dropdown won't appear — your location is set automatically.</p>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead>
+          <tr><th>Action</th><th>How</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Switch location</td><td>Click location name in top bar &rarr; select new location</td></tr>
+          <tr><td>View all locations</td><td>Select "All Locations" from dropdown (manager/admin only)</td></tr>
+          <tr><td>Set default location</td><td>Profile &rarr; Location Settings</td></tr>
+          <tr><td>Request access</td><td>Ask your manager to add you to additional locations</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

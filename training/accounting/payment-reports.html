@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Reports — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-chart-line"></i> Module 8</div>
+        <h1>Payment Reports</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 4 min read</span></div>
+      </div>
+
+      <p>Payment reports break down transactions by payment method, status, and time period. Use them to reconcile cash, verify card deposits, and track failed payments.</p>
+
+      <h2 id="generating">Generating a Payment Report</h2>
+      <ol class="steps">
+        <li><div class="step-title">Go to Reports &rarr; Payments</div><div class="step-desc">Navigate to the Payment Reports section.</div></li>
+        <li><div class="step-title">Set Date Range</div><div class="step-desc">Choose the period to analyze.</div></li>
+        <li><div class="step-title">Filter by Method (Optional)</div><div class="step-desc">View all methods or filter to just Card, Cash, or Check.</div></li>
+        <li><div class="step-title">View Results</div><div class="step-desc">See totals per method, successful vs. failed, and individual transactions.</div></li>
+      </ol>
+
+      <h2 id="report-sections">Report Sections</h2>
+      <table>
+        <thead><tr><th>Section</th><th>What It Shows</th></tr></thead>
+        <tbody>
+          <tr><td>Summary</td><td>Total payments, count, average transaction</td></tr>
+          <tr><td>By method</td><td>Card, cash, check totals with percentages</td></tr>
+          <tr><td>Failed payments</td><td>Declined cards, insufficient funds, errors</td></tr>
+          <tr><td>Transaction list</td><td>Every individual payment with details</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-important">
+        <i class="fa-solid fa-circle-info"></i>
+        <div><p><strong>Review failed payments weekly.</strong> Clients with failed card payments may have outstanding balances. Follow up to collect payment.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Payment report</td><td>Reports &rarr; Payments &rarr; set dates</td></tr>
+          <tr><td>View failed payments</td><td>Filter by Status = "Failed"</td></tr>
+          <tr><td>Export</td><td><span class="ui-element">Export</span> &rarr; CSV or PDF</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

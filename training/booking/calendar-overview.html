@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar Overview — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-calendar-check"></i> Module 6</div>
+        <h1>Calendar Overview</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 4 min read</span></div>
+      </div>
+
+      <p>The booking calendar shows all appointments across your business. Switch between views and filter by provider to manage your schedule.</p>
+
+      <h2 id="calendar-views">Calendar Views</h2>
+      <table>
+        <thead><tr><th>View</th><th>Best For</th><th>How to Access</th></tr></thead>
+        <tbody>
+          <tr><td>Day</td><td>Detailed hourly view of one day</td><td>Click <span class="ui-element">Day</span> tab</td></tr>
+          <tr><td>Week</td><td>Planning ahead, seeing patterns</td><td>Click <span class="ui-element">Week</span> tab</td></tr>
+          <tr><td>Month</td><td>Big picture overview, busy days</td><td>Click <span class="ui-element">Month</span> tab</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="reading-calendar">Reading the Calendar</h2>
+      <ol class="steps">
+        <li><div class="step-title">Color Coding</div><div class="step-desc">Each service provider has a color. Appointments are colored by provider, making it easy to see each person's schedule at a glance.</div></li>
+        <li><div class="step-title">Time Slots</div><div class="step-desc">In Day and Week views, the vertical axis shows time (typically 8 AM to 8 PM). Appointments appear as blocks proportional to their duration.</div></li>
+        <li><div class="step-title">Clicking an Appointment</div><div class="step-desc">Click any appointment block to see details: client name, service, provider, time, and status. You can edit or cancel from here.</div></li>
+      </ol>
+
+      <h2 id="navigation">Navigation</h2>
+      <ul>
+        <li><strong>Previous / Next</strong> — Arrow buttons move forward or backward by one day, week, or month</li>
+        <li><strong>Today</strong> — Click <span class="ui-element">Today</span> to jump back to the current date</li>
+        <li><strong>Filter by Provider</strong> — Use the provider dropdown to show only one provider's appointments</li>
+      </ul>
+
+      <div class="callout callout-tip">
+        <i class="fa-solid fa-lightbulb"></i>
+        <div><p><strong>Tip:</strong> Double-click an empty time slot to quickly create a new booking at that time.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Open calendar</td><td>Sidebar &rarr; <span class="ui-element">Booking</span></td></tr>
+          <tr><td>Switch view</td><td>Day / Week / Month tabs</td></tr>
+          <tr><td>Go to today</td><td><span class="ui-element">Today</span> button</td></tr>
+          <tr><td>Filter by provider</td><td>Provider dropdown above calendar</td></tr>
+          <tr><td>Quick book</td><td>Double-click empty time slot</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

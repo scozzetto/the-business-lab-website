@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adding Items — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-tags"></i> Module 7</div>
+        <h1>Adding Items</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 5 min read</span></div>
+      </div>
+
+      <p>Add products and services to your catalog so they're available in the POS, booking system, and billing.</p>
+
+      <h2 id="adding-item">Adding a New Item</h2>
+      <ol class="steps">
+        <li><div class="step-title">Click <span class="ui-element">+ New Item</span></div><div class="step-desc">From the catalog page, click the New Item button.</div></li>
+        <li><div class="step-title">Choose Item Type</div><div class="step-desc">Select Product, Service, Package, or Membership.</div></li>
+        <li><div class="step-title">Enter Basic Details</div><div class="step-desc">Fill in: <strong>Name</strong>, <strong>Description</strong>, <strong>Category</strong>, and <strong>Price</strong>.</div></li>
+        <li><div class="step-title">Add an Image (Optional)</div><div class="step-desc">Upload a product photo. It appears in the POS grid and catalog listings.</div></li>
+        <li><div class="step-title">Set Availability</div><div class="step-desc">Choose which locations this item is available at. You can make it available everywhere or select specific sites.</div></li>
+        <li><div class="step-title">Save</div><div class="step-desc">Click <span class="ui-element">Save Item</span>. The item is immediately available in the POS and billing systems.</div></li>
+      </ol>
+
+      <h2 id="required-fields">Item Fields</h2>
+      <table>
+        <thead><tr><th>Field</th><th>Required?</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Name</td><td>Yes</td><td>Clear, concise name shown to staff and clients</td></tr>
+          <tr><td>Type</td><td>Yes</td><td>Product, Service, Package, or Membership</td></tr>
+          <tr><td>Price</td><td>Yes</td><td>Base selling price (before discounts)</td></tr>
+          <tr><td>Category</td><td>Yes</td><td>Organizational category</td></tr>
+          <tr><td>Description</td><td>No</td><td>Detailed description for staff reference</td></tr>
+          <tr><td>SKU</td><td>No</td><td>Stock keeping unit for inventory</td></tr>
+          <tr><td>Image</td><td>No</td><td>Product photo (JPG/PNG, under 5MB)</td></tr>
+          <tr><td>Tax rate</td><td>No</td><td>Override default tax rate if needed</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-tip">
+        <i class="fa-solid fa-lightbulb"></i>
+        <div><p><strong>Naming conventions:</strong> Be consistent with item names. Use the format "Category - Item Name" or "Item Name (Size)" so staff can find items quickly.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Add item</td><td>Catalog &rarr; <span class="ui-element">+ New Item</span></td></tr>
+          <tr><td>Required info</td><td>Name, type, price, category</td></tr>
+          <tr><td>Edit item</td><td>Click item &rarr; <span class="ui-element">Edit</span></td></tr>
+          <tr><td>Deactivate item</td><td>Edit &rarr; toggle Active off</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

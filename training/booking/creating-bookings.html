@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creating Bookings — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-calendar-check"></i> Module 6</div>
+        <h1>Creating Bookings</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 5 min read</span></div>
+      </div>
+
+      <p>Create bookings by selecting a client, service, provider, and available time slot. The system prevents double-booking and sends automatic confirmations.</p>
+
+      <h2 id="booking-steps">Step-by-Step Booking</h2>
+      <ol class="steps">
+        <li><div class="step-title">Click <span class="ui-element">+ New Booking</span></div><div class="step-desc">From the calendar view, click New Booking. Or double-click a time slot on the calendar.</div></li>
+        <li><div class="step-title">Select the Client</div><div class="step-desc">Search for the client by name, phone, or client ID. If they're new, create their record first.</div></li>
+        <li><div class="step-title">Choose a Service</div><div class="step-desc">Select the service from the catalog. The duration is automatically set based on the service definition.</div></li>
+        <li><div class="step-title">Select a Provider</div><div class="step-desc">Choose the service provider. Only available providers (those with open time slots) are shown.</div></li>
+        <li><div class="step-title">Pick Date and Time</div><div class="step-desc">Select the date and available time slot. The system shows only open slots based on the provider's schedule.</div></li>
+        <li><div class="step-title">Add Notes (Optional)</div><div class="step-desc">Add any special notes (e.g., "Client prefers room 2" or "First visit — needs intake form").</div></li>
+        <li><div class="step-title">Confirm Booking</div><div class="step-desc">Review the details and click <span class="ui-element">Book Appointment</span>. The system saves the booking and sends a confirmation to the client.</div></li>
+      </ol>
+
+      <div class="callout callout-important">
+        <i class="fa-solid fa-circle-info"></i>
+        <div><p><strong>No double booking.</strong> The system won't allow you to book two clients with the same provider at the same time. If a conflict exists, choose a different time or provider.</p></div>
+      </div>
+
+      <h2 id="recurring-bookings">Recurring Bookings</h2>
+      <p>For clients with regular schedules:</p>
+      <ol class="steps">
+        <li><div class="step-title">Check "Recurring"</div><div class="step-desc">In the booking form, toggle the Recurring option.</div></li>
+        <li><div class="step-title">Set Frequency</div><div class="step-desc">Choose Weekly, Bi-weekly, or Monthly.</div></li>
+        <li><div class="step-title">Set End Date</div><div class="step-desc">Choose how many sessions or an end date.</div></li>
+      </ol>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>New booking</td><td><span class="ui-element">+ New Booking</span> or double-click calendar</td></tr>
+          <tr><td>Required info</td><td>Client, service, provider, date/time</td></tr>
+          <tr><td>Recurring</td><td>Toggle "Recurring" &rarr; set frequency</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

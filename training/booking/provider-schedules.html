@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Provider Schedules — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-calendar-check"></i> Module 6</div>
+        <h1>Provider Schedules</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 4 min read</span></div>
+      </div>
+
+      <p>Provider schedules define when each service provider is available for bookings. Proper setup prevents overbooking and ensures clients see accurate availability.</p>
+
+      <h2 id="setting-hours">Setting Working Hours</h2>
+      <ol class="steps">
+        <li><div class="step-title">Go to Settings &rarr; Providers</div><div class="step-desc">Navigate to the provider management area.</div></li>
+        <li><div class="step-title">Select a Provider</div><div class="step-desc">Click on the provider whose schedule you want to set.</div></li>
+        <li><div class="step-title">Set Weekly Hours</div><div class="step-desc">For each day of the week, set the start and end times. Leave a day blank if the provider doesn't work that day.</div></li>
+        <li><div class="step-title">Add Breaks</div><div class="step-desc">Click <span class="ui-element">+ Add Break</span> to block out lunch or other break times within a working day.</div></li>
+        <li><div class="step-title">Save</div><div class="step-desc">Click <span class="ui-element">Save Schedule</span>. The booking calendar immediately reflects these hours.</div></li>
+      </ol>
+
+      <h2 id="time-off">Blocking Time Off</h2>
+      <ol class="steps">
+        <li><div class="step-title">Click <span class="ui-element">Add Time Off</span></div><div class="step-desc">From the provider's schedule page, click Add Time Off.</div></li>
+        <li><div class="step-title">Select Dates</div><div class="step-desc">Choose the start and end dates of the time off.</div></li>
+        <li><div class="step-title">Add a Reason (Optional)</div><div class="step-desc">Enter "Vacation", "Training", "Personal", etc.</div></li>
+        <li><div class="step-title">Save</div><div class="step-desc">Those dates are blocked — no bookings can be made for this provider during that period.</div></li>
+      </ol>
+
+      <div class="callout callout-warning">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div><p><strong>Check existing bookings first.</strong> If the provider already has bookings during the time-off period, you'll need to reschedule them before blocking the time.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Set working hours</td><td>Settings &rarr; Providers &rarr; select provider &rarr; Weekly Hours</td></tr>
+          <tr><td>Add breaks</td><td>Provider schedule &rarr; <span class="ui-element">+ Add Break</span></td></tr>
+          <tr><td>Block time off</td><td>Provider schedule &rarr; <span class="ui-element">Add Time Off</span></td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Receipts — Training Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="page-content">
+
+      <div class="page-header">
+        <div class="module-badge"><i class="fa-solid fa-credit-card"></i> Module 3</div>
+        <h1>Receipts</h1>
+        <div class="page-meta"><span><i class="fa-regular fa-clock"></i> 3 min read</span></div>
+      </div>
+
+      <p>After processing a payment, you can generate a receipt for the client. Receipts can be printed on the spot, emailed, or saved as a PDF.</p>
+
+      <h2 id="generating-receipt">Generating a Receipt</h2>
+      <ol class="steps">
+        <li><div class="step-title">After a Payment</div><div class="step-desc">Immediately after processing a payment, a prompt appears: "Send receipt?" with options to Print, Email, or Skip.</div></li>
+        <li><div class="step-title">Choose Delivery Method</div><div class="step-desc">Select how the client wants their receipt. Email is the most common.</div></li>
+      </ol>
+
+      <h2 id="resending-receipt">Resending a Past Receipt</h2>
+      <ol class="steps">
+        <li><div class="step-title">Open the Payment History</div><div class="step-desc">Go to the client's billing tab and find the payment in the transaction list.</div></li>
+        <li><div class="step-title">Click the Receipt Icon</div><div class="step-desc">Next to the payment entry, click the receipt icon (or click the payment to open details).</div></li>
+        <li><div class="step-title">Resend or Print</div><div class="step-desc">Choose <span class="ui-element">Email Receipt</span> or <span class="ui-element">Print Receipt</span>.</div></li>
+      </ol>
+
+      <h2 id="receipt-contents">What's on the Receipt</h2>
+      <ul>
+        <li>Business name, address, and contact info</li>
+        <li>Date and time of payment</li>
+        <li>Client name</li>
+        <li>Payment amount and method (e.g., "Visa ending 4242")</li>
+        <li>Description of what was paid for</li>
+        <li>Unique transaction reference number</li>
+      </ul>
+
+      <div class="callout callout-tip">
+        <i class="fa-solid fa-lightbulb"></i>
+        <div><p><strong>Tip:</strong> Always offer a receipt. Many clients need them for expense reports, insurance claims, or personal records.</p></div>
+      </div>
+
+      <h2 id="quick-reference">Quick Reference</h2>
+      <table>
+        <thead><tr><th>Action</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Send receipt after payment</td><td>Choose Print or Email when prompted</td></tr>
+          <tr><td>Resend old receipt</td><td>Payment History &rarr; click receipt icon</td></tr>
+          <tr><td>Print receipt</td><td>Receipt view &rarr; <span class="ui-element">Print</span></td></tr>
+          <tr><td>Email receipt</td><td>Receipt view &rarr; <span class="ui-element">Email</span></td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+<script src="../js/nav-data.js"></script>
+<script src="../js/components.js"></script>
+</body>
+</html>
