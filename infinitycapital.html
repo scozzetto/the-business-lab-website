@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinity Capital Lending | Property Management & Business Lending</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        :root{--gold:#d4af37;--gold-light:#e8cc6e;--dark:#0a0f1a;--navy:#0f172a;--slate:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--white:#ffffff}
+        html{scroll-behavior:smooth}
+        body{font-family:'Inter',sans-serif;background:var(--dark);color:var(--text);line-height:1.6;overflow-x:hidden}
+
+        /* NAV */
+        nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 0;transition:all .3s}
+        nav.scrolled{background:rgba(10,15,26,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(212,175,55,.1);padding:12px 0}
+        .nav-inner{max-width:1200px;margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between}
+        .nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+        .nav-logo-icon{width:42px;height:42px;background:linear-gradient(135deg,var(--gold),#b8962e);border-radius:10px;display:flex;align-items:center;justify-content:center}
+        .nav-logo-icon svg{width:22px;height:22px;stroke:var(--dark);fill:none;stroke-width:2.5}
+        .nav-brand{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--white)}
+        .nav-brand span{color:var(--gold)}
+        .nav-links{display:flex;align-items:center;gap:32px}
+        .nav-links a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s}
+        .nav-links a:hover{color:var(--gold)}
+        .nav-cta{padding:10px 24px;background:linear-gradient(135deg,var(--gold),#b8962e);color:var(--dark);border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;text-decoration:none;transition:all .2s}
+        .nav-cta:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(212,175,55,.3);color:var(--dark)}
+
+        /* HERO */
+        .hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden}
+        .hero-bg{position:absolute;inset:0;background:
+            radial-gradient(ellipse 80% 60% at 20% 40%,rgba(212,175,55,.08) 0%,transparent 60%),
+            radial-gradient(ellipse 60% 50% at 80% 30%,rgba(59,130,246,.05) 0%,transparent 50%),
+            radial-gradient(ellipse 50% 40% at 50% 80%,rgba(212,175,55,.04) 0%,transparent 50%)}
+        .hero-grid{position:absolute;inset:0;background-image:
+            linear-gradient(rgba(212,175,55,.03) 1px,transparent 1px),
+            linear-gradient(90deg,rgba(212,175,55,.03) 1px,transparent 1px);
+            background-size:60px 60px;opacity:.5}
+        .hero-inner{max-width:1200px;margin:0 auto;padding:140px 32px 80px;position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+        .hero-content h1{font-family:'Playfair Display',serif;font-size:56px;font-weight:800;line-height:1.1;color:var(--white);margin-bottom:24px}
+        .hero-content h1 span{background:linear-gradient(135deg,var(--gold),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .hero-content p{font-size:18px;color:var(--muted);line-height:1.7;margin-bottom:36px;max-width:500px}
+        .hero-btns{display:flex;gap:16px;flex-wrap:wrap}
+        .btn-primary{padding:14px 32px;background:linear-gradient(135deg,var(--gold),#b8962e);color:var(--dark);border:none;border-radius:10px;font-family:'Inter',sans-serif;font-size:15px;font-weight:600;cursor:pointer;text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(212,175,55,.3);color:var(--dark)}
+        .btn-outline{padding:14px 32px;background:transparent;color:var(--white);border:1px solid rgba(255,255,255,.15);border-radius:10px;font-family:'Inter',sans-serif;font-size:15px;font-weight:500;cursor:pointer;text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+        .btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+        .hero-visual{display:flex;justify-content:center;align-items:center}
+        .hero-card{background:rgba(255,255,255,.03);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:40px;width:100%;max-width:420px}
+        .hero-card-stat{margin-bottom:28px}
+        .hero-card-stat:last-child{margin-bottom:0}
+        .hero-card-label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+        .hero-card-val{font-size:32px;font-weight:700;color:var(--white);font-family:'Playfair Display',serif}
+        .hero-card-val.gold{color:var(--gold)}
+        .hero-card-bar{height:6px;background:rgba(255,255,255,.06);border-radius:3px;margin-top:8px;overflow:hidden}
+        .hero-card-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--gold-light))}
+        .hero-card-divider{height:1px;background:rgba(255,255,255,.06);margin:24px 0}
+
+        /* SERVICES */
+        .services{padding:100px 0;position:relative}
+        .services::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(212,175,55,.2),transparent)}
+        .container{max-width:1200px;margin:0 auto;padding:0 32px}
+        .section-label{font-size:12px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px}
+        .section-title{font-family:'Playfair Display',serif;font-size:40px;font-weight:700;color:var(--white);margin-bottom:16px}
+        .section-sub{font-size:17px;color:var(--muted);max-width:600px;margin-bottom:48px}
+        .services-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+        .service-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:40px;transition:all .3s;position:relative;overflow:hidden}
+        .service-card:hover{border-color:rgba(212,175,55,.2);background:rgba(255,255,255,.04);transform:translateY(-4px)}
+        .service-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),transparent);opacity:0;transition:opacity .3s}
+        .service-card:hover::before{opacity:1}
+        .service-icon{width:56px;height:56px;background:rgba(212,175,55,.1);border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+        .service-icon svg{width:28px;height:28px;stroke:var(--gold);fill:none;stroke-width:1.5}
+        .service-card h3{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--white);margin-bottom:12px}
+        .service-card p{font-size:15px;color:var(--muted);line-height:1.7}
+        .service-card ul{list-style:none;margin-top:16px}
+        .service-card ul li{font-size:14px;color:var(--muted);padding:6px 0;display:flex;align-items:center;gap:10px}
+        .service-card ul li::before{content:'';width:6px;height:6px;background:var(--gold);border-radius:50%;flex-shrink:0}
+
+        /* WHY */
+        .why{padding:100px 0;background:linear-gradient(180deg,transparent,rgba(212,175,55,.02),transparent)}
+        .why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+        .why-card{text-align:center;padding:36px 28px}
+        .why-num{font-family:'Playfair Display',serif;font-size:48px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+        .why-card h4{font-size:16px;font-weight:600;color:var(--white);margin-bottom:8px}
+        .why-card p{font-size:14px;color:var(--muted);line-height:1.6}
+
+        /* CTA */
+        .cta-section{padding:100px 0}
+        .cta-box{background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(212,175,55,.02));border:1px solid rgba(212,175,55,.15);border-radius:24px;padding:64px;text-align:center;position:relative;overflow:hidden}
+        .cta-box::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(212,175,55,.05) 0%,transparent 50%);animation:pulse 8s ease-in-out infinite}
+        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+        .cta-box h2{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:var(--white);margin-bottom:16px;position:relative;z-index:1}
+        .cta-box p{font-size:17px;color:var(--muted);margin-bottom:32px;position:relative;z-index:1}
+        .cta-box .btn-primary{position:relative;z-index:1;font-size:16px;padding:16px 40px}
+
+        /* FOOTER */
+        footer{padding:48px 0;border-top:1px solid rgba(255,255,255,.06)}
+        .footer-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+        .footer-brand{display:flex;align-items:center;gap:10px}
+        .footer-brand span{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--white)}
+        .footer-copy{font-size:13px;color:var(--muted)}
+        .footer-links{display:flex;gap:24px}
+        .footer-links a{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s}
+        .footer-links a:hover{color:var(--gold)}
+
+        /* RESPONSIVE */
+        @media(max-width:768px){
+            .hero-inner{grid-template-columns:1fr;text-align:center;padding-top:120px}
+            .hero-content h1{font-size:36px}
+            .hero-content p{margin:0 auto 32px}
+            .hero-btns{justify-content:center}
+            .hero-visual{display:none}
+            .services-grid{grid-template-columns:1fr}
+            .why-grid{grid-template-columns:1fr}
+            .nav-links{display:none}
+            .cta-box{padding:40px 24px}
+            .cta-box h2{font-size:28px}
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+    <div class="nav-inner">
+        <a href="#" class="nav-logo">
+            <div class="nav-logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+            <div class="nav-brand">Infinity <span>Capital</span></div>
+        </a>
+        <div class="nav-links">
+            <a href="/">The Business Lab</a>
+            <a href="#services">Services</a>
+            <a href="#why">Why Us</a>
+            <a href="#contact">Contact</a>
+            <a href="https://infinitycapital.thebusiness-lab.com" class="nav-cta">Client Portal</a>
+        </div>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-inner">
+        <div class="hero-content">
+            <h1>Smart Capital.<br><span>Smarter Management.</span></h1>
+            <p>Infinity Capital Lending provides professional property management and strategic business lending solutions. We protect your investments and fuel your growth.</p>
+            <div class="hero-btns">
+                <a href="#contact" class="btn-primary">Get Started <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
+                <a href="#services" class="btn-outline">Our Services</a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="hero-card">
+                <div class="hero-card-stat">
+                    <div class="hero-card-label">Properties Under Management</div>
+                    <div class="hero-card-val gold">$12M+</div>
+                    <div class="hero-card-bar"><div class="hero-card-bar-fill" style="width:78%"></div></div>
+                </div>
+                <div class="hero-card-divider"></div>
+                <div class="hero-card-stat">
+                    <div class="hero-card-label">Occupancy Rate</div>
+                    <div class="hero-card-val">96%</div>
+                    <div class="hero-card-bar"><div class="hero-card-bar-fill" style="width:96%"></div></div>
+                </div>
+                <div class="hero-card-divider"></div>
+                <div class="hero-card-stat">
+                    <div class="hero-card-label">Loans Funded This Year</div>
+                    <div class="hero-card-val gold">$4.2M</div>
+                    <div class="hero-card-bar"><div class="hero-card-bar-fill" style="width:62%"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SERVICES -->
+<section class="services" id="services">
+    <div class="container">
+        <div class="section-label">What We Do</div>
+        <div class="section-title">Two Pillars of Growth</div>
+        <div class="section-sub">From managing your properties to financing your next venture, we deliver results-driven solutions built on trust and expertise.</div>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+                <h3>Property Management</h3>
+                <p>Full-service property management for residential and commercial portfolios. We handle everything so you can focus on what matters.</p>
+                <ul>
+                    <li>Tenant screening & placement</li>
+                    <li>Rent collection & financial reporting</li>
+                    <li>Maintenance coordination & vendor management</li>
+                    <li>Lease administration & compliance</li>
+                    <li>Real-time owner portal with full transparency</li>
+                    <li>24/7 tenant communication system</li>
+                </ul>
+            </div>
+            <div class="service-card">
+                <div class="service-icon"><svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+                <h3>Business Lending</h3>
+                <p>Flexible capital solutions for real estate investors and business owners. Fast approvals, competitive rates, and terms that make sense.</p>
+                <ul>
+                    <li>Fix & flip financing</li>
+                    <li>Bridge loans & hard money</li>
+                    <li>Commercial real estate loans</li>
+                    <li>Small business expansion capital</li>
+                    <li>Construction & renovation funding</li>
+                    <li>Portfolio & blanket loans</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- WHY US -->
+<section class="why" id="why">
+    <div class="container">
+        <div class="section-label" style="text-align:center">Why Infinity Capital</div>
+        <div class="section-title" style="text-align:center;margin-bottom:48px">Built on Results</div>
+        <div class="why-grid">
+            <div class="why-card">
+                <div class="why-num">15+</div>
+                <h4>Years Experience</h4>
+                <p>Deep expertise in Michigan real estate and business finance</p>
+            </div>
+            <div class="why-card">
+                <div class="why-num">96%</div>
+                <h4>Occupancy Rate</h4>
+                <p>Industry-leading tenant retention through proactive management</p>
+            </div>
+            <div class="why-card">
+                <div class="why-num">48hr</div>
+                <h4>Loan Decisions</h4>
+                <p>Fast underwriting means you never miss an opportunity</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA / CONTACT -->
+<section class="cta-section" id="contact">
+    <div class="container">
+        <div class="cta-box">
+            <h2>Ready to Grow Your Portfolio?</h2>
+            <p>Whether you need a property manager you can trust or capital for your next deal, we're ready to talk.</p>
+            <a href="mailto:silvio@infinitycapitallending.com" class="btn-primary">Contact Us <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="container">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <div class="nav-logo-icon" style="width:32px;height:32px;border-radius:8px"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--dark);fill:none;stroke-width:2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+                <span>Infinity Capital Lending</span>
+            </div>
+            <div class="footer-links">
+                <a href="#services">Services</a>
+                <a href="#contact">Contact</a>
+                <a href="https://infinitycapital.thebusiness-lab.com">Client Portal</a>
+                <a href="/">Back to The Business Lab</a>
+            </div>
+            <div class="footer-copy">&copy; 2026 Infinity Capital Lending. All rights reserved.</div>
+        </div>
+    </div>
+</footer>
+
+<script>
+// Scroll nav effect
+window.addEventListener('scroll',function(){
+    document.getElementById('nav').classList.toggle('scrolled',window.scrollY>50);
+});
+</script>
+
+</body>
+</html>
