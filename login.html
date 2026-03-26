@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | The Business Lab</title>
+    <meta name="theme-color" content="#d4af37">
+    <meta name="description" content="Sign in to your Business Lab client portal">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&family=Playfair+Display:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --brand-primary: #1e40af;
+            --brand-secondary: #d4af37;
+            --brand-bg: #0f172a;
+            --brand-text: #ffffff;
+            --surface: #ffffff;
+            --surface-alt: #f8fafc;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --focus-ring: #3b82f6;
+            --error: #ef4444;
+            --transition: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--surface);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ============================
+           LAYOUT - Split Screen
+           ============================ */
+        .login-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Left Brand Panel */
+        .brand-panel {
+            flex: 0 0 45%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem;
+            overflow: hidden;
+            background: var(--brand-bg);
+            color: var(--brand-text);
+            transition: background 0.6s var(--transition);
+        }
+
+        .brand-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(212, 175, 55, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+            animation: gradientShift 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes gradientShift {
+            0% { opacity: 0.6; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.05); }
+        }
+
+        /* Decorative grid pattern */
+        .brand-panel::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        .brand-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            max-width: 400px;
+            animation: fadeInUp 0.8s var(--transition) both;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .brand-logo-container {
+            width: 100px;
+            height: 100px;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.5s var(--transition);
+        }
+
+        .brand-company-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 0.75rem;
+            transition: all 0.5s var(--transition);
+        }
+
+        .brand-tagline {
+            font-size: 1.05rem;
+            font-weight: 300;
+            opacity: 0.8;
+            line-height: 1.5;
+            margin-bottom: 2.5rem;
+        }
+
+        .brand-features {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            text-align: left;
+        }
+
+        .brand-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            font-weight: 400;
+            opacity: 0.85;
+        }
+
+        .brand-feature i {
+            width: 20px;
+            text-align: center;
+            color: var(--brand-secondary);
+        }
+
+        .brand-footer {
+            position: absolute;
+            bottom: 2rem;
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 1;
+            font-size: 0.8rem;
+            opacity: 0.5;
+        }
+
+        .brand-footer a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .brand-footer a:hover {
+            opacity: 0.8;
+        }
+
+        /* Right Form Panel */
+        .form-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem 2rem;
+            background: var(--surface);
+            overflow-y: auto;
+        }
+
+        .form-wrapper {
+            width: 100%;
+            max-width: 420px;
+            animation: fadeInUp 0.8s var(--transition) 0.2s both;
+        }
+
+        .form-header {
+            margin-bottom: 2rem;
+        }
+
+        .form-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-header p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* SSO Buttons */
+        .sso-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .sso-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--surface);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s var(--transition);
+        }
+
+        .sso-btn:hover {
+            background: var(--surface-alt);
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .sso-btn:active {
+            transform: translateY(0);
+        }
+
+        .sso-btn img {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Google SVG inline */
+        .sso-google-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        /* Microsoft SVG inline */
+        .sso-microsoft-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.75rem;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* Form Fields */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.4rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            pointer-events: none;
+            transition: color 0.2s;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.8rem 0.8rem 0.8rem 2.6rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            background: var(--surface);
+            transition: all 0.2s var(--transition);
+            outline: none;
+        }
+
+        .form-input::placeholder {
+            color: #94a3b8;
+        }
+
+        .form-input:focus {
+            border-color: var(--focus-ring);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+        .form-input:focus + i,
+        .form-input:focus ~ i {
+            color: var(--focus-ring);
+        }
+
+        .input-wrapper .toggle-password {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            font-size: 0.9rem;
+            pointer-events: all;
+        }
+
+        .toggle-password:hover {
+            color: var(--text-primary);
+        }
+
+        /* Remember + Forgot */
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--focus-ring);
+            cursor: pointer;
+        }
+
+        .forgot-link {
+            color: var(--focus-ring);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #fff;
+            background: linear-gradient(135deg, var(--brand-primary), #2563eb);
+            cursor: pointer;
+            transition: all 0.3s var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(30, 64, 175, 0.3);
+        }
+
+        .submit-btn:hover::before {
+            opacity: 1;
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Error message */
+        .form-error {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 10px;
+            color: var(--error);
+            font-size: 0.85rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .form-error.visible {
+            display: flex;
+        }
+
+        /* Sign Up link */
+        .signup-prompt {
+            text-align: center;
+            margin-top: 1.75rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .signup-prompt a {
+            color: var(--focus-ring);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .signup-prompt a:hover {
+            text-decoration: underline;
+        }
+
+        /* ============================
+           DEMO SWITCHER (dev only)
+           ============================ */
+        .demo-switcher {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 100;
+            background: var(--surface);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--border);
+            padding: 1rem;
+            max-width: 280px;
+            transition: all 0.3s var(--transition);
+        }
+
+        .demo-switcher-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: none;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .demo-switcher-toggle i {
+            transition: transform 0.3s;
+        }
+
+        .demo-switcher.collapsed .demo-switcher-toggle i {
+            transform: rotate(180deg);
+        }
+
+        .demo-switcher.collapsed .demo-options {
+            display: none;
+        }
+
+        .demo-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            margin-top: 0.75rem;
+        }
+
+        .demo-option {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.5rem 0.6rem;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.82rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: background 0.15s;
+            text-align: left;
+        }
+
+        .demo-option:hover {
+            background: var(--surface-alt);
+        }
+
+        .demo-option.active {
+            background: #eff6ff;
+            font-weight: 600;
+        }
+
+        .demo-option-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* ============================
+           RESPONSIVE
+           ============================ */
+        @media (max-width: 900px) {
+            .login-container {
+                flex-direction: column;
+            }
+
+            .brand-panel {
+                flex: 0 0 auto;
+                padding: 2.5rem 2rem 2rem;
+                min-height: 220px;
+            }
+
+            .brand-content {
+                max-width: 100%;
+            }
+
+            .brand-company-name {
+                font-size: 1.6rem;
+            }
+
+            .brand-tagline {
+                font-size: 0.9rem;
+                margin-bottom: 1.25rem;
+            }
+
+            .brand-features {
+                display: none;
+            }
+
+            .brand-footer {
+                display: none;
+            }
+
+            .form-panel {
+                padding: 2rem 1.5rem 3rem;
+            }
+
+            .demo-switcher {
+                bottom: 0.75rem;
+                right: 0.75rem;
+                max-width: 240px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .brand-panel {
+                padding: 2rem 1.5rem 1.5rem;
+                min-height: 180px;
+            }
+
+            .brand-logo-container {
+                width: 72px;
+                height: 72px;
+                font-size: 1.8rem;
+                margin-bottom: 1.25rem;
+                border-radius: 18px;
+            }
+
+            .brand-company-name {
+                font-size: 1.3rem;
+            }
+
+            .form-wrapper {
+                max-width: 100%;
+            }
+
+            .form-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <!-- Left: Brand Panel -->
+    <div class="brand-panel" id="brandPanel">
+        <div class="brand-content" id="brandContent">
+            <div class="brand-logo-container" id="brandLogo">
+                <i class="fas fa-flask"></i>
+            </div>
+            <h2 class="brand-company-name" id="brandName">The Business Lab</h2>
+            <p class="brand-tagline" id="brandTagline">Your all-in-one platform for business management, analytics, and growth.</p>
+            <div class="brand-features" id="brandFeatures">
+                <div class="brand-feature"><i class="fas fa-chart-line"></i> Real-time analytics dashboard</div>
+                <div class="brand-feature"><i class="fas fa-users"></i> Client management tools</div>
+                <div class="brand-feature"><i class="fas fa-shield-halved"></i> Enterprise-grade security</div>
+                <div class="brand-feature"><i class="fas fa-bolt"></i> Automated workflows</div>
+            </div>
+        </div>
+        <div class="brand-footer">
+            Powered by <a href="https://thebusiness-lab.com">The Business Lab</a>
+        </div>
+    </div>
+
+    <!-- Right: Login Form -->
+    <div class="form-panel">
+        <div class="form-wrapper">
+            <div class="form-header">
+                <h1>Welcome back</h1>
+                <p id="formSubtitle">Sign in to your account to continue</p>
+            </div>
+
+            <!-- SSO Buttons -->
+            <div class="sso-buttons">
+                <button class="sso-btn" type="button" onclick="handleSSO('google')">
+                    <svg class="sso-google-icon" viewBox="0 0 24 24">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.04 10.04 0 0 0 1.09 12c0 1.62.39 3.14 1.09 4.49l3.66-2.84z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 1.99 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                    Continue with Google
+                </button>
+                <button class="sso-btn" type="button" onclick="handleSSO('microsoft')">
+                    <svg class="sso-microsoft-icon" viewBox="0 0 21 21">
+                        <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
+                        <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
+                        <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
+                        <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+                    </svg>
+                    Continue with Microsoft
+                </button>
+            </div>
+
+            <div class="divider">or sign in with email</div>
+
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-error" id="formError">
+                    <i class="fas fa-circle-exclamation"></i>
+                    <span id="errorMessage">Invalid email or password</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email address</label>
+                    <div class="input-wrapper">
+                        <input
+                            type="email"
+                            id="email"
+                            class="form-input"
+                            placeholder="you@company.com"
+                            autocomplete="email"
+                            required
+                        >
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <input
+                            type="password"
+                            id="password"
+                            class="form-input"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+                        <i class="fas fa-lock"></i>
+                        <button type="button" class="toggle-password" onclick="togglePassword()" aria-label="Toggle password visibility">
+                            <i class="fas fa-eye" id="eyeIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="remember-me">
+                        <input type="checkbox" id="remember"> Remember me
+                    </label>
+                    <a href="#" class="forgot-link" onclick="handleForgotPassword(event)">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    Sign In
+                </button>
+            </form>
+
+            <p class="signup-prompt">
+                Don't have an account? <a href="#" onclick="handleSignup(event)">Request access</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Demo Company Switcher (dev/testing only) -->
+<div class="demo-switcher" id="demoSwitcher">
+    <button class="demo-switcher-toggle" onclick="toggleDemoSwitcher()">
+        <i class="fas fa-chevron-up"></i> Demo: Switch Company
+    </button>
+    <div class="demo-options" id="demoOptions"></div>
+</div>
+
+<script>
+    // ============================
+    // Company Branding Registry
+    // ============================
+    const COMPANIES = {
+        'default': {
+            name: 'The Business Lab',
+            tagline: 'Your all-in-one platform for business management, analytics, and growth.',
+            icon: 'fas fa-flask',
+            logo: null,
+            bgColor: '#0f172a',
+            accentColor: '#d4af37',
+            gradientFrom: '#0f172a',
+            gradientTo: '#1e3a5f',
+            features: [
+                { icon: 'fas fa-chart-line', text: 'Real-time analytics dashboard' },
+                { icon: 'fas fa-users', text: 'Client management tools' },
+                { icon: 'fas fa-shield-halved', text: 'Enterprise-grade security' },
+                { icon: 'fas fa-bolt', text: 'Automated workflows' }
+            ]
+        },
+        'bewell': {
+            name: 'Be Well LifeStyle Centers',
+            tagline: 'Empowering your wellness journey with integrated health management.',
+            icon: 'fas fa-leaf',
+            logo: null,
+            bgColor: '#1a332a',
+            accentColor: '#4ade80',
+            gradientFrom: '#1a332a',
+            gradientTo: '#2d5a3f',
+            features: [
+                { icon: 'fas fa-heartbeat', text: 'Patient health tracking' },
+                { icon: 'fas fa-calendar-check', text: 'Appointment management' },
+                { icon: 'fas fa-file-medical', text: 'Digital health records' },
+                { icon: 'fas fa-pills', text: 'Protocol & treatment tools' }
+            ]
+        },
+        'boogieburgers': {
+            name: 'Boogie Burgers',
+            tagline: 'Manage your restaurant operations, orders, and customer loyalty.',
+            icon: 'fas fa-burger',
+            logo: null,
+            bgColor: '#422006',
+            accentColor: '#f59e0b',
+            gradientFrom: '#422006',
+            gradientTo: '#78350f',
+            features: [
+                { icon: 'fas fa-cash-register', text: 'Point of sale & ordering' },
+                { icon: 'fas fa-truck', text: 'Inventory management' },
+                { icon: 'fas fa-star', text: 'Customer loyalty program' },
+                { icon: 'fas fa-chart-bar', text: 'Sales analytics' }
+            ]
+        },
+        'socialrebel': {
+            name: 'Social Rebel',
+            tagline: 'Your command center for social media strategy and content management.',
+            icon: 'fas fa-bullhorn',
+            logo: null,
+            bgColor: '#2e1065',
+            accentColor: '#a78bfa',
+            gradientFrom: '#2e1065',
+            gradientTo: '#4c1d95',
+            features: [
+                { icon: 'fas fa-hashtag', text: 'Social campaign management' },
+                { icon: 'fas fa-image', text: 'Content creation tools' },
+                { icon: 'fas fa-chart-pie', text: 'Engagement analytics' },
+                { icon: 'fas fa-calendar', text: 'Scheduling & automation' }
+            ]
+        },
+        'blendzz': {
+            name: 'BlendZZ',
+            tagline: 'Supplements for life. Manage your product line and distribution.',
+            icon: 'fas fa-capsules',
+            logo: null,
+            bgColor: '#052e16',
+            accentColor: '#34d399',
+            gradientFrom: '#052e16',
+            gradientTo: '#14532d',
+            features: [
+                { icon: 'fas fa-box', text: 'Product catalog management' },
+                { icon: 'fas fa-warehouse', text: 'Inventory & fulfillment' },
+                { icon: 'fas fa-flask-vial', text: 'Batch & lot tracking' },
+                { icon: 'fas fa-shopping-cart', text: 'E-commerce dashboard' }
+            ]
+        },
+        'thekitchen': {
+            name: 'The Kitchen by Be Well',
+            tagline: 'Fresh, healthy dining operations powered by smart technology.',
+            icon: 'fas fa-utensils',
+            logo: null,
+            bgColor: '#14332a',
+            accentColor: '#6ee7b7',
+            gradientFrom: '#14332a',
+            gradientTo: '#1e4d3d',
+            features: [
+                { icon: 'fas fa-clipboard-list', text: 'Menu & recipe management' },
+                { icon: 'fas fa-users', text: 'Staff scheduling' },
+                { icon: 'fas fa-money-bill-wave', text: 'Revenue tracking' },
+                { icon: 'fas fa-leaf', text: 'Nutrition & sourcing data' }
+            ]
+        },
+        'pookiespretzels': {
+            name: "Pookie's Pretzels",
+            tagline: 'Made with love. Manage your pretzel empire from one dashboard.',
+            icon: 'fas fa-cookie-bite',
+            logo: null,
+            bgColor: '#3b0764',
+            accentColor: '#c084fc',
+            gradientFrom: '#3b0764',
+            gradientTo: '#581c87',
+            features: [
+                { icon: 'fas fa-store', text: 'Multi-location management' },
+                { icon: 'fas fa-receipt', text: 'Order processing' },
+                { icon: 'fas fa-chart-line', text: 'Daily sales reports' },
+                { icon: 'fas fa-heart', text: 'Customer favorites tracking' }
+            ]
+        },
+        'whybars': {
+            name: 'why bars',
+            tagline: 'Snack smarter. Manage production, distribution, and retail.',
+            icon: 'fas fa-candy-cane',
+            logo: null,
+            bgColor: '#1c1917',
+            accentColor: '#d4af37',
+            gradientFrom: '#1c1917',
+            gradientTo: '#44403c',
+            features: [
+                { icon: 'fas fa-industry', text: 'Production tracking' },
+                { icon: 'fas fa-truck-fast', text: 'Distribution management' },
+                { icon: 'fas fa-store', text: 'Retail partner portal' },
+                { icon: 'fas fa-chart-bar', text: 'Sales performance' }
+            ]
+        }
+    };
+
+    // ============================
+    // Subdomain Detection
+    // ============================
+    function detectCompany() {
+        const hostname = window.location.hostname;
+
+        // Extract subdomain: e.g., "bewell" from "bewell.thebusiness-lab.com"
+        const parts = hostname.split('.');
+        if (parts.length >= 3) {
+            const subdomain = parts[0].toLowerCase();
+            // Ignore www or other system subdomains
+            if (subdomain !== 'www' && subdomain !== 'app' && subdomain !== 'api') {
+                return subdomain;
+            }
+        }
+
+        // Check URL params for testing (?company=bewell)
+        const params = new URLSearchParams(window.location.search);
+        const companyParam = params.get('company');
+        if (companyParam) {
+            return companyParam.toLowerCase();
+        }
+
+        return 'default';
+    }
+
+    // ============================
+    // Apply Company Branding
+    // ============================
+    function applyBranding(companyKey) {
+        const company = COMPANIES[companyKey] || COMPANIES['default'];
+        const panel = document.getElementById('brandPanel');
+        const logo = document.getElementById('brandLogo');
+        const name = document.getElementById('brandName');
+        const tagline = document.getElementById('brandTagline');
+        const features = document.getElementById('brandFeatures');
+        const subtitle = document.getElementById('formSubtitle');
+
+        // Background
+        panel.style.background = `linear-gradient(135deg, ${company.gradientFrom}, ${company.gradientTo})`;
+
+        // Logo / Icon
+        logo.innerHTML = `<i class="${company.icon}"></i>`;
+        logo.style.borderColor = company.accentColor + '40';
+
+        // Text
+        name.textContent = company.name;
+        tagline.textContent = company.tagline;
+
+        // Features
+        features.innerHTML = company.features.map(f =>
+            `<div class="brand-feature"><i class="${f.icon}" style="color: ${company.accentColor}"></i> ${f.text}</div>`
+        ).join('');
+
+        // Form subtitle
+        if (companyKey !== 'default') {
+            subtitle.textContent = `Sign in to your ${company.name} portal`;
+        } else {
+            subtitle.textContent = 'Sign in to your account to continue';
+        }
+
+        // Page title
+        document.title = companyKey !== 'default'
+            ? `Login | ${company.name} — The Business Lab`
+            : 'Login | The Business Lab';
+
+        // Update submit button color
+        const submitBtn = document.getElementById('submitBtn');
+        if (companyKey !== 'default') {
+            submitBtn.style.background = `linear-gradient(135deg, ${company.gradientFrom}, ${company.gradientTo})`;
+        }
+
+        // Update active demo option
+        document.querySelectorAll('.demo-option').forEach(opt => {
+            opt.classList.toggle('active', opt.dataset.company === companyKey);
+        });
+
+        // Store current
+        window._currentCompany = companyKey;
+    }
+
+    // ============================
+    // Demo Switcher
+    // ============================
+    function buildDemoSwitcher() {
+        const container = document.getElementById('demoOptions');
+        const entries = Object.entries(COMPANIES);
+
+        container.innerHTML = entries.map(([key, company]) => {
+            const dotColor = company.accentColor;
+            return `<button class="demo-option" data-company="${key}" onclick="applyBranding('${key}')">
+                <span class="demo-option-dot" style="background: ${dotColor}"></span>
+                ${company.name}
+            </button>`;
+        }).join('');
+    }
+
+    function toggleDemoSwitcher() {
+        document.getElementById('demoSwitcher').classList.toggle('collapsed');
+    }
+
+    // Hide demo switcher in production
+    function checkDemoMode() {
+        const hostname = window.location.hostname;
+        const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('netlify.app');
+        const params = new URLSearchParams(window.location.search);
+        const forceDemo = params.get('demo') === 'true';
+
+        if (!isLocal && !forceDemo) {
+            const switcher = document.getElementById('demoSwitcher');
+            if (switcher) switcher.style.display = 'none';
+        }
+    }
+
+    // ============================
+    // Form Handlers (placeholder)
+    // ============================
+    function handleLogin(event) {
+        event.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const errorEl = document.getElementById('formError');
+
+        if (!email || !password) {
+            document.getElementById('errorMessage').textContent = 'Please fill in all fields';
+            errorEl.classList.add('visible');
+            return;
+        }
+
+        // Hide any previous errors
+        errorEl.classList.remove('visible');
+
+        // Placeholder: show loading state
+        const btn = document.getElementById('submitBtn');
+        const originalText = btn.textContent;
+        btn.textContent = 'Signing in...';
+        btn.disabled = true;
+
+        setTimeout(() => {
+            // Placeholder: simulate auth check
+            alert(`Login attempt for ${email} at ${(COMPANIES[window._currentCompany] || COMPANIES['default']).name}\n\nThis is a UI prototype. Authentication will be connected in the GCP integration phase.`);
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }, 1200);
+    }
+
+    function handleSSO(provider) {
+        const companyName = (COMPANIES[window._currentCompany] || COMPANIES['default']).name;
+        alert(`${provider.charAt(0).toUpperCase() + provider.slice(1)} SSO for ${companyName}\n\nThis will be connected to GCP Identity Platform in the next phase.`);
+    }
+
+    function handleForgotPassword(event) {
+        event.preventDefault();
+        alert('Password reset flow will be implemented with the authentication backend.');
+    }
+
+    function handleSignup(event) {
+        event.preventDefault();
+        alert('Account registration will be available once the organization onboarding flow is built.');
+    }
+
+    function togglePassword() {
+        const input = document.getElementById('password');
+        const icon = document.getElementById('eyeIcon');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+
+    // ============================
+    // Initialize
+    // ============================
+    document.addEventListener('DOMContentLoaded', () => {
+        buildDemoSwitcher();
+        const companyKey = detectCompany();
+        applyBranding(companyKey);
+        checkDemoMode();
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">Dashboard | The Business Lab</title>
+    <meta name="theme-color" content="#d4af37">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ─── Reset ─── */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            min-height: 100vh;
+            display: flex;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+        }
+
+        /* ─── Sidebar ─── */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s;
+            overflow: hidden;
+        }
+
+        .sidebar-brand {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #d4af37, #b8962e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #0f172a;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .brand-text {
+            overflow: hidden;
+        }
+
+        .brand-name {
+            color: #ffffff;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .brand-subtitle {
+            color: #64748b;
+            font-size: 0.7rem;
+            white-space: nowrap;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 1rem 0;
+        }
+
+        .nav-section-label {
+            color: #475569;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 1.25rem 1.5rem 0.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item.active {
+            color: #d4af37;
+            background: rgba(212, 175, 55, 0.08);
+            border-left-color: #d4af37;
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .nav-item .badge {
+            margin-left: auto;
+            background: #ef4444;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.15rem 0.5rem;
+            border-radius: 50px;
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .user-name {
+            color: #e2e8f0;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .user-role {
+            color: #64748b;
+            font-size: 0.7rem;
+        }
+
+        /* ─── Main Content ─── */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            min-height: 100vh;
+        }
+
+        /* ─── Top Bar ─── */
+        .topbar {
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .topbar-greeting h1 {
+            font-size: 1.4rem;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .topbar-greeting p {
+            color: #64748b;
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .topbar-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .topbar-btn:hover {
+            border-color: #d4af37;
+            color: #d4af37;
+        }
+
+        .topbar-btn .notif-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .powered-by {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .powered-by span {
+            color: #d4af37;
+            font-weight: 600;
+        }
+
+        /* ─── Dashboard Content ─── */
+        .dashboard {
+            padding: 2rem;
+        }
+
+        /* ─── Quick Launch Cards ─── */
+        .quick-launch {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .launch-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .launch-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+
+        .launch-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+        }
+
+        .launch-card h3 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+        }
+
+        .launch-card p {
+            color: #64748b;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+
+        /* ─── Metrics Row ─── */
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            opacity: 0.06;
+            transform: translate(20px, -20px);
+        }
+
+        .metric-label {
+            color: #64748b;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .metric-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 50px;
+        }
+
+        .metric-change.up {
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .metric-change.down {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* ─── Content Grid ─── */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+        }
+
+        .card-header h3 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .card-header a {
+            color: #d4af37;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .card-header a:hover { text-decoration: underline; }
+
+        /* ─── Recent Orders Table ─── */
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .orders-table th {
+            text-align: left;
+            color: #64748b;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0.75rem 0.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .orders-table td {
+            padding: 0.75rem 0.5rem;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.2rem 0.7rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-completed { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .status-pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+        .status-preparing { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+
+        /* ─── Activity Feed ─── */
+        .activity-item {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .activity-item:last-child { border-bottom: none; }
+
+        .activity-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+
+        .activity-text {
+            font-size: 0.85rem;
+            color: #374151;
+            line-height: 1.4;
+        }
+
+        .activity-time {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            margin-top: 0.2rem;
+        }
+
+        /* ─── Revenue Chart (CSS only) ─── */
+        .chart-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.75rem;
+            height: 180px;
+            padding-top: 1rem;
+        }
+
+        .chart-bar-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chart-bar {
+            width: 100%;
+            max-width: 40px;
+            border-radius: 6px 6px 0 0;
+            background: linear-gradient(180deg, #d4af37, #b8962e);
+            transition: height 0.5s ease;
+        }
+
+        .chart-label {
+            font-size: 0.7rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* ─── Quick Stats Cards for sidebar ─── */
+        .quick-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .quick-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: #f8fafc;
+            border-radius: 10px;
+        }
+
+        .quick-stat-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .quick-stat-label {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .quick-stat-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        /* ─── Mobile ─── */
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; }
+            .sidebar .brand-text,
+            .sidebar .nav-section-label,
+            .sidebar .nav-item span,
+            .sidebar .nav-item .badge,
+            .sidebar .user-info .user-name,
+            .sidebar .user-info .user-role,
+            .sidebar-footer .user-info > div:last-child { display: none; }
+            .sidebar .nav-item { justify-content: center; padding: 0.75rem; }
+            .sidebar .sidebar-brand { justify-content: center; padding: 1rem; }
+            .main-content { margin-left: 70px; }
+            .content-grid { grid-template-columns: 1fr; }
+            .quick-launch { grid-template-columns: repeat(2, 1fr); }
+            .metrics-row { grid-template-columns: repeat(2, 1fr); }
+            .dashboard { padding: 1rem; }
+            .topbar { padding: 0.75rem 1rem; }
+            .topbar-greeting h1 { font-size: 1.1rem; }
+        }
+
+        @media (max-width: 480px) {
+            .quick-launch { grid-template-columns: 1fr; }
+            .metrics-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon" id="brandIcon">S</div>
+            <div class="brand-text">
+                <div class="brand-name" id="brandName">Sweet Rise Bakery</div>
+                <div class="brand-subtitle">Powered by The Business Lab</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main</div>
+            <a class="nav-item active" href="#" onclick="showSection('dashboard')">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </a>
+            <a class="nav-item" href="#" onclick="launchApp('pos')">
+                <i class="fas fa-cash-register"></i>
+                <span>Open POS</span>
+            </a>
+            <a class="nav-item" href="#" onclick="launchApp('kiosk')">
+                <i class="fas fa-tablet-alt"></i>
+                <span>Customer Kiosk</span>
+            </a>
+            <a class="nav-item" href="#" onclick="launchApp('kitchen')">
+                <i class="fas fa-tv"></i>
+                <span>Kitchen Display</span>
+            </a>
+
+            <div class="nav-section-label">Management</div>
+            <a class="nav-item" href="#" onclick="showSection('clients')">
+                <i class="fas fa-users"></i>
+                <span>Client Database</span>
+                <span class="badge">247</span>
+            </a>
+            <a class="nav-item" href="#" onclick="showSection('accounting')">
+                <i class="fas fa-chart-bar"></i>
+                <span>Accounting</span>
+            </a>
+            <a class="nav-item" href="#" onclick="showSection('reports')">
+                <i class="fas fa-file-alt"></i>
+                <span>Reports</span>
+            </a>
+            <a class="nav-item" href="#" onclick="showSection('menu')">
+                <i class="fas fa-utensils"></i>
+                <span>Menu Manager</span>
+            </a>
+
+            <div class="nav-section-label">Settings</div>
+            <a class="nav-item" href="#" onclick="showSection('staff')">
+                <i class="fas fa-user-cog"></i>
+                <span>Staff &amp; Roles</span>
+            </a>
+            <a class="nav-item" href="#" onclick="showSection('settings')">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">SR</div>
+                <div>
+                    <div class="user-name" id="userName">Sarah Rodriguez</div>
+                    <div class="user-role">Owner</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="topbar-greeting">
+                    <h1 id="greetingText">Good Morning, Sarah</h1>
+                    <p id="dateText"></p>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div class="powered-by">Powered by <span>The Business Lab</span></div>
+                <div class="topbar-btn" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="notif-dot"></span>
+                </div>
+                <div class="topbar-btn" title="Logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard -->
+        <div class="dashboard">
+
+            <!-- Quick Launch -->
+            <div class="quick-launch">
+                <a class="launch-card" href="#" onclick="launchApp('pos')">
+                    <div class="launch-icon" style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.05));">
+                        <i class="fas fa-cash-register" style="color: #d4af37;"></i>
+                    </div>
+                    <h3>Open POS</h3>
+                    <p>Start taking orders and processing payments</p>
+                </a>
+
+                <a class="launch-card" href="#" onclick="launchApp('kiosk')">
+                    <div class="launch-icon" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05));">
+                        <i class="fas fa-tablet-alt" style="color: #3b82f6;"></i>
+                    </div>
+                    <h3>Customer Kiosk</h3>
+                    <p>Launch self-service ordering for customers</p>
+                </a>
+
+                <a class="launch-card" href="#" onclick="launchApp('kitchen')">
+                    <div class="launch-icon" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));">
+                        <i class="fas fa-tv" style="color: #10b981;"></i>
+                    </div>
+                    <h3>Kitchen Display</h3>
+                    <p>View incoming orders in real-time</p>
+                </a>
+
+                <a class="launch-card" href="#" onclick="showSection('clients')">
+                    <div class="launch-icon" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.05));">
+                        <i class="fas fa-users" style="color: #8b5cf6;"></i>
+                    </div>
+                    <h3>Client Database</h3>
+                    <p>View customer history and spending</p>
+                </a>
+
+                <a class="launch-card" href="#" onclick="showSection('accounting')">
+                    <div class="launch-icon" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05));">
+                        <i class="fas fa-chart-bar" style="color: #f59e0b;"></i>
+                    </div>
+                    <h3>Accounting &amp; Reports</h3>
+                    <p>Revenue, daily totals, and exports</p>
+                </a>
+            </div>
+
+            <!-- Metrics Row -->
+            <div class="metrics-row">
+                <div class="metric-card">
+                    <div class="metric-label">Today's Revenue</div>
+                    <div class="metric-value">$1,847</div>
+                    <span class="metric-change up"><i class="fas fa-arrow-up"></i> 12% vs yesterday</span>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Orders Today</div>
+                    <div class="metric-value">64</div>
+                    <span class="metric-change up"><i class="fas fa-arrow-up"></i> 8 more than avg</span>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Avg. Order Value</div>
+                    <div class="metric-value">$28.86</div>
+                    <span class="metric-change up"><i class="fas fa-arrow-up"></i> $2.10 increase</span>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Active Customers</div>
+                    <div class="metric-value">247</div>
+                    <span class="metric-change up"><i class="fas fa-arrow-up"></i> 15 new this week</span>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="content-grid">
+                <!-- Recent Orders -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Recent Orders</h3>
+                        <a href="#" onclick="showSection('reports')">View All</a>
+                    </div>
+                    <table class="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Order</th>
+                                <th>Customer</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-weight: 600;">#1064</td>
+                                <td>Maria Chen</td>
+                                <td>Sourdough Loaf, 2x Croissant</td>
+                                <td style="font-weight: 600;">$18.50</td>
+                                <td><span class="status-badge status-completed">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 600;">#1063</td>
+                                <td>Tom Wilson</td>
+                                <td>Birthday Cake (Custom)</td>
+                                <td style="font-weight: 600;">$65.00</td>
+                                <td><span class="status-badge status-preparing">Preparing</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 600;">#1062</td>
+                                <td>Jessica Park</td>
+                                <td>6x Muffins, Latte, Iced Tea</td>
+                                <td style="font-weight: 600;">$34.25</td>
+                                <td><span class="status-badge status-completed">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 600;">#1061</td>
+                                <td>David Kim</td>
+                                <td>Bagel Sandwich, Coffee</td>
+                                <td style="font-weight: 600;">$12.75</td>
+                                <td><span class="status-badge status-completed">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 600;">#1060</td>
+                                <td>Walk-in</td>
+                                <td>3x Cookie, 2x Brownie</td>
+                                <td style="font-weight: 600;">$15.50</td>
+                                <td><span class="status-badge status-pending">Pending</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Right Column -->
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <!-- Activity Feed -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Activity</h3>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-dot" style="background: #10b981;"></div>
+                            <div>
+                                <div class="activity-text">Order #1064 completed</div>
+                                <div class="activity-time">2 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-dot" style="background: #3b82f6;"></div>
+                            <div>
+                                <div class="activity-text">New customer: Maria Chen registered</div>
+                                <div class="activity-time">15 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-dot" style="background: #d4af37;"></div>
+                            <div>
+                                <div class="activity-text">$65.00 payment received (Order #1063)</div>
+                                <div class="activity-time">22 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-dot" style="background: #8b5cf6;"></div>
+                            <div>
+                                <div class="activity-text">Menu item "Blueberry Scone" added</div>
+                                <div class="activity-time">1 hour ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-dot" style="background: #10b981;"></div>
+                            <div>
+                                <div class="activity-text">Daily report generated and emailed</div>
+                                <div class="activity-time">6 hours ago</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>This Week</h3>
+                        </div>
+                        <div class="quick-stats">
+                            <div class="quick-stat">
+                                <div class="quick-stat-icon" style="background: rgba(212, 175, 55, 0.1);">
+                                    <i class="fas fa-dollar-sign" style="color: #d4af37;"></i>
+                                </div>
+                                <div>
+                                    <div class="quick-stat-label">Revenue</div>
+                                    <div class="quick-stat-value">$9,432</div>
+                                </div>
+                            </div>
+                            <div class="quick-stat">
+                                <div class="quick-stat-icon" style="background: rgba(59, 130, 246, 0.1);">
+                                    <i class="fas fa-shopping-bag" style="color: #3b82f6;"></i>
+                                </div>
+                                <div>
+                                    <div class="quick-stat-label">Orders</div>
+                                    <div class="quick-stat-value">312</div>
+                                </div>
+                            </div>
+                            <div class="quick-stat">
+                                <div class="quick-stat-icon" style="background: rgba(16, 185, 129, 0.1);">
+                                    <i class="fas fa-user-plus" style="color: #10b981;"></i>
+                                </div>
+                                <div>
+                                    <div class="quick-stat-label">New Customers</div>
+                                    <div class="quick-stat-value">15</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Revenue Chart -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Revenue This Week</h3>
+                    <a href="#" onclick="showSection('accounting')">Full Report</a>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-bar-group">
+                        <div class="chart-bar" style="height: 120px;"></div>
+                        <span class="chart-label">Mon</span>
+                    </div>
+                    <div class="chart-bar-group">
+                        <div class="chart-bar" style="height: 95px;"></div>
+                        <span class="chart-label">Tue</span>
+                    </div>
+                    <div class="chart-bar-group">
+                        <div class="chart-bar" style="height: 140px;"></div>
+                        <span class="chart-label">Wed</span>
+                    </div>
+                    <div class="chart-bar-group">
+                        <div class="chart-bar" style="height: 110px;"></div>
+                        <span class="chart-label">Thu</span>
+                    </div>
+                    <div class="chart-bar-group">
+                        <div class="chart-bar" style="height: 160px; background: linear-gradient(180deg, #f59e0b, #d97706);"></div>
+                        <span class="chart-label">Fri</span>
+                    </div>
+                    <div class="chart-bar-group">
+                        <div class="chart-bar" style="height: 180px; background: linear-gradient(180deg, #10b981, #059669);"></div>
+                        <span class="chart-label">Sat</span>
+                    </div>
+                    <div class="chart-bar-group">
+                        <div class="chart-bar" style="height: 75px; opacity: 0.5;"></div>
+                        <span class="chart-label" style="color: #d4af37; font-weight: 600;">Today</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─── Dynamic greeting based on time ───
+        (function() {
+            var now = new Date();
+            var hour = now.getHours();
+            var greeting = 'Good Morning';
+            if (hour >= 12 && hour < 17) greeting = 'Good Afternoon';
+            else if (hour >= 17) greeting = 'Good Evening';
+
+            var firstName = 'Sarah'; // Would come from auth
+            document.getElementById('greetingText').textContent = greeting + ', ' + firstName;
+
+            var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('dateText').textContent = now.toLocaleDateString('en-US', options);
+        })();
+
+        // ─── Tenant configuration ───
+        // In production, this would come from the subdomain detection + API
+        var tenantConfig = {
+            name: 'Sweet Rise Bakery',
+            slug: 'sweetrise',
+            icon: 'S',
+            ownerName: 'Sarah Rodriguez',
+            ownerInitials: 'SR',
+            businessType: 'cafe-bakery', // determines which modules show
+            modules: ['pos', 'kiosk', 'kitchen', 'clients', 'accounting', 'reports', 'menu']
+        };
+
+        // ─── Section navigation (demo only) ───
+        function showSection(section) {
+            // In production, this would load actual pages or SPA views
+            var names = {
+                'dashboard': 'Dashboard',
+                'clients': 'Client Database',
+                'accounting': 'Accounting & Reports',
+                'reports': 'Reports',
+                'menu': 'Menu Manager',
+                'staff': 'Staff & Roles',
+                'settings': 'Settings'
+            };
+
+            // Update active nav
+            document.querySelectorAll('.nav-item').forEach(function(item) {
+                item.classList.remove('active');
+            });
+            event.target.closest('.nav-item').classList.add('active');
+
+            if (section !== 'dashboard') {
+                alert('This would open the ' + (names[section] || section) + ' page.\n\nIn the live system, each section loads its own interface.');
+            }
+        }
+
+        // ─── Launch POS/Kiosk/KDS ───
+        function launchApp(app) {
+            var names = {
+                'pos': 'Point of Sale',
+                'kiosk': 'Customer Kiosk',
+                'kitchen': 'Kitchen Display System'
+            };
+            alert('Launching ' + names[app] + '...\n\nIn the live system, this opens the full ' + names[app] + ' in a new tab,\npre-configured for ' + tenantConfig.name + '.');
+        }
+
+        // ─── Logout ───
+        function logout() {
+            if (confirm('Log out of ' + tenantConfig.name + '?')) {
+                // Would clear session and redirect to login
+                alert('Logged out. Would redirect to login page.');
+            }
+        }
+    </script>
+</body>
+</html>

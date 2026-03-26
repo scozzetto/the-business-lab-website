@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started | The Business Lab — Your All-In-One Business Platform</title>
+    <meta name="theme-color" content="#d4af37">
+    <meta name="description" content="Launch your business with The Business Lab's all-in-one platform. POS systems, client management, accounting, and more — tailored for restaurants, cafés, wellness centers, and retail.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=Playfair+Display:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ─── Reset ─── */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.7;
+            color: #1a1a1a;
+            background: #ffffff;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            line-height: 1.3;
+            letter-spacing: -0.02em;
+        }
+
+        /* ─── Navigation ─── */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #d4af37;
+            margin: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover { color: #d4af37; }
+
+        .nav-cta-btn {
+            background: linear-gradient(135deg, #d4af37, #b8962e) !important;
+            color: #0f172a !important;
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600 !important;
+            transition: transform 0.3s, box-shadow 0.3s !important;
+        }
+
+        .nav-cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        /* ─── Hero Section ─── */
+        .hero {
+            padding: 10rem 2rem 6rem;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.06) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(212, 175, 55, 0.15);
+            color: #d4af37;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(212, 175, 55, 0.25);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, #d4af37, #f5d77a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: #94a3b8;
+            max-width: 650px;
+            margin: 0 auto 3rem;
+            line-height: 1.8;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #d4af37, #b8962e);
+            color: #0f172a;
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.35);
+        }
+
+        .btn-outline {
+            border: 2px solid rgba(212, 175, 55, 0.4);
+            color: #d4af37;
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            background: transparent;
+        }
+
+        .btn-outline:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: #d4af37;
+        }
+
+        /* ─── Stats Bar ─── */
+        .stats-bar {
+            background: #ffffff;
+            padding: 3rem 2rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .stats-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .stat-item .stat-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #d4af37;
+            display: block;
+        }
+
+        .stat-item .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 0.25rem;
+        }
+
+        /* ─── What You Get Section ─── */
+        .features {
+            padding: 6rem 2rem;
+            background: #f8fafc;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 4rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            color: #0f172a;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            color: #64748b;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #d4af37, #3b82f6);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+        }
+
+        .feature-card:hover::before { opacity: 1; }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-card p {
+            color: #64748b;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        .feature-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ─── Business Type Sections ─── */
+        .business-types {
+            padding: 6rem 2rem;
+            background: #ffffff;
+        }
+
+        .type-card {
+            max-width: 1200px;
+            margin: 0 auto 3rem;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            border-radius: 24px;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 400px;
+        }
+
+        .type-card:nth-child(even) {
+            direction: rtl;
+        }
+
+        .type-card:nth-child(even) > * {
+            direction: ltr;
+        }
+
+        .type-visual {
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .type-visual-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+        }
+
+        .type-visual-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .type-visual-item {
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .type-visual-item i {
+            font-size: 1.5rem;
+            color: #d4af37;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .type-visual-item span {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .type-info {
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 0.35rem 1rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            width: fit-content;
+        }
+
+        .type-info h3 {
+            font-size: 2rem;
+            color: #ffffff;
+            margin-bottom: 1rem;
+        }
+
+        .type-info p {
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .type-features {
+            list-style: none;
+        }
+
+        .type-features li {
+            color: #cbd5e1;
+            padding: 0.4rem 0;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .type-features li i {
+            color: #d4af37;
+            font-size: 0.85rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* ─── How It Works ─── */
+        .how-it-works {
+            padding: 6rem 2rem;
+            background: #f8fafc;
+        }
+
+        .steps-container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .steps-container::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, #d4af37, #3b82f6, #10b981);
+        }
+
+        .step {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d4af37, #b8962e);
+            color: #0f172a;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            z-index: 1;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .step-content h3 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-content p {
+            color: #64748b;
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        /* ─── Pricing Preview ─── */
+        .pricing {
+            padding: 6rem 2rem;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+        }
+
+        .pricing .section-header h2 { color: #ffffff; }
+        .pricing .section-header p { color: #94a3b8; }
+
+        .pricing-grid {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .pricing-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .pricing-card.featured {
+            border-color: #d4af37;
+            background: rgba(212, 175, 55, 0.08);
+            transform: scale(1.03);
+        }
+
+        .pricing-card.featured::before {
+            content: 'MOST POPULAR';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #d4af37, #b8962e);
+            color: #0f172a;
+            padding: 0.3rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+
+        .pricing-card.featured:hover {
+            transform: scale(1.03) translateY(-5px);
+        }
+
+        .pricing-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .pricing-card h3 {
+            font-family: 'Inter', sans-serif;
+            color: #ffffff;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-card .price {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #d4af37;
+            margin: 1rem 0 0.25rem;
+        }
+
+        .pricing-card .price-period {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .pricing-card .price-note {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-style: italic;
+            margin-bottom: 1.5rem;
+        }
+
+        .pricing-features {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+        .pricing-features li {
+            color: #cbd5e1;
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .pricing-features li i {
+            color: #10b981;
+            font-size: 0.8rem;
+        }
+
+        /* ─── Sign Up Form ─── */
+        .signup-section {
+            padding: 6rem 2rem;
+            background: #ffffff;
+        }
+
+        .signup-container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: start;
+        }
+
+        .signup-info h2 {
+            font-size: 2.2rem;
+            color: #0f172a;
+            margin-bottom: 1rem;
+        }
+
+        .signup-info > p {
+            color: #64748b;
+            font-size: 1.05rem;
+            margin-bottom: 2rem;
+        }
+
+        .signup-benefit {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .signup-benefit-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(212, 175, 55, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .signup-benefit-icon i {
+            color: #d4af37;
+            font-size: 1.1rem;
+        }
+
+        .signup-benefit h4 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 0.25rem;
+        }
+
+        .signup-benefit p {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .signup-form {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .signup-form h3 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .signup-form .form-subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.4rem;
+        }
+
+        .form-group label .required {
+            color: #ef4444;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            color: #0f172a;
+            background: #ffffff;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-divider {
+            border: none;
+            border-top: 1px solid #e2e8f0;
+            margin: 1.5rem 0;
+        }
+
+        .form-section-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        /* ─── Schedule Section ─── */
+        .schedule-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .schedule-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .time-slot {
+            padding: 0.6rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #ffffff;
+        }
+
+        .time-slot:hover {
+            border-color: #d4af37;
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .time-slot.selected {
+            background: linear-gradient(135deg, #d4af37, #b8962e);
+            color: #0f172a;
+            border-color: #d4af37;
+            font-weight: 700;
+        }
+
+        .day-preference {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .day-chip {
+            padding: 0.4rem 0.9rem;
+            border: 1px solid #d1d5db;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #ffffff;
+        }
+
+        .day-chip:hover {
+            border-color: #d4af37;
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .day-chip.selected {
+            background: linear-gradient(135deg, #d4af37, #b8962e);
+            color: #0f172a;
+            border-color: #d4af37;
+            font-weight: 700;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #d4af37, #b8962e);
+            color: #0f172a;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .form-note {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        /* ─── Success State ─── */
+        .form-success {
+            display: none;
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .form-success.show {
+            display: block;
+        }
+
+        .form-success .success-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981, #059669);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .form-success h3 {
+            font-size: 1.5rem;
+            color: #0f172a;
+            margin-bottom: 0.75rem;
+        }
+
+        .form-success p {
+            color: #64748b;
+            margin: 0;
+        }
+
+        /* ─── Footer ─── */
+        .footer {
+            padding: 3rem 2rem;
+            background: #0f172a;
+            text-align: center;
+            border-top: 1px solid rgba(212, 175, 55, 0.15);
+        }
+
+        .footer-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #d4af37;
+            margin-bottom: 0.75rem;
+        }
+
+        .footer p {
+            color: #64748b;
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        .footer-links {
+            margin-top: 1rem;
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+        }
+
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover { color: #d4af37; }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 768px) {
+            .hero { padding: 8rem 1.5rem 4rem; }
+            .hero h1 { font-size: 2.2rem; }
+            .hero-subtitle { font-size: 1.05rem; }
+
+            .stats-container { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+            .stat-item .stat-number { font-size: 2rem; }
+
+            .features-grid { grid-template-columns: 1fr; }
+
+            .type-card { grid-template-columns: 1fr; }
+            .type-card:nth-child(even) { direction: ltr; }
+
+            .pricing-grid { grid-template-columns: 1fr; }
+            .pricing-card.featured { transform: none; }
+            .pricing-card.featured:hover { transform: translateY(-5px); }
+
+            .signup-container { grid-template-columns: 1fr; gap: 2rem; }
+
+            .form-row { grid-template-columns: 1fr; }
+            .time-slots { grid-template-columns: repeat(2, 1fr); }
+
+            .nav-links { display: none; }
+
+            .section-header h2 { font-size: 2rem; }
+        }
+
+        /* ─── Animations ─── */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .animate-in:nth-child(2) { animation-delay: 0.1s; }
+        .animate-in:nth-child(3) { animation-delay: 0.2s; }
+        .animate-in:nth-child(4) { animation-delay: 0.3s; }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>The Business Lab</h2>
+            </div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="#features">Platform</a>
+                <a href="#business-types">Solutions</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#signup" class="nav-cta-btn">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">Now Accepting New Businesses</div>
+            <h1>Your Business.<br><span>Our Platform.</span></h1>
+            <p class="hero-subtitle">
+                The Business Lab gives you everything you need to run your business —
+                POS, client management, accounting, and more — all under your own brand,
+                on your own subdomain, ready to go.
+            </p>
+            <div class="hero-cta">
+                <a href="#signup" class="btn-gold"><i class="fas fa-rocket"></i> Get Started Free</a>
+                <a href="#features" class="btn-outline">See What's Included</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+        <div class="stats-container">
+            <div class="stat-item">
+                <span class="stat-number">27+</span>
+                <span class="stat-label">Years Building Businesses</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">100%</span>
+                <span class="stat-label">Managed & Supported</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">24/7</span>
+                <span class="stat-label">System Uptime</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">0</span>
+                <span class="stat-label">Setup Headaches</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- What You Get -->
+    <section id="features" class="features">
+        <div class="section-header">
+            <h2>Everything You Need. One Platform.</h2>
+            <p>Every Business Lab tenant gets a complete suite of tools — branded, managed, and hosted for you.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card animate-in">
+                <div class="feature-icon" style="background: rgba(212, 175, 55, 0.1);">
+                    <i class="fas fa-cash-register" style="color: #d4af37;"></i>
+                </div>
+                <h3>Point of Sale (POS)</h3>
+                <p>Full-featured POS system with real-time order management, split payments, tabs, and receipt printing. Works on any device.</p>
+                <span class="feature-tag" style="background: rgba(212, 175, 55, 0.1); color: #d4af37;">Restaurant &amp; Retail</span>
+            </div>
+
+            <div class="feature-card animate-in">
+                <div class="feature-icon" style="background: rgba(59, 130, 246, 0.1);">
+                    <i class="fas fa-tablet-alt" style="color: #3b82f6;"></i>
+                </div>
+                <h3>Customer Kiosk</h3>
+                <p>Self-service ordering kiosk for your customers. Browse menu, customize orders, and pay — all without waiting in line.</p>
+                <span class="feature-tag" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">Customer-Facing</span>
+            </div>
+
+            <div class="feature-card animate-in">
+                <div class="feature-icon" style="background: rgba(16, 185, 129, 0.1);">
+                    <i class="fas fa-tv" style="color: #10b981;"></i>
+                </div>
+                <h3>Kitchen Display (KDS)</h3>
+                <p>Real-time kitchen display system. Orders flow in automatically, color-coded by priority. No more lost tickets.</p>
+                <span class="feature-tag" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">Back of House</span>
+            </div>
+
+            <div class="feature-card animate-in">
+                <div class="feature-icon" style="background: rgba(139, 92, 246, 0.1);">
+                    <i class="fas fa-users" style="color: #8b5cf6;"></i>
+                </div>
+                <h3>Master Client Database</h3>
+                <p>Track every customer — visit history, spending patterns, preferences, contact info, and loyalty rewards. Your data, your insights.</p>
+                <span class="feature-tag" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">All Business Types</span>
+            </div>
+
+            <div class="feature-card animate-in">
+                <div class="feature-icon" style="background: rgba(245, 158, 11, 0.1);">
+                    <i class="fas fa-chart-bar" style="color: #f59e0b;"></i>
+                </div>
+                <h3>Accounting &amp; Reports</h3>
+                <p>Daily revenue, payment breakdowns, sales trends, tax summaries, and exportable CSV reports. Know your numbers, always.</p>
+                <span class="feature-tag" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">All Business Types</span>
+            </div>
+
+            <div class="feature-card animate-in">
+                <div class="feature-icon" style="background: rgba(236, 72, 153, 0.1);">
+                    <i class="fas fa-globe" style="color: #ec4899;"></i>
+                </div>
+                <h3>Your Own Subdomain</h3>
+                <p>Get <strong>yourbusiness.thebusiness-lab.com</strong> — your branded login, your dashboard, your system. Fully isolated from other tenants.</p>
+                <span class="feature-tag" style="background: rgba(236, 72, 153, 0.1); color: #ec4899;">Branded Experience</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Business Types -->
+    <section id="business-types" class="business-types">
+        <div class="section-header">
+            <h2>Built for Your Business</h2>
+            <p>Whether you run a café, clinic, or retail shop — we've got the tools configured for you.</p>
+        </div>
+
+        <!-- Restaurant / Café -->
+        <div class="type-card">
+            <div class="type-visual" style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(245, 158, 11, 0.1));">
+                <div class="type-visual-grid">
+                    <div class="type-visual-item">
+                        <i class="fas fa-cash-register"></i>
+                        <span>POS</span>
+                    </div>
+                    <div class="type-visual-item">
+                        <i class="fas fa-tablet-alt"></i>
+                        <span>Kiosk</span>
+                    </div>
+                    <div class="type-visual-item">
+                        <i class="fas fa-tv"></i>
+                        <span>KDS</span>
+                    </div>
+                    <div class="type-visual-item">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Reports</span>
+                    </div>
+                </div>
+            </div>
+            <div class="type-info">
+                <span class="type-badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">Restaurant &amp; Caf&eacute;</span>
+                <h3>Everything to Run Your Kitchen</h3>
+                <p>From front counter to kitchen line — manage orders, track inventory, and see real-time sales without expensive third-party POS systems.</p>
+                <ul class="type-features">
+                    <li><i class="fas fa-check"></i> Full POS with split payments &amp; tabs</li>
+                    <li><i class="fas fa-check"></i> Self-service customer kiosk</li>
+                    <li><i class="fas fa-check"></i> Kitchen Display System (KDS)</li>
+                    <li><i class="fas fa-check"></i> Menu management with modifiers</li>
+                    <li><i class="fas fa-check"></i> Daily revenue &amp; sales reports</li>
+                    <li><i class="fas fa-check"></i> Customer database &amp; loyalty tracking</li>
+                    <li><i class="fas fa-check"></i> Your own Stripe payment processing</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Wellness / Healthcare -->
+        <div class="type-card">
+            <div class="type-visual" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(59, 130, 246, 0.1));">
+                <div class="type-visual-grid">
+                    <div class="type-visual-item">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Booking</span>
+                    </div>
+                    <div class="type-visual-item">
+                        <i class="fas fa-user-md"></i>
+                        <span>Check-in</span>
+                    </div>
+                    <div class="type-visual-item">
+                        <i class="fas fa-file-medical"></i>
+                        <span>Intake</span>
+                    </div>
+                    <div class="type-visual-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </div>
+                </div>
+            </div>
+            <div class="type-info">
+                <span class="type-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">Wellness &amp; Healthcare</span>
+                <h3>Patient Management Made Simple</h3>
+                <p>Digital check-in, intake forms, scheduling, billing, and a complete patient database — designed for clinics, spas, and wellness centers.</p>
+                <ul class="type-features">
+                    <li><i class="fas fa-check"></i> Digital patient check-in</li>
+                    <li><i class="fas fa-check"></i> Custom intake forms &amp; questionnaires</li>
+                    <li><i class="fas fa-check"></i> Appointment scheduling</li>
+                    <li><i class="fas fa-check"></i> Master patient database</li>
+                    <li><i class="fas fa-check"></i> Billing &amp; payment tracking</li>
+                    <li><i class="fas fa-check"></i> Multi-practitioner support</li>
+                    <li><i class="fas fa-check"></i> HIPAA-aware data handling</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Retail / General -->
+        <div class="type-card">
+            <div class="type-visual" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.1));">
+                <div class="type-visual-grid">
+                    <div class="type-visual-item">
+                        <i class="fas fa-store"></i>
+                        <span>Storefront</span>
+                    </div>
+                    <div class="type-visual-item">
+                        <i class="fas fa-receipt"></i>
+                        <span>Sales</span>
+                    </div>
+                    <div class="type-visual-item">
+                        <i class="fas fa-users"></i>
+                        <span>Clients</span>
+                    </div>
+                    <div class="type-visual-item">
+                        <i class="fas fa-cog"></i>
+                        <span>Admin</span>
+                    </div>
+                </div>
+            </div>
+            <div class="type-info">
+                <span class="type-badge" style="background: rgba(139, 92, 246, 0.15); color: #8b5cf6;">Retail &amp; General Business</span>
+                <h3>Run Any Business, Your Way</h3>
+                <p>A flexible platform that adapts to your business type — retail, services, memberships, subscriptions, or anything in between.</p>
+                <ul class="type-features">
+                    <li><i class="fas fa-check"></i> Point of sale &amp; payment processing</li>
+                    <li><i class="fas fa-check"></i> Customer database &amp; CRM</li>
+                    <li><i class="fas fa-check"></i> Revenue &amp; accounting reports</li>
+                    <li><i class="fas fa-check"></i> Staff management dashboard</li>
+                    <li><i class="fas fa-check"></i> Branded subdomain</li>
+                    <li><i class="fas fa-check"></i> Custom modules on request</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works">
+        <div class="section-header">
+            <h2>How It Works</h2>
+            <p>From sign-up to launch in four simple steps.</p>
+        </div>
+        <div class="steps-container">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Tell Us About Your Business</h3>
+                    <p>Fill out the form below with your business details. What type of business? What tools do you need? We'll take it from there.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>We Schedule a Call</h3>
+                    <p>Our team reviews your submission and schedules a discovery call to understand your needs and walk you through the platform.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>We Build Your Portal</h3>
+                    <p>We configure your branded subdomain, set up your POS/tools, connect your Stripe account, and populate your menu or services.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>You're Live</h3>
+                    <p>Log in to yourbusiness.thebusiness-lab.com and start running your business. We handle hosting, updates, and support.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="pricing" class="pricing">
+        <div class="section-header">
+            <h2>Simple, Transparent Pricing</h2>
+            <p>Choose the plan that fits your business. Scale up anytime.</p>
+        </div>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <div class="pricing-icon">&#9749;</div>
+                <h3>Starter</h3>
+                <p style="color: #94a3b8; font-size: 0.9rem;">Perfect for small cafés &amp; shops</p>
+                <div class="price">$149</div>
+                <div class="price-period">per user / month</div>
+                <ul class="pricing-features">
+                    <li><i class="fas fa-check-circle"></i> POS System</li>
+                    <li><i class="fas fa-check-circle"></i> Customer Kiosk</li>
+                    <li><i class="fas fa-check-circle"></i> Client Database</li>
+                    <li><i class="fas fa-check-circle"></i> Basic Reports</li>
+                    <li><i class="fas fa-check-circle"></i> Your Subdomain</li>
+                    <li><i class="fas fa-check-circle"></i> Email Support</li>
+                </ul>
+                <a href="#signup" class="btn-outline" style="display: block; text-align: center; padding: 0.75rem;">Get Started</a>
+            </div>
+
+            <div class="pricing-card featured">
+                <div class="pricing-icon">&#127869;</div>
+                <h3>Professional</h3>
+                <p style="color: #94a3b8; font-size: 0.9rem;">For growing restaurants &amp; businesses</p>
+                <div class="price">$299</div>
+                <div class="price-period">per user / month</div>
+                <ul class="pricing-features">
+                    <li><i class="fas fa-check-circle"></i> Everything in Starter</li>
+                    <li><i class="fas fa-check-circle"></i> Kitchen Display (KDS)</li>
+                    <li><i class="fas fa-check-circle"></i> Advanced Accounting</li>
+                    <li><i class="fas fa-check-circle"></i> Staff Management</li>
+                    <li><i class="fas fa-check-circle"></i> Priority Support</li>
+                    <li><i class="fas fa-check-circle"></i> Custom Branding</li>
+                </ul>
+                <a href="#signup" class="btn-gold" style="display: block; text-align: center; padding: 0.75rem; text-decoration: none;">Get Started</a>
+            </div>
+
+            <div class="pricing-card">
+                <div class="pricing-icon">&#127970;</div>
+                <h3>Enterprise</h3>
+                <p style="color: #94a3b8; font-size: 0.9rem;">Multi-location &amp; full management</p>
+                <div class="price">Custom</div>
+                <div class="price-period">contact us</div>
+                <ul class="pricing-features">
+                    <li><i class="fas fa-check-circle"></i> Everything in Professional</li>
+                    <li><i class="fas fa-check-circle"></i> Multi-Location Support</li>
+                    <li><i class="fas fa-check-circle"></i> Custom Integrations</li>
+                    <li><i class="fas fa-check-circle"></i> Dedicated Account Manager</li>
+                    <li><i class="fas fa-check-circle"></i> SLA &amp; Uptime Guarantee</li>
+                    <li><i class="fas fa-check-circle"></i> White-Label Options</li>
+                </ul>
+                <a href="#signup" class="btn-outline" style="display: block; text-align: center; padding: 0.75rem;">Contact Us</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sign Up Form Section -->
+    <section id="signup" class="signup-section">
+        <div class="signup-container">
+            <div class="signup-info">
+                <h2>Ready to Get Started?</h2>
+                <p>Fill out the form and our team will reach out to schedule a discovery call. No commitment, no pressure — just a conversation about how we can help your business thrive.</p>
+
+                <div class="signup-benefit">
+                    <div class="signup-benefit-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div>
+                        <h4>Quick Setup</h4>
+                        <p>Most businesses are live within 48 hours of approval.</p>
+                    </div>
+                </div>
+
+                <div class="signup-benefit">
+                    <div class="signup-benefit-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div>
+                        <h4>Your Data, Isolated</h4>
+                        <p>Your business data is completely separate from every other tenant on the platform.</p>
+                    </div>
+                </div>
+
+                <div class="signup-benefit">
+                    <div class="signup-benefit-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <div>
+                        <h4>Managed &amp; Supported</h4>
+                        <p>We handle hosting, updates, security, and backups. You focus on running your business.</p>
+                    </div>
+                </div>
+
+                <div class="signup-benefit">
+                    <div class="signup-benefit-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div>
+                        <h4>Your Own Payments</h4>
+                        <p>Connect your Stripe account. Money goes directly to you — we never touch your revenue.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <form class="signup-form" id="signupForm" action="https://formsubmit.co/silvio@bewelllifestylecenters.com" method="POST">
+                    <input type="hidden" name="_subject" value="New Business Inquiry - The Business Lab">
+                    <input type="hidden" name="_captcha" value="false">
+                    <input type="hidden" name="_template" value="table">
+                    <input type="hidden" name="_next" value="https://thebusiness-lab.com/signup.html?success=true">
+                    <h3>Sign Up for an Account</h3>
+                    <p class="form-subtitle">We'll reach out within 24 hours</p>
+
+                    <!-- Contact Info -->
+                    <div class="form-section-label">Contact Information</div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>First Name <span class="required">*</span></label>
+                            <input type="text" name="first_name" required placeholder="John">
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name <span class="required">*</span></label>
+                            <input type="text" name="last_name" required placeholder="Smith">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Address <span class="required">*</span></label>
+                        <input type="email" name="email" required placeholder="john@yourbusiness.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phone Number <span class="required">*</span></label>
+                        <input type="tel" name="phone" required placeholder="(248) 555-1234">
+                    </div>
+
+                    <hr class="form-divider">
+
+                    <!-- Business Info -->
+                    <div class="form-section-label">Business Details</div>
+
+                    <div class="form-group">
+                        <label>Primary Business Type <span class="required">*</span></label>
+                        <select name="business_type_1" required id="businessType1">
+                            <option value="">Select your business type...</option>
+                            <option value="restaurant">Restaurant</option>
+                            <option value="cafe-bakery">Caf&eacute; / Bakery</option>
+                            <option value="bar-lounge">Bar / Lounge</option>
+                            <option value="food-truck">Food Truck / Pop-Up</option>
+                            <option value="wellness-clinic">Wellness / Medical Clinic</option>
+                            <option value="spa-salon">Spa / Salon</option>
+                            <option value="fitness-gym">Fitness / Gym</option>
+                            <option value="retail-shop">Retail Shop</option>
+                            <option value="professional-services">Professional Services</option>
+                            <option value="other">Other (please specify)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="otherType1Group" style="display: none;">
+                        <label>Please specify your business type</label>
+                        <input type="text" name="business_type_1_other" placeholder="e.g., Pet grooming, Tutoring center...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Business Name (if you have one)</label>
+                        <input type="text" name="business_name" placeholder="My Amazing Business">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Additional Business / Second Location</label>
+                        <select name="business_type_2" id="businessType2">
+                            <option value="">None / Not applicable</option>
+                            <option value="restaurant">Restaurant</option>
+                            <option value="cafe-bakery">Caf&eacute; / Bakery</option>
+                            <option value="bar-lounge">Bar / Lounge</option>
+                            <option value="food-truck">Food Truck / Pop-Up</option>
+                            <option value="wellness-clinic">Wellness / Medical Clinic</option>
+                            <option value="spa-salon">Spa / Salon</option>
+                            <option value="fitness-gym">Fitness / Gym</option>
+                            <option value="retail-shop">Retail Shop</option>
+                            <option value="professional-services">Professional Services</option>
+                            <option value="other">Other (please specify)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="otherType2Group" style="display: none;">
+                        <label>Please specify</label>
+                        <input type="text" name="business_type_2_other" placeholder="Describe your second business...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Additional Notes</label>
+                        <textarea name="notes" rows="3" placeholder="Tell us more about your business, what you're looking for, any questions you have..."></textarea>
+                    </div>
+
+                    <hr class="form-divider">
+
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-paper-plane"></i>
+                        Submit &amp; Schedule Call
+                    </button>
+                    <p class="form-note">No commitment required. After submitting, you can book a call directly on our calendar.</p>
+                </form>
+
+                <!-- Success Message with Calendly -->
+                <div class="form-success" id="formSuccess">
+                    <div class="success-icon"><i class="fas fa-check"></i></div>
+                    <h3>We Received Your Submission!</h3>
+                    <p style="margin-bottom: 1.5rem;">Now pick a time that works for you and we'll call you.</p>
+                    <div class="calendly-inline-widget" data-url="https://calendly.com/thebusinesslab?hide_gdpr_banner=1&background_color=f8fafc&text_color=0f172a&primary_color=d4af37" style="min-width: 280px; height: 630px; border-radius: 12px; overflow: hidden;"></div>
+                    <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-logo">The Business Lab</div>
+        <p>&copy; 2026 The Business Lab. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="/investors">Investors</a>
+            <a href="/login">Client Login</a>
+            <a href="mailto:support@TheBusiness-Lab.com">Contact</a>
+        </div>
+        <p style="margin-top: 1rem; font-size: 0.8rem; color: #475569;">248-775-5058 &bull; support@TheBusiness-Lab.com</p>
+    </footer>
+
+    <script>
+        // ─── "Other" business type toggle ───
+        document.getElementById('businessType1').addEventListener('change', function() {
+            document.getElementById('otherType1Group').style.display = this.value === 'other' ? 'block' : 'none';
+        });
+
+        document.getElementById('businessType2').addEventListener('change', function() {
+            document.getElementById('otherType2Group').style.display = this.value === 'other' ? 'block' : 'none';
+        });
+
+        // ─── Check for success redirect (after FormSubmit sends email) ───
+        if (window.location.search.includes('success=true')) {
+            var form = document.getElementById('signupForm');
+            if (form) form.style.display = 'none';
+            document.getElementById('formSuccess').classList.add('show');
+            window.scrollTo({ top: document.getElementById('signup').offsetTop - 100, behavior: 'smooth' });
+
+            // Redirect to home page after 20 seconds
+            setTimeout(function() {
+                window.location.href = '/';
+            }, 20000);
+        }
+
+        // ─── Phone formatting ───
+        document.querySelector('input[name="phone"]').addEventListener('input', function(e) {
+            var x = e.target.value.replace(/\D/g, '').substring(0, 10);
+            var formatted = '';
+            if (x.length > 0) formatted = '(' + x.substring(0, 3);
+            if (x.length >= 3) formatted += ') ' + x.substring(3, 6);
+            if (x.length >= 6) formatted += '-' + x.substring(6, 10);
+            e.target.value = formatted;
+        });
+
+        // ─── Scroll animations ───
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.animate-in').forEach(function(el) {
+            observer.observe(el);
+        });
+
+        // ─── Navbar scroll effect ───
+        window.addEventListener('scroll', function() {
+            var nav = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                nav.style.padding = '0.5rem 0';
+                nav.style.background = 'rgba(15, 23, 42, 0.98)';
+            } else {
+                nav.style.padding = '1rem 0';
+                nav.style.background = 'rgba(15, 23, 42, 0.95)';
+            }
+        });
+    </script>
+</body>
+</html>
