@@ -1007,18 +1007,36 @@
     }
 
     // ============================
-    // Admin Credentials (simple hash check — will be replaced with proper auth)
+    // User Account System (localStorage-based, replaced by GCP later)
     // ============================
-    // Allowed admin accounts: email + password hash pairs
-    // To generate a hash: run in console: await crypto.subtle.digest('SHA-256', new TextEncoder().encode('yourpassword')).then(b => Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2,'0')).join(''))
-    const ADMIN_ACCOUNTS = {
-        'silvio@bewelllifestylecenters.com': '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8' // password
-    };
-
     async function hashPassword(pwd) {
         const encoded = new TextEncoder().encode(pwd);
         const buffer = await crypto.subtle.digest('SHA-256', encoded);
         return Array.from(new Uint8Array(buffer)).map(x => x.toString(16).padStart(2, '0')).join('');
+    }
+
+    function getUsers() {
+        try { return JSON.parse(localStorage.getItem('bl_users') || '{}'); }
+        catch(e) { return {}; }
+    }
+
+    function saveUsers(users) {
+        localStorage.setItem('bl_users', JSON.stringify(users));
+    }
+
+    // Seed admin account on first visit if no users exist
+    async function seedAdminAccount() {
+        const users = getUsers();
+        if (Object.keys(users).length === 0) {
+            const hash = await hashPassword('password');
+            users['silvio@bewelllifestylecenters.com'] = {
+                name: 'Silvio Cozzetto',
+                passwordHash: hash,
+                role: 'admin',
+                created: new Date().toISOString()
+            };
+            saveUsers(users);
+        }
     }
 
     // ============================
@@ -1044,11 +1062,12 @@
         btn.textContent = 'Signing in...';
         btn.disabled = true;
 
-        // Small delay for UX
-        await new Promise(r => setTimeout(r, 800));
+        await new Promise(r => setTimeout(r, 600));
 
-        const expectedHash = ADMIN_ACCOUNTS[email];
-        if (!expectedHash) {
+        const users = getUsers();
+        const user = users[email];
+
+        if (!user) {
             document.getElementById('errorMessage').textContent = 'Account not found. Contact support@thebusiness-lab.com for access.';
             errorEl.classList.add('visible');
             btn.textContent = originalText;
@@ -1057,7 +1076,7 @@
         }
 
         const inputHash = await hashPassword(password);
-        if (inputHash !== expectedHash) {
+        if (inputHash !== user.passwordHash) {
             document.getElementById('errorMessage').textContent = 'Invalid password. Please try again.';
             errorEl.classList.add('visible');
             btn.textContent = originalText;
@@ -1065,8 +1084,13 @@
             return;
         }
 
-        // Auth success — store session
-        const authData = JSON.stringify({ email: email, loginTime: Date.now() });
+        // Auth success
+        const authData = JSON.stringify({
+            email: email,
+            name: user.name || email,
+            role: user.role || 'client',
+            loginTime: Date.now()
+        });
         sessionStorage.setItem('bl_authenticated', authData);
         if (remember) {
             localStorage.setItem('bl_authenticated', authData);
@@ -1108,7 +1132,8 @@
     // ============================
     // Initialize
     // ============================
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+        await seedAdminAccount();
         buildDemoSwitcher();
         const companyKey = detectCompany();
         applyBranding(companyKey);
