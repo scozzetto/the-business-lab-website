@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Letter | The Business Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --gold: #d4af37;
+            --dark: #0f172a;
+            --slate: #1e293b;
+            --light: #f8fafc;
+            --border: #e2e8f0;
+            --text: #334155;
+            --text-light: #64748b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            background: #fff;
+            line-height: 1.8;
+            font-size: 14px;
+        }
+
+        .letter-container {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 60px 60px;
+        }
+
+        /* Letterhead */
+        .letterhead {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 3px solid var(--gold);
+            padding-bottom: 25px;
+            margin-bottom: 35px;
+        }
+
+        .letterhead-left h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            color: var(--dark);
+            letter-spacing: 1px;
+        }
+
+        .letterhead-left .tagline {
+            color: var(--gold);
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .letterhead-right {
+            text-align: right;
+            font-size: 12px;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* Date & recipient */
+        .letter-date {
+            color: var(--text-light);
+            margin-bottom: 25px;
+            font-size: 13px;
+        }
+
+        .recipient {
+            margin-bottom: 30px;
+        }
+
+        .recipient strong {
+            color: var(--dark);
+            font-size: 16px;
+        }
+
+        /* Greeting */
+        .greeting {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: var(--dark);
+            margin-bottom: 20px;
+        }
+
+        /* Body paragraphs */
+        .letter-body p {
+            margin-bottom: 16px;
+        }
+
+        /* Section headings */
+        .letter-section {
+            margin: 30px 0 15px;
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            color: var(--dark);
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Overview box */
+        .system-overview {
+            background: linear-gradient(135deg, var(--dark), var(--slate));
+            color: #fff;
+            border-radius: 10px;
+            padding: 25px 30px;
+            margin: 20px 0;
+        }
+
+        .system-overview h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--gold);
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .overview-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .overview-item i {
+            color: var(--gold);
+            width: 16px;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .overview-meta {
+            margin-top: 15px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.15);
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .overview-meta .label { color: #94a3b8; }
+        .overview-meta .value { color: var(--gold); font-weight: 600; }
+
+        /* Credentials box */
+        .credentials-box {
+            background: var(--light);
+            border: 2px solid var(--gold);
+            border-radius: 10px;
+            padding: 25px 30px;
+            margin: 20px 0;
+        }
+
+        .credentials-box h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--dark);
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .cred-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cred-row:last-child { border-bottom: none; }
+
+        .cred-row i {
+            color: var(--gold);
+            width: 20px;
+            text-align: center;
+        }
+
+        .cred-row .cred-label {
+            font-weight: 600;
+            color: var(--dark);
+            min-width: 120px;
+        }
+
+        .cred-row .cred-value {
+            font-family: 'Courier New', monospace;
+            background: #fff;
+            padding: 3px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .cred-note {
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--text-light);
+            font-style: italic;
+        }
+
+        /* Getting started steps */
+        .steps-list {
+            list-style: none;
+            padding: 0;
+            counter-reset: step;
+        }
+
+        .steps-list li {
+            counter-increment: step;
+            padding: 12px 0 12px 50px;
+            position: relative;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .steps-list li:last-child { border-bottom: none; }
+
+        .steps-list li::before {
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            top: 12px;
+            width: 32px;
+            height: 32px;
+            background: var(--gold);
+            color: var(--dark);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .steps-list li strong { color: var(--dark); }
+
+        /* Support info */
+        .support-box {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px 25px;
+            margin: 20px 0;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .support-item { text-align: center; }
+
+        .support-item i {
+            color: var(--gold);
+            font-size: 20px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .support-item .label {
+            font-size: 11px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .support-item .value {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* Sign-off */
+        .sign-off {
+            margin-top: 40px;
+            padding-top: 30px;
+        }
+
+        .sign-off .closing {
+            margin-bottom: 30px;
+        }
+
+        .sign-off .signature-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            color: var(--dark);
+            font-weight: 700;
+        }
+
+        .sign-off .signature-title {
+            color: var(--text-light);
+            font-size: 13px;
+        }
+
+        .sign-off .signature-company {
+            color: var(--gold);
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        /* Print */
+        @media print {
+            body { font-size: 12px; }
+            .letter-container { padding: 20px 30px; max-width: none; }
+            .no-print { display: none !important; }
+            .system-overview { color-adjust: exact; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .credentials-box { border-width: 1px; }
+        }
+
+        /* Action bar */
+        .action-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--dark);
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .action-bar .title {
+            color: var(--gold);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .action-bar button {
+            background: var(--gold);
+            color: var(--dark);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            margin-left: 10px;
+            transition: opacity 0.2s;
+        }
+
+        .action-bar button:hover { opacity: 0.85; }
+
+        .action-bar button.secondary {
+            background: transparent;
+            color: #fff;
+            border: 1px solid #475569;
+        }
+
+        body { padding-top: 56px; }
+    </style>
+</head>
+<body>
+
+<div class="action-bar no-print">
+    <div class="title"><i class="fas fa-envelope-open-text"></i> Welcome Letter Preview</div>
+    <div>
+        <button class="secondary" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Back</button>
+        <button onclick="window.print()"><i class="fas fa-print"></i> Print / Save PDF</button>
+    </div>
+</div>
+
+<div class="letter-container">
+
+    <!-- Letterhead -->
+    <div class="letterhead">
+        <div class="letterhead-left">
+            <h1>THE BUSINESS LAB</h1>
+            <div class="tagline">Technology for Your Business</div>
+        </div>
+        <div class="letterhead-right">
+            Michigan, United States<br>
+            (248) 775-5058<br>
+            info@thebusiness-lab.com<br>
+            thebusiness-lab.com
+        </div>
+    </div>
+
+    <!-- Date -->
+    <div class="letter-date" id="letterDate">April 2, 2026</div>
+
+    <!-- Recipient -->
+    <div class="recipient">
+        <strong id="recipientName">—</strong><br>
+        <span id="recipientAddress">—</span>
+    </div>
+
+    <!-- Greeting -->
+    <div class="greeting">Welcome to The Business Lab!</div>
+
+    <!-- Body -->
+    <div class="letter-body">
+        <p>Dear <strong id="greetingName">—</strong>,</p>
+
+        <p>Thank you for choosing The Business Lab as your technology partner. We're excited to work with you and help streamline your business operations with our integrated platform.</p>
+
+        <p>The Business Lab provides turnkey technology solutions — from point of sale and customer-facing kiosks to full accounting, client management, and digital communications — all under one roof, on your own branded portal. We handle the tech so you can focus on what you do best: running your business.</p>
+
+        <h3 class="letter-section"><i class="fas fa-cubes"></i> Your System Overview</h3>
+
+        <div class="system-overview">
+            <h3>Modules Included in Your Package</h3>
+            <div class="overview-grid" id="overviewModules">
+                <div class="overview-item"><i class="fas fa-check"></i> Point of Sale (POS)</div>
+                <div class="overview-item"><i class="fas fa-check"></i> Self-Service Kiosk</div>
+                <div class="overview-item"><i class="fas fa-check"></i> Kitchen Display System</div>
+                <div class="overview-item"><i class="fas fa-check"></i> Digital Menu / TV</div>
+            </div>
+            <div class="overview-meta">
+                <div><span class="label">Package: </span><span class="value" id="packageName">Professional</span></div>
+                <div><span class="label">Monthly: </span><span class="value" id="overviewFee">$299/mo</span></div>
+            </div>
+        </div>
+
+        <h3 class="letter-section"><i class="fas fa-key"></i> Your Login Credentials</h3>
+
+        <div class="credentials-box">
+            <h3>Portal Access</h3>
+            <div class="cred-row">
+                <i class="fas fa-globe"></i>
+                <span class="cred-label">Portal URL</span>
+                <span class="cred-value" id="portalUrl">clientname.thebusiness-lab.com</span>
+            </div>
+            <div class="cred-row">
+                <i class="fas fa-user"></i>
+                <span class="cred-label">Username</span>
+                <span class="cred-value" id="username">—</span>
+            </div>
+            <div class="cred-row">
+                <i class="fas fa-lock"></i>
+                <span class="cred-label">Temp Password</span>
+                <span class="cred-value" id="tempPassword">—</span>
+            </div>
+            <p class="cred-note">Please change your password after your first login. Your temporary password will expire in 7 days.</p>
+        </div>
+
+        <h3 class="letter-section"><i class="fas fa-rocket"></i> Getting Started</h3>
+
+        <ol class="steps-list">
+            <li><strong>Log into your portal</strong> — Visit your portal URL above and sign in with your temporary credentials. You'll be prompted to set a new password.</li>
+            <li><strong>Explore your dashboard</strong> — Familiarize yourself with the main dashboard. Each module is accessible from the sidebar navigation.</li>
+            <li><strong>Connect your Stripe account</strong> — Navigate to Settings and follow the prompts to connect your Stripe account for payment processing.</li>
+            <li><strong>Add your staff</strong> — Go to Staff Management and create accounts for your team members. Assign roles and permissions as needed.</li>
+            <li><strong>Configure your menu or services</strong> — Set up your products, services, and pricing in the appropriate module.</li>
+            <li><strong>Test a transaction</strong> — Run a test order through the POS or kiosk to ensure everything is connected and working properly.</li>
+            <li><strong>Schedule your training session</strong> — Contact us to schedule additional training for you and your team if needed.</li>
+        </ol>
+
+        <h3 class="letter-section"><i class="fas fa-headset"></i> Support & Contact</h3>
+
+        <div class="support-box">
+            <div class="support-item">
+                <i class="fas fa-envelope"></i>
+                <div class="label">Email</div>
+                <div class="value">support@thebusiness-lab.com</div>
+            </div>
+            <div class="support-item">
+                <i class="fas fa-phone"></i>
+                <div class="label">Phone</div>
+                <div class="value">(248) 775-5058</div>
+            </div>
+            <div class="support-item">
+                <i class="fas fa-clock"></i>
+                <div class="label">Hours</div>
+                <div class="value">Mon–Fri, 9am–5pm ET</div>
+            </div>
+        </div>
+
+        <p>We're here to help every step of the way. Don't hesitate to reach out if you have questions, need assistance, or want to explore additional features for your business.</p>
+
+        <p>We look forward to a great partnership!</p>
+    </div>
+
+    <!-- Sign-off -->
+    <div class="sign-off">
+        <div class="closing">Warm regards,</div>
+        <div class="signature-name">Silvio Cozzetto</div>
+        <div class="signature-title">Chief Executive Officer</div>
+        <div class="signature-company">The Business Lab LLC</div>
+    </div>
+
+</div>
+
+<script>
+function populateLetter() {
+    const params = new URLSearchParams(window.location.search);
+
+    let data = {};
+    try {
+        const stored = localStorage.getItem('bl_contract_data');
+        if (stored) data = JSON.parse(stored);
+    } catch(e) {}
+
+    const get = (key) => params.get(key) || data[key] || '';
+
+    // Date
+    const now = new Date();
+    document.getElementById('letterDate').textContent = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    // Recipient
+    const name = get('client');
+    if (name) {
+        document.getElementById('recipientName').textContent = name;
+        document.getElementById('greetingName').textContent = name.split(' ')[0];
+    }
+    if (get('address')) document.getElementById('recipientAddress').textContent = get('address');
+
+    // Package & fee
+    const pkg = get('package');
+    if (pkg) document.getElementById('packageName').textContent = pkg.charAt(0).toUpperCase() + pkg.slice(1);
+
+    const monthly = get('monthly');
+    if (monthly) document.getElementById('overviewFee').textContent = `$${parseFloat(monthly).toFixed(0)}/mo`;
+
+    // Modules
+    const modulesStr = get('modules');
+    if (modulesStr) {
+        const moduleMap = {
+            'pos': 'Point of Sale (POS)', 'kiosk': 'Self-Service Kiosk', 'kds': 'Kitchen Display System',
+            'tv': 'Digital Menu / TV Display', 'online_ordering': 'Online Ordering', 'menu_mgmt': 'Menu Management',
+            'thermal_print': 'Thermal Printing', 'stripe_terminal': 'Stripe Terminal',
+            'client_db': 'Client Database', 'checkin': 'Check-in System', 'forms': 'Digital Forms',
+            'biosync': 'BioSync AI', 'booking': 'Appointment Booking', 'staff': 'Staff Management',
+            'telehealth': 'Telehealth', 'emr': 'Medical Records', 'billing': 'Billing & Invoicing',
+            'properties': 'Property Management', 'tenants': 'Tenant Management', 'workorders': 'Work Orders',
+            'rent': 'Rent Tracking', 'accounting': 'Accounting & GL', 'hoa': 'HOA Management',
+            'portals': 'Tenant Portals', 'compliance': 'Compliance', 'screening': 'Tenant Screening',
+            'access_control': 'Access Control', 'reports': 'Reports & Analytics', 'comms': 'Communications',
+            'rewards': 'Rewards Program', 'docs': 'Document Management', 'signage': 'Digital Signage',
+            'multi_location': 'Multi-Location', 'subdomain': 'Branded Portal', 'roles': 'Access Control',
+            'cloud_sync': 'Cloud Sync'
+        };
+        const modules = modulesStr.split(',').map(m => moduleMap[m.trim()] || m.trim());
+        document.getElementById('overviewModules').innerHTML = modules.map(m =>
+            `<div class="overview-item"><i class="fas fa-check"></i> ${m}</div>`
+        ).join('');
+    }
+
+    // Credentials
+    const slug = get('slug');
+    if (slug) document.getElementById('portalUrl').textContent = `${slug}.thebusiness-lab.com`;
+    if (get('username')) document.getElementById('username').textContent = get('username');
+    if (get('password')) document.getElementById('tempPassword').textContent = get('password');
+}
+
+populateLetter();
+</script>
+</body>
+</html>

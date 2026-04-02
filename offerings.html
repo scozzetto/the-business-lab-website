@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Offerings | The Business Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --gold: #d4af37;
+            --gold-light: rgba(212,175,55,0.12);
+            --dark: #0f172a;
+            --slate: #1e293b;
+            --light: #f8fafc;
+            --border: #e2e8f0;
+            --text: #334155;
+            --text-light: #64748b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            background: #fff;
+            line-height: 1.6;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: var(--dark);
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .navbar .logo {
+            font-family: 'Playfair Display', serif;
+            color: #fff;
+            font-size: 22px;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .navbar .logo span { color: var(--gold); }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--gold); }
+
+        .nav-links .cta-btn {
+            background: var(--gold);
+            color: var(--dark);
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .nav-links .cta-btn:hover { color: var(--dark); opacity: 0.9; }
+
+        /* Hero */
+        .hero {
+            background: linear-gradient(135deg, var(--dark) 0%, var(--slate) 50%, #0c1222 100%);
+            padding: 100px 40px 80px;
+            text-align: center;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(212,175,55,0.06) 0%, transparent 50%);
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 52px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .hero h1 span { color: var(--gold); }
+
+        .hero p {
+            font-size: 18px;
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .hero .hero-cta {
+            display: inline-block;
+            background: var(--gold);
+            color: var(--dark);
+            padding: 14px 36px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+
+        .hero .hero-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212,175,55,0.3);
+        }
+
+        /* Section titles */
+        .section-title {
+            text-align: center;
+            padding: 70px 40px 40px;
+        }
+
+        .section-title h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .section-title p {
+            color: var(--text-light);
+            font-size: 16px;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+
+        /* Suite cards */
+        .suites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px 60px;
+        }
+
+        .suite-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .suite-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+        }
+
+        .suite-header {
+            background: linear-gradient(135deg, var(--dark), var(--slate));
+            padding: 25px;
+            text-align: center;
+        }
+
+        .suite-header i {
+            font-size: 32px;
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+
+        .suite-header h3 {
+            font-family: 'Playfair Display', serif;
+            color: #fff;
+            font-size: 20px;
+        }
+
+        .suite-body {
+            padding: 25px;
+        }
+
+        .suite-body ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .suite-body li {
+            padding: 6px 0 6px 24px;
+            position: relative;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .suite-body li:last-child { border-bottom: none; }
+
+        .suite-body li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--gold);
+            font-size: 11px;
+            top: 9px;
+        }
+
+        /* Common features banner */
+        .common-banner {
+            background: var(--light);
+            padding: 50px 40px;
+            text-align: center;
+        }
+
+        .common-banner h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: var(--dark);
+            margin-bottom: 25px;
+        }
+
+        .common-features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .common-tag {
+            background: #fff;
+            border: 1px solid var(--border);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--slate);
+        }
+
+        .common-tag i {
+            color: var(--gold);
+            margin-right: 6px;
+        }
+
+        /* Pricing */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 40px 70px;
+        }
+
+        .price-card {
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 35px 30px;
+            text-align: center;
+            position: relative;
+            background: #fff;
+            transition: transform 0.3s;
+        }
+
+        .price-card:hover { transform: translateY(-4px); }
+
+        .price-card.featured {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 1px var(--gold), 0 8px 30px rgba(212,175,55,0.15);
+        }
+
+        .price-card.featured::before {
+            content: 'MOST POPULAR';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gold);
+            color: var(--dark);
+            padding: 4px 16px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .price-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        .price-card .price {
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 15px 0 5px;
+        }
+
+        .price-card .price span {
+            font-size: 16px;
+            font-weight: 400;
+            color: var(--text-light);
+        }
+
+        .price-card .price-desc {
+            color: var(--text-light);
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .price-card ul {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+            margin-bottom: 25px;
+        }
+
+        .price-card li {
+            padding: 6px 0 6px 22px;
+            position: relative;
+            font-size: 13px;
+        }
+
+        .price-card li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--gold);
+            font-size: 11px;
+        }
+
+        .price-card .price-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .price-card .price-btn.primary {
+            background: var(--gold);
+            color: var(--dark);
+        }
+
+        .price-card .price-btn.outline {
+            background: transparent;
+            color: var(--dark);
+            border: 2px solid var(--border);
+        }
+
+        .price-card .price-btn:hover { opacity: 0.85; }
+
+        /* Feature comparison */
+        .comparison-section {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 40px 70px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .comparison-table th {
+            background: var(--dark);
+            color: #fff;
+            padding: 12px 16px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .comparison-table th:first-child {
+            text-align: left;
+            border-radius: 8px 0 0 0;
+        }
+
+        .comparison-table th:last-child {
+            border-radius: 0 8px 0 0;
+        }
+
+        .comparison-table td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .comparison-table td:first-child {
+            text-align: left;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: var(--light);
+        }
+
+        .comparison-table .check {
+            color: var(--gold);
+            font-size: 16px;
+        }
+
+        .comparison-table .dash {
+            color: #cbd5e1;
+        }
+
+        .comparison-table .cat-row td {
+            background: var(--gold-light);
+            font-weight: 700;
+            color: var(--dark);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Hardware section */
+        .hardware-section {
+            background: linear-gradient(135deg, var(--dark), var(--slate));
+            padding: 60px 40px;
+            color: #fff;
+        }
+
+        .hardware-section h2 {
+            font-family: 'Playfair Display', serif;
+            text-align: center;
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .hardware-section > p {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 40px;
+        }
+
+        .hardware-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .hw-item {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .hw-item i {
+            font-size: 28px;
+            color: var(--gold);
+            margin-bottom: 12px;
+        }
+
+        .hw-item h4 {
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .hw-item p {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        /* CTA */
+        .cta-section {
+            text-align: center;
+            padding: 80px 40px;
+            background: var(--light);
+        }
+
+        .cta-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 34px;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .cta-section p {
+            color: var(--text-light);
+            font-size: 16px;
+            margin-bottom: 30px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-section .cta-btn {
+            display: inline-block;
+            background: var(--gold);
+            color: var(--dark);
+            padding: 16px 40px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+
+        .cta-section .cta-btn:hover { transform: translateY(-2px); }
+
+        .cta-section .cta-phone {
+            display: block;
+            margin-top: 15px;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .cta-section .cta-phone a {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark);
+            color: #94a3b8;
+            text-align: center;
+            padding: 30px 40px;
+            font-size: 13px;
+        }
+
+        .footer a {
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 32px; }
+            .hero p { font-size: 15px; }
+            .navbar { padding: 12px 20px; }
+            .nav-links { gap: 15px; }
+            .nav-links a:not(.cta-btn) { display: none; }
+            .suites-grid, .pricing-grid { padding: 0 20px 40px; }
+            .comparison-section { overflow-x: auto; }
+            .comparison-table { min-width: 600px; }
+            .section-title { padding: 50px 20px 30px; }
+            .section-title h2 { font-size: 28px; }
+            .price-card .price { font-size: 34px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="/" class="logo">THE <span>BUSINESS LAB</span></a>
+    <div class="nav-links">
+        <a href="#suites">Solutions</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#compare">Compare</a>
+        <a href="tel:248-775-5058" class="cta-btn"><i class="fas fa-phone"></i> Schedule a Call</a>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+    <h1>Our Platform. <span>Your Business.</span></h1>
+    <p>Everything you need to run, grow, and manage your business — from point of sale to property management — all in one integrated platform.</p>
+    <a href="#pricing" class="hero-cta">View Pricing Plans</a>
+</section>
+
+<!-- Suites -->
+<div class="section-title" id="suites">
+    <h2>Industry Solutions</h2>
+    <p>Purpose-built suites tailored to how your business actually operates</p>
+</div>
+
+<div class="suites-grid">
+    <!-- Restaurant & Cafe -->
+    <div class="suite-card">
+        <div class="suite-header">
+            <i class="fas fa-utensils"></i>
+            <h3>Restaurant & Cafe</h3>
+        </div>
+        <div class="suite-body">
+            <ul>
+                <li>Point of Sale (POS) System</li>
+                <li>Self-Service Kiosk</li>
+                <li>Kitchen Display System (KDS)</li>
+                <li>Digital TV Menu Board</li>
+                <li>Online Ordering</li>
+                <li>Menu Management</li>
+                <li>Thermal Receipt Printing</li>
+                <li>Stripe Terminal Integration</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Healthcare & Wellness -->
+    <div class="suite-card">
+        <div class="suite-header">
+            <i class="fas fa-heartbeat"></i>
+            <h3>Healthcare & Wellness</h3>
+        </div>
+        <div class="suite-body">
+            <ul>
+                <li>Master Client Database</li>
+                <li>Patient Check-in System</li>
+                <li>Digital Forms & Intake</li>
+                <li>BioSync AI Health Assessment</li>
+                <li>Online Appointment Booking</li>
+                <li>Staff Management</li>
+                <li>Telehealth / Video Consultations</li>
+                <li>EMR & Billing</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Property Management -->
+    <div class="suite-card">
+        <div class="suite-header">
+            <i class="fas fa-building"></i>
+            <h3>Property Management</h3>
+        </div>
+        <div class="suite-body">
+            <ul>
+                <li>Property & Unit Management</li>
+                <li>Tenant Management</li>
+                <li>Work Order System</li>
+                <li>Rent Collection & Tracking</li>
+                <li>Accounting & General Ledger</li>
+                <li>HOA Management</li>
+                <li>Tenant/Owner Portals</li>
+                <li>Compliance, Screening & Access</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Retail & General Business -->
+    <div class="suite-card">
+        <div class="suite-header">
+            <i class="fas fa-store"></i>
+            <h3>Retail & General</h3>
+        </div>
+        <div class="suite-body">
+            <ul>
+                <li>Point of Sale (POS) System</li>
+                <li>Master Client Database</li>
+                <li>Accounting & Reports</li>
+                <li>Staff Management</li>
+                <li>Communications (Email/SMS)</li>
+                <li>Rewards & Loyalty Program</li>
+                <li>Inventory Tracking</li>
+                <li>Multi-Location Support</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Common Features -->
+<div class="common-banner">
+    <h3>Included with Every Suite</h3>
+    <div class="common-features">
+        <div class="common-tag"><i class="fas fa-map-marker-alt"></i> Multi-Location</div>
+        <div class="common-tag"><i class="fas fa-user-shield"></i> Role-Based Access</div>
+        <div class="common-tag"><i class="fas fa-envelope"></i> Email & SMS</div>
+        <div class="common-tag"><i class="fas fa-chart-bar"></i> Reports & Analytics</div>
+        <div class="common-tag"><i class="fas fa-file-alt"></i> Document Management</div>
+        <div class="common-tag"><i class="fas fa-tv"></i> Digital Signage</div>
+        <div class="common-tag"><i class="fas fa-cloud"></i> Cloud Sync & Backup</div>
+        <div class="common-tag"><i class="fas fa-globe"></i> Branded Subdomain</div>
+    </div>
+</div>
+
+<!-- Pricing -->
+<div class="section-title" id="pricing">
+    <h2>Simple, Transparent Pricing</h2>
+    <p>Choose the plan that fits your business. No hidden fees.</p>
+</div>
+
+<div class="pricing-grid">
+    <!-- Starter -->
+    <div class="price-card">
+        <h3>Starter</h3>
+        <div class="price">$149<span>/mo</span></div>
+        <div class="price-desc">Perfect for single-location businesses</div>
+        <ul>
+            <li>Up to 2 modules</li>
+            <li>1 location</li>
+            <li>Up to 3 staff accounts</li>
+            <li>Email support</li>
+            <li>Branded subdomain</li>
+            <li>Cloud sync & backup</li>
+        </ul>
+        <a href="tel:248-775-5058" class="price-btn outline">Get Started</a>
+    </div>
+
+    <!-- Professional -->
+    <div class="price-card featured">
+        <h3>Professional</h3>
+        <div class="price">$299<span>/mo</span></div>
+        <div class="price-desc">For growing businesses needing more</div>
+        <ul>
+            <li>Up to 6 modules</li>
+            <li>Up to 3 locations</li>
+            <li>Unlimited staff accounts</li>
+            <li>Phone & email support</li>
+            <li>Stripe Terminal integration</li>
+            <li>Digital signage included</li>
+        </ul>
+        <a href="tel:248-775-5058" class="price-btn primary">Get Started</a>
+    </div>
+
+    <!-- Enterprise -->
+    <div class="price-card">
+        <h3>Enterprise</h3>
+        <div class="price">Custom</div>
+        <div class="price-desc">Full platform, unlimited everything</div>
+        <ul>
+            <li>All modules included</li>
+            <li>Unlimited locations</li>
+            <li>Unlimited staff accounts</li>
+            <li>Priority phone support</li>
+            <li>Custom integrations</li>
+            <li>Dedicated onboarding</li>
+        </ul>
+        <a href="tel:248-775-5058" class="price-btn outline">Contact Us</a>
+    </div>
+
+    <!-- Property Mgmt -->
+    <div class="price-card">
+        <h3>Property Mgmt</h3>
+        <div class="price">$399<span>/mo</span></div>
+        <div class="price-desc">Complete property management suite</div>
+        <ul>
+            <li>Full PM module suite</li>
+            <li>Unlimited properties & units</li>
+            <li>Tenant & owner portals</li>
+            <li>Work orders & maintenance</li>
+            <li>Accounting & GL</li>
+            <li>Compliance & screening</li>
+        </ul>
+        <a href="tel:248-775-5058" class="price-btn outline">Get Started</a>
+    </div>
+</div>
+
+<!-- Feature Comparison -->
+<div class="section-title" id="compare">
+    <h2>Feature Comparison</h2>
+    <p>See exactly what's included in each plan</p>
+</div>
+
+<div class="comparison-section">
+    <table class="comparison-table">
+        <thead>
+            <tr>
+                <th>Feature</th>
+                <th>Starter<br><small>$149/mo</small></th>
+                <th>Professional<br><small>$299/mo</small></th>
+                <th>Enterprise<br><small>Custom</small></th>
+                <th>Property Mgmt<br><small>$399/mo</small></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="cat-row"><td colspan="5">Core Platform</td></tr>
+            <tr><td>Branded Subdomain</td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td></tr>
+            <tr><td>Cloud Sync & Backup</td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td></tr>
+            <tr><td>Reports & Analytics</td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td></tr>
+            <tr><td>Role-Based Access</td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td></tr>
+
+            <tr class="cat-row"><td colspan="5">Modules</td></tr>
+            <tr><td>Number of Modules</td><td>Up to 2</td><td>Up to 6</td><td>Unlimited</td><td>Full PM Suite</td></tr>
+            <tr><td>Locations</td><td>1</td><td>Up to 3</td><td>Unlimited</td><td>Unlimited</td></tr>
+            <tr><td>Staff Accounts</td><td>Up to 3</td><td>Unlimited</td><td>Unlimited</td><td>Unlimited</td></tr>
+
+            <tr class="cat-row"><td colspan="5">Payments & Hardware</td></tr>
+            <tr><td>Stripe Processing</td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td></tr>
+            <tr><td>Stripe Terminal</td><td><span class="dash">&mdash;</span></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td></tr>
+            <tr><td>Thermal Printing</td><td><span class="dash">&mdash;</span></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td><td><span class="dash">&mdash;</span></td></tr>
+
+            <tr class="cat-row"><td colspan="5">Support</td></tr>
+            <tr><td>Email Support</td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td></tr>
+            <tr><td>Phone Support</td><td><span class="dash">&mdash;</span></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td></tr>
+            <tr><td>Priority Support</td><td><span class="dash">&mdash;</span></td><td><span class="dash">&mdash;</span></td><td><i class="fas fa-check check"></i></td><td><span class="dash">&mdash;</span></td></tr>
+            <tr><td>Dedicated Onboarding</td><td><span class="dash">&mdash;</span></td><td><span class="dash">&mdash;</span></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td></tr>
+
+            <tr class="cat-row"><td colspan="5">Extras</td></tr>
+            <tr><td>Digital Signage</td><td><span class="dash">&mdash;</span></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td></tr>
+            <tr><td>Communications (Email/SMS)</td><td><span class="dash">&mdash;</span></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td><td><i class="fas fa-check check"></i></td></tr>
+            <tr><td>Custom Integrations</td><td><span class="dash">&mdash;</span></td><td><span class="dash">&mdash;</span></td><td><i class="fas fa-check check"></i></td><td><span class="dash">&mdash;</span></td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Hardware -->
+<section class="hardware-section">
+    <h2>Hardware & Equipment</h2>
+    <p>We provide and manage the hardware — you just plug it in.</p>
+    <div class="hardware-grid">
+        <div class="hw-item">
+            <i class="fas fa-credit-card"></i>
+            <h4>Stripe Terminal</h4>
+            <p>Tap, chip, and swipe card readers for in-person payments</p>
+        </div>
+        <div class="hw-item">
+            <i class="fas fa-tablet-alt"></i>
+            <h4>Kiosk Tablets</h4>
+            <p>Customer-facing self-service ordering and check-in devices</p>
+        </div>
+        <div class="hw-item">
+            <i class="fas fa-receipt"></i>
+            <h4>Thermal Printers</h4>
+            <p>High-speed receipt and order ticket printing</p>
+        </div>
+        <div class="hw-item">
+            <i class="fas fa-tv"></i>
+            <h4>Display Screens</h4>
+            <p>Digital menu boards, KDS displays, and signage</p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+    <h2>Ready to Get Started?</h2>
+    <p>Schedule a free onboarding call and we'll walk you through the platform, answer your questions, and get you set up.</p>
+    <a href="tel:248-775-5058" class="cta-btn"><i class="fas fa-phone"></i> Schedule Your Onboarding Call</a>
+    <span class="cta-phone">Or call us directly at <a href="tel:248-775-5058">(248) 775-5058</a></span>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    &copy; 2026 The Business Lab LLC. All rights reserved. | <a href="/">Home</a> | <a href="tel:248-775-5058">(248) 775-5058</a>
+</footer>
+
+</body>
+</html>

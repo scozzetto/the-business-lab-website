@@ -45,6 +45,27 @@
   to = "/tenant-dashboard.html"
   status = 200
 
+# Offerings & contracts
+[[redirects]]
+  from = "/offerings"
+  to = "/offerings.html"
+  status = 200
+
+[[redirects]]
+  from = "/contracts/service-agreement"
+  to = "/contracts/service-agreement.html"
+  status = 200
+
+[[redirects]]
+  from = "/contracts/welcome-letter"
+  to = "/contracts/welcome-letter.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/contract-generator"
+  to = "/admin/contract-generator.html"
+  status = 200
+
 # Catch-all redirect for SPA behavior
 [[redirects]]
   from = "/*"

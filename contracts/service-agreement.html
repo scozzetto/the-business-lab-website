@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Agreement | The Business Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --gold: #d4af37;
+            --dark: #0f172a;
+            --slate: #1e293b;
+            --light: #f8fafc;
+            --border: #e2e8f0;
+            --text: #334155;
+            --text-light: #64748b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            background: #fff;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .contract-container {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 60px 50px;
+        }
+
+        /* Header */
+        .contract-header {
+            text-align: center;
+            border-bottom: 3px solid var(--gold);
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+
+        .contract-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: var(--dark);
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .contract-header .subtitle {
+            font-size: 18px;
+            color: var(--gold);
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .contract-meta {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .contract-meta span { font-weight: 500; color: var(--dark); }
+
+        /* Sections */
+        .section {
+            margin-bottom: 28px;
+        }
+
+        .section-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .section p, .section li {
+            margin-bottom: 8px;
+        }
+
+        .section ul, .section ol {
+            padding-left: 24px;
+        }
+
+        .section ul { list-style: disc; }
+        .section ol { list-style: decimal; }
+
+        /* Parties table */
+        .parties-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .parties-table td {
+            padding: 8px 15px;
+            border: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        .parties-table .label {
+            font-weight: 600;
+            color: var(--dark);
+            width: 140px;
+            background: var(--light);
+        }
+
+        /* Services list */
+        .module-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 20px;
+            margin: 10px 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .module-list li {
+            padding: 4px 0 4px 22px;
+            position: relative;
+        }
+
+        .module-list li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--gold);
+            font-size: 12px;
+        }
+
+        /* Fee highlight */
+        .fee-highlight {
+            background: var(--light);
+            border-left: 4px solid var(--gold);
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .fee-highlight .amount {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        /* Signature block */
+        .signature-block {
+            margin-top: 50px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+        }
+
+        .sig-party h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 14px;
+            color: var(--dark);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sig-line {
+            border-bottom: 1px solid var(--dark);
+            margin-bottom: 5px;
+            min-height: 40px;
+            position: relative;
+        }
+
+        .sig-line .anchor-tag {
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            font-size: 9px;
+            color: #ccc;
+        }
+
+        .sig-label {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+
+        /* Print styles */
+        @media print {
+            body { font-size: 12px; }
+            .contract-container { padding: 20px 30px; max-width: none; }
+            .no-print { display: none !important; }
+            .section { page-break-inside: avoid; }
+            .signature-block { page-break-inside: avoid; }
+        }
+
+        /* Print/action bar */
+        .action-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--dark);
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .action-bar .title {
+            color: var(--gold);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .action-bar button {
+            background: var(--gold);
+            color: var(--dark);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            margin-left: 10px;
+            transition: opacity 0.2s;
+        }
+
+        .action-bar button:hover { opacity: 0.85; }
+
+        .action-bar button.secondary {
+            background: transparent;
+            color: #fff;
+            border: 1px solid #475569;
+        }
+
+        body { padding-top: 56px; }
+    </style>
+</head>
+<body>
+
+<!-- Action Bar -->
+<div class="action-bar no-print">
+    <div class="title"><i class="fas fa-file-contract"></i> Service Agreement Preview</div>
+    <div>
+        <button class="secondary" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Back</button>
+        <button onclick="window.print()"><i class="fas fa-print"></i> Print / Save PDF</button>
+    </div>
+</div>
+
+<div class="contract-container">
+
+    <!-- Header -->
+    <div class="contract-header">
+        <h1>THE BUSINESS LAB</h1>
+        <div class="subtitle">Service Agreement</div>
+        <div class="contract-meta">
+            <div>Agreement #: <span id="agreementNumber">BL-SA-2026-001</span></div>
+            <div>Effective Date: <span id="effectiveDate">—</span></div>
+        </div>
+    </div>
+
+    <!-- Section 1: Parties -->
+    <div class="section">
+        <div class="section-number">1. Parties</div>
+        <p>This Service Agreement ("Agreement") is entered into as of <strong id="startDateInline">—</strong> by and between:</p>
+        <table class="parties-table">
+            <tr><td class="label">Provider</td><td><strong>The Business Lab LLC</strong><br>Michigan, United States<br>Phone: (248) 775-5058<br>Email: info@thebusiness-lab.com</td></tr>
+            <tr><td class="label">Client</td><td><strong id="clientName">—</strong><br><span id="clientAddress">—</span><br>Phone: <span id="clientPhone">—</span><br>Email: <span id="clientEmail">—</span></td></tr>
+        </table>
+    </div>
+
+    <!-- Section 2: Services -->
+    <div class="section">
+        <div class="section-number">2. Scope of Services</div>
+        <p>Provider agrees to furnish Client with access to the following platform modules and services (collectively, the "Services"):</p>
+        <ul class="module-list" id="moduleList">
+            <li>Point of Sale (POS) System</li>
+            <li>Self-Service Kiosk</li>
+            <li>Kitchen Display System (KDS)</li>
+            <li>Digital Menu / TV Display</li>
+        </ul>
+        <p>The Services include initial configuration, deployment to Client's branded subdomain, and ongoing platform hosting and maintenance.</p>
+    </div>
+
+    <!-- Section 3: Term -->
+    <div class="section">
+        <div class="section-number">3. Term</div>
+        <p>This Agreement shall commence on <strong id="termStart">—</strong> and continue for an initial term of <strong id="termLength">twelve (12)</strong> months (the "Initial Term"). Upon expiration of the Initial Term, this Agreement shall automatically renew for successive twelve-month periods unless either party provides written notice of non-renewal at least thirty (30) days prior to the end of the then-current term.</p>
+    </div>
+
+    <!-- Section 4: Fees & Payment -->
+    <div class="section">
+        <div class="section-number">4. Fees & Payment</div>
+        <div class="fee-highlight">
+            <div>Monthly Service Fee</div>
+            <div class="amount" id="monthlyFee">$299.00</div>
+            <div style="font-size:12px;color:var(--text-light)">Due on the 1st of each calendar month</div>
+        </div>
+        <ul>
+            <li>Payment is due on the first (1st) day of each calendar month, in advance.</li>
+            <li>A grace period of fifteen (15) days applies. Payments received after the grace period shall accrue a late charge of 1.5% per month on the outstanding balance.</li>
+            <li>Setup Fee: <strong id="setupFee">$0 (waived)</strong></li>
+            <li>Provider reserves the right to adjust fees upon thirty (30) days' written notice prior to any renewal term.</li>
+        </ul>
+    </div>
+
+    <!-- Section 5: Credit Card Processing -->
+    <div class="section">
+        <div class="section-number">5. Credit Card Processing</div>
+        <p>All credit card and electronic payment processing for Client's business operations shall be conducted exclusively through The Business Lab's Stripe payment infrastructure. Client acknowledges and agrees that:</p>
+        <ul>
+            <li>All customer-facing transactions will be processed via Provider's Stripe account and related integrations.</li>
+            <li>Provider shall remit collected funds to Client in accordance with the settlement schedule established during onboarding.</li>
+            <li>Standard Stripe processing fees (currently 2.9% + $0.30 per transaction for online; 2.7% + $0.05 for in-person) shall apply and are the responsibility of Client.</li>
+            <li>Client shall not integrate or use any third-party payment processor without prior written consent from Provider.</li>
+        </ul>
+    </div>
+
+    <!-- Section 6: Hardware & Equipment -->
+    <div class="section">
+        <div class="section-number">6. Hardware & Equipment</div>
+        <p>Provider may furnish Client with hardware and equipment as part of the Services, including but not limited to:</p>
+        <ul id="hardwareList">
+            <li>Stripe Terminal card reader(s)</li>
+            <li>Tablet or display device(s) for kiosk or POS use</li>
+            <li>Thermal receipt printer(s)</li>
+            <li>Digital signage display hardware</li>
+        </ul>
+        <p>All hardware provided by Provider remains the exclusive property of The Business Lab LLC during the term of this Agreement. Upon termination, Client shall return all Provider-owned hardware in good working condition within fourteen (14) days.</p>
+    </div>
+
+    <!-- Section 7: Setup, Training & Onboarding -->
+    <div class="section">
+        <div class="section-number">7. Setup, Training & Onboarding</div>
+        <ul>
+            <li>Initial system setup and configuration is included at no additional cost.</li>
+            <li>One (1) onboarding call is included to walk Client through the platform and configure initial settings.</li>
+            <li>Additional training sessions beyond the initial onboarding call shall be billed at the hourly rate specified in Section 10.</li>
+            <li>Provider will deploy the platform to Client's branded subdomain (e.g., <em id="subdomainExample">clientname.thebusiness-lab.com</em>) within ten (10) business days of Agreement execution.</li>
+        </ul>
+    </div>
+
+    <!-- Section 8: Support -->
+    <div class="section">
+        <div class="section-number">8. Support</div>
+        <ul>
+            <li>Provider shall offer email and phone support during standard business hours (Monday–Friday, 9:00 AM – 5:00 PM ET).</li>
+            <li>Support requests will receive an initial response within one (1) business day.</li>
+            <li>Critical system issues (platform down, payment processing failure) will be addressed with best-effort urgency, targeting resolution within four (4) hours during business hours.</li>
+            <li>Provider targets a platform uptime of 99.5% measured on a monthly basis, excluding scheduled maintenance windows communicated at least 24 hours in advance.</li>
+        </ul>
+    </div>
+
+    <!-- Section 9: Additional Work / Out of Scope -->
+    <div class="section">
+        <div class="section-number">9. Additional Work</div>
+        <p>Any work, customization, development, or services beyond the scope defined in Section 2 ("Out-of-Scope Work") shall be quoted separately and billed at a rate of:</p>
+        <div class="fee-highlight">
+            <div>Hourly Rate for Additional Work</div>
+            <div class="amount" id="hourlyRate">$150.00 / hour</div>
+        </div>
+        <p>Out-of-Scope Work will not commence without Client's prior written approval of the estimate. Provider will provide a written scope and cost estimate before beginning any such work.</p>
+    </div>
+
+    <!-- Section 10: Data & Confidentiality -->
+    <div class="section">
+        <div class="section-number">10. Data & Confidentiality</div>
+        <ul>
+            <li>Client retains ownership of all Client Data entered into or generated through the platform.</li>
+            <li>Provider shall maintain commercially reasonable security measures to protect Client Data, including encryption in transit and at rest.</li>
+            <li>Provider shall not sell, share, or disclose Client Data to any third party except as required to provide the Services or as required by law.</li>
+            <li>Upon termination, Provider shall make Client Data available for export for a period of thirty (30) days, after which it may be permanently deleted.</li>
+            <li>Both parties agree to maintain the confidentiality of any proprietary or sensitive information disclosed during the course of this Agreement.</li>
+        </ul>
+    </div>
+
+    <!-- Section 11: Termination -->
+    <div class="section">
+        <div class="section-number">11. Termination</div>
+        <ul>
+            <li><strong>Termination for Convenience:</strong> Either party may terminate this Agreement at the end of the then-current term by providing thirty (30) days' prior written notice.</li>
+            <li><strong>Early Termination by Client:</strong> If Client terminates this Agreement before the end of the Initial Term or any renewal term, Client shall pay an early termination fee equal to fifty percent (50%) of the remaining monthly fees due for the balance of the then-current term.</li>
+            <li><strong>Termination for Cause:</strong> Either party may terminate this Agreement immediately upon written notice if the other party materially breaches any provision of this Agreement and fails to cure such breach within thirty (30) days after receipt of written notice specifying the breach.</li>
+            <li><strong>Effect of Termination:</strong> Upon termination, Client's access to the platform will be disabled, all Provider-owned hardware must be returned, and any outstanding fees become immediately due and payable.</li>
+        </ul>
+    </div>
+
+    <!-- Section 12: Limitation of Liability -->
+    <div class="section">
+        <div class="section-number">12. Limitation of Liability</div>
+        <p>To the maximum extent permitted by law, Provider's total aggregate liability under this Agreement shall not exceed the total fees paid by Client during the twelve (12) months immediately preceding the event giving rise to the claim. In no event shall Provider be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, or business opportunities, regardless of the cause of action or theory of liability.</p>
+    </div>
+
+    <!-- Section 13: General Provisions -->
+    <div class="section">
+        <div class="section-number">13. General Provisions</div>
+        <ul>
+            <li><strong>Governing Law:</strong> This Agreement shall be governed by and construed in accordance with the laws of the State of Michigan, without regard to its conflict of laws principles.</li>
+            <li><strong>Entire Agreement:</strong> This Agreement constitutes the entire agreement between the parties with respect to its subject matter and supersedes all prior or contemporaneous agreements, representations, and understandings.</li>
+            <li><strong>Amendments:</strong> This Agreement may not be amended or modified except by a written instrument signed by both parties.</li>
+            <li><strong>Severability:</strong> If any provision of this Agreement is found to be invalid or unenforceable, the remaining provisions shall continue in full force and effect.</li>
+            <li><strong>Assignment:</strong> Client may not assign this Agreement without Provider's prior written consent. Provider may assign this Agreement in connection with a merger, acquisition, or sale of substantially all of its assets.</li>
+            <li><strong>Notices:</strong> All notices under this Agreement shall be in writing and sent to the addresses specified in Section 1, or to such other address as a party may designate in writing.</li>
+        </ul>
+    </div>
+
+    <!-- Section 14: Acceptance -->
+    <div class="section">
+        <div class="section-number">14. Acceptance</div>
+        <p>By signing below, the parties acknowledge that they have read and understood this Agreement and agree to be bound by its terms and conditions.</p>
+    </div>
+
+    <!-- Signature Block -->
+    <div class="signature-block">
+        <div class="sig-party">
+            <h4>Provider — The Business Lab LLC</h4>
+            <div class="sig-line"><span class="anchor-tag">/sn1/</span></div>
+            <div class="sig-label">Signature</div>
+            <div class="sig-line"></div>
+            <div class="sig-label">Printed Name: Silvio Cozzetto, CEO</div>
+            <div class="sig-line"><span class="anchor-tag">/dt1/</span></div>
+            <div class="sig-label">Date</div>
+        </div>
+        <div class="sig-party">
+            <h4>Client</h4>
+            <div class="sig-line"><span class="anchor-tag">/sn2/</span></div>
+            <div class="sig-label">Signature</div>
+            <div class="sig-line"></div>
+            <div class="sig-label">Printed Name: <span id="sigClientName">—</span></div>
+            <div class="sig-line"><span class="anchor-tag">/dt2/</span></div>
+            <div class="sig-label">Date</div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function populateContract() {
+    const params = new URLSearchParams(window.location.search);
+
+    // Also check localStorage for data from contract generator
+    let data = {};
+    try {
+        const stored = localStorage.getItem('bl_contract_data');
+        if (stored) data = JSON.parse(stored);
+    } catch(e) {}
+
+    // URL params override localStorage
+    const get = (key) => params.get(key) || data[key] || '';
+
+    // Agreement number
+    const now = new Date();
+    const agreementNum = get('agreement') || `BL-SA-${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+    document.getElementById('agreementNumber').textContent = agreementNum;
+
+    // Dates
+    const startDate = get('start') || now.toISOString().split('T')[0];
+    const formatted = new Date(startDate + 'T12:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    document.getElementById('effectiveDate').textContent = formatted;
+    document.getElementById('startDateInline').textContent = formatted;
+    document.getElementById('termStart').textContent = formatted;
+
+    // Term length
+    const months = get('term') || '12';
+    const termWords = { '6': 'six (6)', '12': 'twelve (12)', '24': 'twenty-four (24)' };
+    document.getElementById('termLength').textContent = termWords[months] || `${months}`;
+
+    // Client info
+    if (get('client')) document.getElementById('clientName').textContent = get('client');
+    if (get('address')) document.getElementById('clientAddress').textContent = get('address');
+    if (get('phone')) document.getElementById('clientPhone').textContent = get('phone');
+    if (get('email')) document.getElementById('clientEmail').textContent = get('email');
+    if (get('client')) document.getElementById('sigClientName').textContent = get('client');
+
+    // Monthly fee
+    const monthly = get('monthly');
+    if (monthly) document.getElementById('monthlyFee').textContent = `$${parseFloat(monthly).toFixed(2)}`;
+
+    // Setup fee
+    const setup = get('setup');
+    if (setup) document.getElementById('setupFee').textContent = setup === '0' ? '$0 (waived)' : `$${parseFloat(setup).toFixed(2)}`;
+
+    // Hourly rate
+    const hourly = get('hourly');
+    if (hourly) document.getElementById('hourlyRate').textContent = `$${parseFloat(hourly).toFixed(2)} / hour`;
+
+    // Modules
+    const modulesStr = get('modules');
+    if (modulesStr) {
+        const moduleMap = {
+            'pos': 'Point of Sale (POS) System',
+            'kiosk': 'Self-Service Kiosk',
+            'kds': 'Kitchen Display System (KDS)',
+            'tv': 'Digital Menu / TV Display',
+            'online_ordering': 'Online Ordering',
+            'menu_mgmt': 'Menu Management',
+            'thermal_print': 'Thermal Receipt Printing',
+            'stripe_terminal': 'Stripe Terminal Integration',
+            'client_db': 'Master Client Database',
+            'checkin': 'Patient/Client Check-in System',
+            'forms': 'Digital Forms & Intake',
+            'biosync': 'BioSync AI Health Assessment',
+            'booking': 'Online Appointment Booking',
+            'staff': 'Staff Management & Scheduling',
+            'telehealth': 'Telehealth / Video Consultations',
+            'emr': 'Electronic Medical Records',
+            'billing': 'Billing & Invoicing',
+            'properties': 'Property Management',
+            'tenants': 'Tenant Management',
+            'workorders': 'Work Order System',
+            'rent': 'Rent Collection & Tracking',
+            'accounting': 'Accounting & General Ledger',
+            'hoa': 'HOA Management',
+            'portals': 'Tenant/Owner Portals',
+            'compliance': 'Compliance & Inspections',
+            'screening': 'Tenant Screening',
+            'access_control': 'Access Control Integration',
+            'reports': 'Reports & Analytics',
+            'comms': 'Communications (Email/SMS)',
+            'rewards': 'Rewards & Loyalty Program',
+            'docs': 'Document Management',
+            'signage': 'Digital Signage',
+            'multi_location': 'Multi-Location Support',
+            'subdomain': 'Branded Subdomain Portal',
+            'roles': 'Role-Based Access Control',
+            'cloud_sync': 'Cloud Sync & Backup'
+        };
+        const modules = modulesStr.split(',').map(m => moduleMap[m.trim()] || m.trim());
+        const list = document.getElementById('moduleList');
+        list.innerHTML = modules.map(m => `<li>${m}</li>`).join('');
+    }
+
+    // Subdomain example
+    const slug = get('slug');
+    if (slug) document.getElementById('subdomainExample').textContent = `${slug}.thebusiness-lab.com`;
+
+    // Hardware
+    const hw = get('hardware');
+    if (hw) {
+        const items = hw.split(',').map(h => h.trim());
+        document.getElementById('hardwareList').innerHTML = items.map(h => `<li>${h}</li>`).join('');
+    }
+}
+
+populateContract();
+</script>
+</body>
+</html>

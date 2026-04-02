@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract Generator | The Business Lab Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --gold: #d4af37;
+            --gold-light: rgba(212,175,55,0.1);
+            --dark: #0f172a;
+            --slate: #1e293b;
+            --light: #f8fafc;
+            --border: #e2e8f0;
+            --text: #334155;
+            --text-light: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            background: var(--light);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .page-header {
+            background: linear-gradient(135deg, var(--dark), var(--slate));
+            padding: 25px 40px;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+        }
+
+        .page-header h1 span { color: var(--gold); }
+
+        .page-header .back-link {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .page-header .back-link:hover { color: var(--gold); }
+
+        /* Layout */
+        .builder-layout {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 30px;
+        }
+
+        /* Form sections */
+        .form-section {
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 25px 30px;
+            margin-bottom: 20px;
+        }
+
+        .form-section h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            color: var(--dark);
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--gold-light);
+        }
+
+        .form-section h3 i {
+            color: var(--gold);
+            margin-right: 8px;
+            font-size: 15px;
+        }
+
+        /* Form controls */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-row.single { grid-template-columns: 1fr; }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s;
+            background: #fff;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px var(--gold-light);
+        }
+
+        .form-group textarea { resize: vertical; min-height: 60px; }
+
+        /* Package radio buttons */
+        .package-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .package-option {
+            position: relative;
+        }
+
+        .package-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .package-option label {
+            display: block;
+            padding: 14px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px !important;
+            text-transform: none !important;
+            letter-spacing: 0 !important;
+            color: var(--text) !important;
+        }
+
+        .package-option label .pkg-name {
+            font-weight: 700;
+            color: var(--dark);
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .package-option label .pkg-price {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .package-option input:checked + label {
+            border-color: var(--gold);
+            background: var(--gold-light);
+        }
+
+        /* Module checkboxes */
+        .module-category {
+            margin-bottom: 15px;
+        }
+
+        .module-category h4 {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .module-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 4px 0;
+        }
+
+        .module-check input[type="checkbox"] {
+            accent-color: var(--gold);
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Hardware checkboxes */
+        .hw-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .hw-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 4px 0;
+        }
+
+        .hw-check input[type="checkbox"] {
+            accent-color: var(--gold);
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: sticky;
+            top: 20px;
+            align-self: flex-start;
+        }
+
+        .sidebar-card {
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .summary-row:last-child { border-bottom: none; }
+
+        .summary-row .label { color: var(--text-light); }
+        .summary-row .value { font-weight: 600; color: var(--dark); }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0 5px;
+            margin-top: 10px;
+            border-top: 2px solid var(--gold);
+        }
+
+        .summary-total .label {
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .summary-total .value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        /* Action buttons */
+        .action-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .action-btn i { margin-right: 6px; }
+
+        .btn-primary {
+            background: var(--gold);
+            color: var(--dark);
+        }
+
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .btn-secondary {
+            background: var(--dark);
+            color: #fff;
+        }
+
+        .btn-secondary:hover { background: var(--slate); }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--dark);
+            border: 2px solid var(--border);
+        }
+
+        .btn-outline:hover { border-color: var(--gold); }
+
+        .btn-docusign {
+            background: #4c2882;
+            color: #fff;
+        }
+
+        .btn-docusign:hover { opacity: 0.9; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .builder-layout {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: static;
+            }
+            .form-row { grid-template-columns: 1fr; }
+            .module-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-header">
+    <h1><i class="fas fa-file-contract"></i> Contract <span>Generator</span></h1>
+    <a href="/tenant-dashboard" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+</div>
+
+<div class="builder-layout">
+    <div class="form-area">
+
+        <!-- Client Info -->
+        <div class="form-section">
+            <h3><i class="fas fa-user-tie"></i> Client Information</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Business / Client Name</label>
+                    <input type="text" id="clientName" placeholder="e.g., Bob's Ice Cream Shop">
+                </div>
+                <div class="form-group">
+                    <label>Contact Person</label>
+                    <input type="text" id="contactPerson" placeholder="e.g., Bob Johnson">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="clientEmail" placeholder="bob@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="tel" id="clientPhone" placeholder="(248) 555-0100">
+                </div>
+            </div>
+            <div class="form-row single">
+                <div class="form-group">
+                    <label>Business Address</label>
+                    <input type="text" id="clientAddress" placeholder="123 Main St, Birmingham, MI 48009">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Business Type</label>
+                    <select id="businessType">
+                        <option value="">Select type...</option>
+                        <option value="restaurant">Restaurant / Cafe</option>
+                        <option value="healthcare">Healthcare / Wellness</option>
+                        <option value="property">Property Management</option>
+                        <option value="retail">Retail / General Business</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Subdomain Slug</label>
+                    <input type="text" id="subdomainSlug" placeholder="e.g., bobsicecream">
+                </div>
+            </div>
+        </div>
+
+        <!-- Package Selection -->
+        <div class="form-section">
+            <h3><i class="fas fa-box"></i> Package Selection</h3>
+            <div class="package-options">
+                <div class="package-option">
+                    <input type="radio" name="package" id="pkg-starter" value="starter" data-price="149">
+                    <label for="pkg-starter">
+                        <span class="pkg-name">Starter</span>
+                        <span class="pkg-price">$149/mo</span>
+                    </label>
+                </div>
+                <div class="package-option">
+                    <input type="radio" name="package" id="pkg-professional" value="professional" data-price="299" checked>
+                    <label for="pkg-professional">
+                        <span class="pkg-name">Professional</span>
+                        <span class="pkg-price">$299/mo</span>
+                    </label>
+                </div>
+                <div class="package-option">
+                    <input type="radio" name="package" id="pkg-enterprise" value="enterprise" data-price="0">
+                    <label for="pkg-enterprise">
+                        <span class="pkg-name">Enterprise</span>
+                        <span class="pkg-price">Custom</span>
+                    </label>
+                </div>
+                <div class="package-option">
+                    <input type="radio" name="package" id="pkg-pm" value="property" data-price="399">
+                    <label for="pkg-pm">
+                        <span class="pkg-name">Property Mgmt</span>
+                        <span class="pkg-price">$399/mo</span>
+                    </label>
+                </div>
+                <div class="package-option">
+                    <input type="radio" name="package" id="pkg-custom" value="custom" data-price="0">
+                    <label for="pkg-custom">
+                        <span class="pkg-name">Custom</span>
+                        <span class="pkg-price">Set below</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module Selection -->
+        <div class="form-section">
+            <h3><i class="fas fa-cubes"></i> Module Selection</h3>
+
+            <div class="module-category">
+                <h4>Restaurant & Cafe</h4>
+                <div class="module-grid">
+                    <label class="module-check"><input type="checkbox" name="modules" value="pos"> Point of Sale (POS)</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="kiosk"> Self-Service Kiosk</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="kds"> Kitchen Display (KDS)</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="tv"> Digital Menu / TV</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="online_ordering"> Online Ordering</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="menu_mgmt"> Menu Management</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="thermal_print"> Thermal Printing</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="stripe_terminal"> Stripe Terminal</label>
+                </div>
+            </div>
+
+            <div class="module-category">
+                <h4>Healthcare & Wellness</h4>
+                <div class="module-grid">
+                    <label class="module-check"><input type="checkbox" name="modules" value="client_db"> Client Database</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="checkin"> Check-in System</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="forms"> Digital Forms</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="biosync"> BioSync AI</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="booking"> Appointment Booking</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="staff"> Staff Management</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="telehealth"> Telehealth</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="emr"> EMR</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="billing"> Billing & Invoicing</label>
+                </div>
+            </div>
+
+            <div class="module-category">
+                <h4>Property Management</h4>
+                <div class="module-grid">
+                    <label class="module-check"><input type="checkbox" name="modules" value="properties"> Properties & Units</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="tenants"> Tenant Management</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="workorders"> Work Orders</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="rent"> Rent Collection</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="accounting"> Accounting & GL</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="hoa"> HOA Management</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="portals"> Tenant/Owner Portals</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="compliance"> Compliance</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="screening"> Tenant Screening</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="access_control"> Access Control</label>
+                </div>
+            </div>
+
+            <div class="module-category">
+                <h4>Common / Shared</h4>
+                <div class="module-grid">
+                    <label class="module-check"><input type="checkbox" name="modules" value="reports"> Reports & Analytics</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="comms"> Communications</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="rewards"> Rewards Program</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="docs"> Document Mgmt</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="signage"> Digital Signage</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="multi_location"> Multi-Location</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="subdomain"> Branded Portal</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="roles"> Role-Based Access</label>
+                    <label class="module-check"><input type="checkbox" name="modules" value="cloud_sync"> Cloud Sync</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pricing -->
+        <div class="form-section">
+            <h3><i class="fas fa-dollar-sign"></i> Pricing & Terms</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Monthly Fee ($)</label>
+                    <input type="number" id="monthlyFee" value="299" min="0" step="1">
+                </div>
+                <div class="form-group">
+                    <label>Setup Fee ($)</label>
+                    <input type="number" id="setupFee" value="0" min="0" step="1">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Hourly Rate for Extras ($)</label>
+                    <input type="number" id="hourlyRate" value="150" min="0" step="1">
+                </div>
+                <div class="form-group">
+                    <label>Term Length (months)</label>
+                    <select id="termLength">
+                        <option value="6">6 months</option>
+                        <option value="12" selected>12 months</option>
+                        <option value="24">24 months</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="form-group"></div>
+            </div>
+        </div>
+
+        <!-- Hardware -->
+        <div class="form-section">
+            <h3><i class="fas fa-cogs"></i> Hardware Included</h3>
+            <div class="hw-grid">
+                <label class="hw-check"><input type="checkbox" name="hardware" value="Stripe Terminal card reader" checked> Stripe Terminal Reader</label>
+                <label class="hw-check"><input type="checkbox" name="hardware" value="Kiosk tablet"> Kiosk Tablet</label>
+                <label class="hw-check"><input type="checkbox" name="hardware" value="Thermal receipt printer"> Thermal Printer</label>
+                <label class="hw-check"><input type="checkbox" name="hardware" value="Digital signage display"> Signage Display</label>
+                <label class="hw-check"><input type="checkbox" name="hardware" value="POS tablet stand"> POS Tablet Stand</label>
+                <label class="hw-check"><input type="checkbox" name="hardware" value="WiFi HDMI dongle"> WiFi HDMI Dongle</label>
+            </div>
+        </div>
+
+        <!-- Welcome Letter Extras -->
+        <div class="form-section">
+            <h3><i class="fas fa-key"></i> Welcome Letter Credentials</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" placeholder="e.g., bob@bobsicecream.com">
+                </div>
+                <div class="form-group">
+                    <label>Temporary Password</label>
+                    <input type="text" id="tempPassword" placeholder="Auto-generated" readonly>
+                    <button type="button" onclick="generatePassword()" style="margin-top:5px;padding:5px 12px;font-size:12px;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:#fff;">Generate Password</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-card">
+            <h3>Contract Summary</h3>
+            <div class="summary-row">
+                <span class="label">Client</span>
+                <span class="value" id="summaryClient">—</span>
+            </div>
+            <div class="summary-row">
+                <span class="label">Package</span>
+                <span class="value" id="summaryPackage">Professional</span>
+            </div>
+            <div class="summary-row">
+                <span class="label">Modules</span>
+                <span class="value" id="summaryModules">0</span>
+            </div>
+            <div class="summary-row">
+                <span class="label">Term</span>
+                <span class="value" id="summaryTerm">12 months</span>
+            </div>
+            <div class="summary-row">
+                <span class="label">Setup Fee</span>
+                <span class="value" id="summarySetup">$0</span>
+            </div>
+            <div class="summary-total">
+                <span class="label">Monthly</span>
+                <span class="value" id="summaryMonthly">$299</span>
+            </div>
+        </div>
+
+        <div class="sidebar-card">
+            <h3>Actions</h3>
+            <button class="action-btn btn-primary" onclick="previewContract()">
+                <i class="fas fa-file-contract"></i> Preview Contract
+            </button>
+            <button class="action-btn btn-secondary" onclick="previewWelcome()">
+                <i class="fas fa-envelope-open-text"></i> Preview Welcome Letter
+            </button>
+            <button class="action-btn btn-outline" onclick="printContract()">
+                <i class="fas fa-print"></i> Print Contract
+            </button>
+            <button class="action-btn btn-outline" onclick="printWelcome()">
+                <i class="fas fa-print"></i> Print Welcome Letter
+            </button>
+            <button class="action-btn btn-docusign" onclick="sendDocuSign()" disabled title="DocuSign integration coming soon">
+                <i class="fas fa-paper-plane"></i> Send via DocuSign
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auth check — redirect to login if not authenticated
+(function() {
+    const isAuthenticated = sessionStorage.getItem('bl_authenticated') || localStorage.getItem('bl_authenticated');
+    if (!isAuthenticated && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
+        window.location.replace('/login?redirect=/admin/contract-generator');
+    }
+})();
+
+// Set default start date to today
+document.getElementById('startDate').valueAsDate = new Date();
+
+// Package presets
+const packagePresets = {
+    starter: {
+        price: 149,
+        modules: ['pos', 'client_db', 'subdomain', 'cloud_sync']
+    },
+    professional: {
+        price: 299,
+        modules: ['pos', 'kiosk', 'kds', 'tv', 'stripe_terminal', 'thermal_print', 'reports', 'comms', 'subdomain', 'cloud_sync', 'roles']
+    },
+    enterprise: {
+        price: 0,
+        modules: [] // all
+    },
+    property: {
+        price: 399,
+        modules: ['properties', 'tenants', 'workorders', 'rent', 'accounting', 'hoa', 'portals', 'compliance', 'screening', 'access_control', 'reports', 'comms', 'subdomain', 'cloud_sync', 'roles']
+    },
+    custom: {
+        price: 0,
+        modules: []
+    }
+};
+
+// Package change handler
+document.querySelectorAll('input[name="package"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const preset = packagePresets[this.value];
+        if (!preset) return;
+
+        if (preset.price > 0) {
+            document.getElementById('monthlyFee').value = preset.price;
+        }
+
+        // Check modules
+        const allChecks = document.querySelectorAll('input[name="modules"]');
+        if (this.value === 'enterprise') {
+            allChecks.forEach(c => c.checked = true);
+        } else if (preset.modules.length > 0) {
+            allChecks.forEach(c => c.checked = false);
+            preset.modules.forEach(m => {
+                const cb = document.querySelector(`input[name="modules"][value="${m}"]`);
+                if (cb) cb.checked = true;
+            });
+        }
+
+        updateSummary();
+    });
+});
+
+// Auto-set professional modules on load
+document.getElementById('pkg-professional').dispatchEvent(new Event('change'));
+
+// Live summary updates
+document.getElementById('clientName').addEventListener('input', updateSummary);
+document.getElementById('monthlyFee').addEventListener('input', updateSummary);
+document.getElementById('setupFee').addEventListener('input', updateSummary);
+document.getElementById('termLength').addEventListener('change', updateSummary);
+document.querySelectorAll('input[name="modules"]').forEach(cb => cb.addEventListener('change', updateSummary));
+
+function updateSummary() {
+    const name = document.getElementById('clientName').value || '—';
+    document.getElementById('summaryClient').textContent = name.length > 18 ? name.substring(0, 18) + '...' : name;
+
+    const pkg = document.querySelector('input[name="package"]:checked');
+    document.getElementById('summaryPackage').textContent = pkg ? pkg.value.charAt(0).toUpperCase() + pkg.value.slice(1) : '—';
+
+    const moduleCount = document.querySelectorAll('input[name="modules"]:checked').length;
+    document.getElementById('summaryModules').textContent = moduleCount;
+
+    document.getElementById('summaryTerm').textContent = document.getElementById('termLength').value + ' months';
+
+    const setup = parseInt(document.getElementById('setupFee').value) || 0;
+    document.getElementById('summarySetup').textContent = setup === 0 ? '$0' : '$' + setup;
+
+    const monthly = parseInt(document.getElementById('monthlyFee').value) || 0;
+    document.getElementById('summaryMonthly').textContent = monthly === 0 ? 'Custom' : '$' + monthly;
+}
+
+function getFormData() {
+    const modules = Array.from(document.querySelectorAll('input[name="modules"]:checked')).map(c => c.value);
+    const hardware = Array.from(document.querySelectorAll('input[name="hardware"]:checked')).map(c => c.value);
+    const pkg = document.querySelector('input[name="package"]:checked');
+
+    return {
+        client: document.getElementById('clientName').value,
+        contact: document.getElementById('contactPerson').value,
+        email: document.getElementById('clientEmail').value,
+        phone: document.getElementById('clientPhone').value,
+        address: document.getElementById('clientAddress').value,
+        businessType: document.getElementById('businessType').value,
+        slug: document.getElementById('subdomainSlug').value,
+        package: pkg ? pkg.value : '',
+        modules: modules.join(','),
+        hardware: hardware.join(','),
+        monthly: document.getElementById('monthlyFee').value,
+        setup: document.getElementById('setupFee').value,
+        hourly: document.getElementById('hourlyRate').value,
+        term: document.getElementById('termLength').value,
+        start: document.getElementById('startDate').value,
+        username: document.getElementById('username').value,
+        password: document.getElementById('tempPassword').value
+    };
+}
+
+function buildUrl(basePath, data) {
+    const params = new URLSearchParams();
+    for (const [key, val] of Object.entries(data)) {
+        if (val) params.set(key, val);
+    }
+    return basePath + '?' + params.toString();
+}
+
+function previewContract() {
+    const data = getFormData();
+    localStorage.setItem('bl_contract_data', JSON.stringify(data));
+    window.open(buildUrl('/contracts/service-agreement.html', data), '_blank');
+}
+
+function previewWelcome() {
+    const data = getFormData();
+    localStorage.setItem('bl_contract_data', JSON.stringify(data));
+    window.open(buildUrl('/contracts/welcome-letter.html', data), '_blank');
+}
+
+function printContract() {
+    const data = getFormData();
+    localStorage.setItem('bl_contract_data', JSON.stringify(data));
+    const w = window.open(buildUrl('/contracts/service-agreement.html', data), '_blank');
+    w.addEventListener('load', () => setTimeout(() => w.print(), 500));
+}
+
+function printWelcome() {
+    const data = getFormData();
+    localStorage.setItem('bl_contract_data', JSON.stringify(data));
+    const w = window.open(buildUrl('/contracts/welcome-letter.html', data), '_blank');
+    w.addEventListener('load', () => setTimeout(() => w.print(), 500));
+}
+
+function sendDocuSign() {
+    alert('DocuSign integration coming soon!\n\nTo set up:\n1. Create a DocuSign developer account at developers.docusign.com\n2. Add API keys to Netlify environment variables\n3. The contract template includes anchor tags (/sn1/, /sn2/, /dt1/, /dt2/) for signature placement');
+}
+
+function generatePassword() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+    let password = '';
+    for (let i = 0; i < 12; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    document.getElementById('tempPassword').value = password;
+}
+
+// Auto-slug from client name
+document.getElementById('clientName').addEventListener('input', function() {
+    const slug = this.value.toLowerCase().replace(/[^a-z0-9]+/g, '').substring(0, 20);
+    const slugField = document.getElementById('subdomainSlug');
+    if (!slugField.dataset.manual) {
+        slugField.value = slug;
+    }
+});
+
+document.getElementById('subdomainSlug').addEventListener('input', function() {
+    this.dataset.manual = 'true';
+});
+
+// Auto-fill username from email
+document.getElementById('clientEmail').addEventListener('input', function() {
+    const usernameField = document.getElementById('username');
+    if (!usernameField.dataset.manual) {
+        usernameField.value = this.value;
+    }
+});
+
+document.getElementById('username').addEventListener('input', function() {
+    this.dataset.manual = 'true';
+});
+
+// Generate password on load
+generatePassword();
+updateSummary();
+</script>
+</body>
+</html>
