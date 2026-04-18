@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing & Subscriptions | The Business Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#f1f5f9;color:#0f172a;min-height:100vh}
+        h1,h2,h3{font-family:'Playfair Display',serif}
+
+        /* Top bar */
+        .topbar{background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;padding:20px 40px;display:flex;justify-content:space-between;align-items:center}
+        .topbar h1{font-size:1.4rem;color:#d4af37}
+        .topbar .back{color:#94a3b8;text-decoration:none;font-size:14px;display:flex;align-items:center;gap:6px}
+        .topbar .back:hover{color:#d4af37}
+
+        /* Auth gate */
+        .auth-gate{max-width:400px;margin:80px auto;background:#fff;border-radius:16px;padding:40px;box-shadow:0 4px 20px rgba(0,0,0,0.08);text-align:center}
+        .auth-gate h2{margin-bottom:16px;color:#0f172a}
+        .auth-gate input{width:100%;padding:12px 16px;border:1px solid #e2e8f0;border-radius:8px;font-size:15px;margin-bottom:16px}
+        .auth-gate .btn{width:100%;padding:12px;background:#d4af37;color:#0f172a;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer}
+        .auth-gate .btn:hover{background:#b8962e}
+        .auth-gate .error{color:#dc2626;font-size:13px;margin-top:8px;display:none}
+
+        /* Main layout */
+        .container{max-width:1400px;margin:0 auto;padding:24px 40px}
+        .hidden{display:none!important}
+
+        /* Stats row */
+        .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:32px}
+        .stat-card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 6px rgba(0,0,0,0.06)}
+        .stat-card .label{font-size:12px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+        .stat-card .value{font-size:28px;font-weight:800;margin-top:4px}
+        .stat-card .value.green{color:#16a34a}
+        .stat-card .value.gold{color:#d4af37}
+        .stat-card .value.red{color:#dc2626}
+
+        /* Tabs */
+        .tabs{display:flex;gap:4px;margin-bottom:24px;border-bottom:2px solid #e2e8f0;padding-bottom:0}
+        .tab{padding:10px 24px;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+        .tab:hover{color:#0f172a}
+        .tab.active{color:#d4af37;border-bottom-color:#d4af37}
+
+        /* Tables */
+        table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.06)}
+        th{background:#f8fafc;text-align:left;padding:12px 16px;font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px}
+        td{padding:12px 16px;border-top:1px solid #f1f5f9;font-size:14px;vertical-align:middle}
+        tr:hover td{background:#fefce8}
+
+        /* Badges */
+        .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+        .badge-active{background:#dcfce7;color:#16a34a}
+        .badge-past-due{background:#fef2f2;color:#dc2626}
+        .badge-trialing{background:#dbeafe;color:#2563eb}
+        .badge-canceled{background:#f1f5f9;color:#64748b}
+
+        /* Buttons */
+        .btn-gold{background:#d4af37;color:#0f172a;border:none;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif}
+        .btn-gold:hover{background:#b8962e}
+        .btn-sm{padding:5px 12px;font-size:12px;border-radius:6px}
+        .btn-outline{background:none;border:1px solid #e2e8f0;color:#64748b;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif}
+        .btn-outline:hover{border-color:#d4af37;color:#d4af37}
+        .btn-danger{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif}
+
+        /* Toolbar */
+        .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px}
+        .toolbar .search{padding:8px 16px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;width:300px}
+
+        /* Modal */
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;align-items:center;justify-content:center}
+        .modal{background:#fff;border-radius:16px;padding:32px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+        .modal h2{font-size:1.3rem;margin-bottom:20px;color:#0f172a}
+        .modal label{display:block;font-size:13px;font-weight:600;color:#334155;margin-bottom:4px;margin-top:14px}
+        .modal input,.modal select,.modal textarea{width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:Inter,sans-serif}
+        .modal textarea{height:80px;resize:vertical}
+        .modal .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .modal .actions{display:flex;gap:10px;margin-top:24px;justify-content:flex-end}
+        .modal .meta-row{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+        .modal .meta-row input{flex:1}
+        .modal .meta-row button{padding:6px 10px;background:#fef2f2;color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-size:12px}
+
+        /* Toast */
+        .toast{position:fixed;top:20px;right:20px;padding:14px 24px;border-radius:10px;color:#fff;font-size:14px;font-weight:600;z-index:2000;opacity:0;transition:opacity .3s;pointer-events:none}
+        .toast.show{opacity:1}
+        .toast.success{background:#16a34a}
+        .toast.error{background:#dc2626}
+
+        /* Detail panel */
+        .detail-panel{background:#fff;border-radius:12px;padding:24px;margin-bottom:20px;box-shadow:0 1px 6px rgba(0,0,0,0.06)}
+        .detail-panel h3{margin-bottom:12px}
+        .detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+        .detail-item .di-label{font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase}
+        .detail-item .di-val{font-size:15px;font-weight:600;color:#0f172a;margin-top:2px}
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div><a class="back" href="/"><i class="fas fa-arrow-left"></i> The Business Lab</a><h1 style="margin-top:4px">Billing & Subscriptions</h1></div>
+        <div id="authStatus" style="font-size:13px;color:#64748b;display:flex;align-items:center;gap:12px"><span id="authLabel"></span><button id="logoutBtn" class="hidden" onclick="logout()" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Log Out</button></div>
+    </div>
+
+    <!-- Auth Gate -->
+    <div id="authGate" class="auth-gate">
+        <h2>Admin Access</h2>
+        <p style="color:#64748b;font-size:14px;margin-bottom:20px">Enter your admin key to access billing management.</p>
+        <input type="password" id="adminKeyInput" placeholder="Admin Key" onkeydown="if(event.key==='Enter')authenticate()">
+        <div style="margin-bottom:16px;text-align:left"><label style="font-size:13px;color:#64748b;cursor:pointer"><input type="checkbox" id="rememberMe" checked> Remember me on this device</label></div>
+        <button class="btn" onclick="authenticate()">Access Billing</button>
+        <div id="authError" class="error">Invalid admin key</div>
+    </div>
+
+    <!-- Main Content (hidden until auth) -->
+    <div id="mainContent" class="container hidden">
+        <!-- Stats -->
+        <div class="stats" id="statsRow">
+            <div class="stat-card"><div class="label">Active Subscriptions</div><div class="value gold" id="statActive">—</div></div>
+            <div class="stat-card"><div class="label">Monthly Revenue</div><div class="value green" id="statMRR">—</div></div>
+            <div class="stat-card"><div class="label">Total Customers</div><div class="value" id="statCustomers">—</div></div>
+            <div class="stat-card"><div class="label">Past Due</div><div class="value red" id="statPastDue">—</div></div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('subscriptions')">Subscriptions</div>
+            <div class="tab" onclick="switchTab('customers')">Customers</div>
+            <div class="tab" onclick="switchTab('invoices')">Invoices</div>
+            <div class="tab" onclick="switchTab('products')">Products & Prices</div>
+        </div>
+
+        <!-- Subscriptions Tab -->
+        <div id="tab-subscriptions">
+            <div class="toolbar">
+                <input class="search" id="subSearch" placeholder="Search subscriptions..." oninput="renderSubscriptions()">
+                <button class="btn-gold" onclick="openNewSubModal()"><i class="fas fa-plus"></i> New Subscription</button>
+            </div>
+            <div id="subTable"></div>
+        </div>
+
+        <!-- Customers Tab -->
+        <div id="tab-customers" class="hidden">
+            <div class="toolbar">
+                <input class="search" id="custSearch" placeholder="Search customers..." oninput="renderCustomers()">
+                <button class="btn-gold" onclick="openNewCustModal()"><i class="fas fa-plus"></i> New Customer</button>
+            </div>
+            <div id="custTable"></div>
+        </div>
+
+        <!-- Invoices Tab -->
+        <div id="tab-invoices" class="hidden">
+            <div class="toolbar">
+                <input class="search" id="invSearch" placeholder="Search invoices..." oninput="renderInvoices()">
+                <select id="invStatusFilter" onchange="loadInvoices()" style="padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px">
+                    <option value="">All Statuses</option>
+                    <option value="open">Open</option>
+                    <option value="paid">Paid</option>
+                    <option value="past_due">Past Due</option>
+                    <option value="draft">Draft</option>
+                    <option value="uncollectible">Uncollectible</option>
+                    <option value="void">Void</option>
+                </select>
+                <button class="btn-gold" onclick="openNewInvoiceModal()"><i class="fas fa-plus"></i> New Invoice</button>
+            </div>
+            <div id="invTable"></div>
+        </div>
+
+        <!-- Products Tab -->
+        <div id="tab-products" class="hidden">
+            <div class="toolbar">
+                <div></div>
+                <button class="btn-gold" onclick="openNewProductModal()"><i class="fas fa-plus"></i> New Product</button>
+            </div>
+            <div id="prodTable"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+    var API='/.netlify/functions/bl-billing';
+    var ADMIN_KEY='';
+    var _subs=[];
+    var _custs=[];
+    var _invs=[];
+    var _prods=[];
+    var _prices=[];
+
+    // ─── Auto-login if remembered ───
+    (function(){
+        var saved=localStorage.getItem('bl_admin_key');
+        if(saved){
+            ADMIN_KEY=saved;
+            document.getElementById('adminKeyInput').value=saved;
+            authenticate();
+        }
+    })();
+
+    // ─── Auth ───
+    function authenticate(){
+        if(!ADMIN_KEY)ADMIN_KEY=document.getElementById('adminKeyInput').value.trim();
+        if(!ADMIN_KEY){document.getElementById('authError').style.display='block';document.getElementById('authError').textContent='Please enter an admin key';return}
+        document.querySelector('.auth-gate .btn').textContent='Verifying...';
+        document.querySelector('.auth-gate .btn').disabled=true;
+        // Test auth with a simple call — check HTTP status
+        fetch(API,{
+            method:'POST',
+            headers:{'Content-Type':'application/json','X-Admin-Key':ADMIN_KEY},
+            body:JSON.stringify({action:'list-products'})
+        }).then(function(r){
+            if(r.status===401){
+                throw new Error('Invalid admin key');
+            }
+            if(!r.ok){
+                return r.json().then(function(d){throw new Error(d.error||'Server error ('+r.status+')')});
+            }
+            return r.json();
+        }).then(function(data){
+            if(data.error||data.auth_failed){
+                throw new Error(data.error||'Authentication failed');
+            }
+            document.getElementById('authGate').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+            document.getElementById('authLabel').textContent='Authenticated';
+            document.getElementById('logoutBtn').classList.remove('hidden');
+            // Save key if "Remember me" is checked
+            var rememberEl=document.getElementById('rememberMe');
+            if(rememberEl&&rememberEl.checked)localStorage.setItem('bl_admin_key',ADMIN_KEY);
+            else localStorage.removeItem('bl_admin_key');
+            _prods=data.products||[];
+            _prices=data.prices||[];
+            loadAll();
+        }).catch(function(err){
+            var errEl=document.getElementById('authError');
+            errEl.textContent=err.message||'Authentication failed';
+            errEl.style.display='block';
+            ADMIN_KEY='';
+            document.querySelector('.auth-gate .btn').textContent='Access Billing';
+            document.querySelector('.auth-gate .btn').disabled=false;
+        });
+    }
+
+    function logout(){
+        ADMIN_KEY='';
+        localStorage.removeItem('bl_admin_key');
+        _subs=[];_custs=[];_invs=[];_prods=[];_prices=[];
+        document.getElementById('mainContent').classList.add('hidden');
+        document.getElementById('authGate').classList.remove('hidden');
+        document.getElementById('authError').style.display='none';
+        document.getElementById('adminKeyInput').value='';
+        document.getElementById('authLabel').textContent='';
+        document.getElementById('logoutBtn').classList.add('hidden');
+        document.querySelector('.auth-gate .btn').textContent='Access Billing';
+        document.querySelector('.auth-gate .btn').disabled=false;
+    }
+
+    function apiCall(body){
+        return fetch(API,{
+            method:'POST',
+            headers:{'Content-Type':'application/json','X-Admin-Key':ADMIN_KEY},
+            body:JSON.stringify(body)
+        }).then(function(r){
+            if(r.status===401){logout();throw new Error('Session expired — please log in again');}
+            return r.json();
+        });
+    }
+
+    // ─── Load Data ───
+    function loadAll(){
+        Promise.all([
+            apiCall({action:'list-subscriptions'}),
+            apiCall({action:'list-customers'}),
+            apiCall({action:'list-invoices'})
+        ]).then(function(results){
+            _subs=results[0].subscriptions||[];
+            _custs=results[1].customers||[];
+            _invs=results[2].invoices||[];
+            updateStats();
+            renderSubscriptions();
+            renderCustomers();
+            renderInvoices();
+            renderProducts();
+        });
+    }
+
+    function loadInvoices(){
+        var status=document.getElementById('invStatusFilter').value;
+        var params={action:'list-invoices'};
+        if(status)params.status=status;
+        apiCall(params).then(function(data){
+            _invs=data.invoices||[];
+            renderInvoices();
+        });
+    }
+
+    // ─── Stats ───
+    function updateStats(){
+        var active=_subs.filter(function(s){return s.status==='active'||s.status==='trialing'});
+        var pastDue=_subs.filter(function(s){return s.status==='past_due'});
+        var mrr=0;
+        active.forEach(function(s){
+            if(s.items&&s.items.data){
+                s.items.data.forEach(function(item){
+                    var amt=item.price?item.price.unit_amount:0;
+                    var qty=item.quantity||1;
+                    var interval=item.price&&item.price.recurring?item.price.recurring.interval:'month';
+                    if(interval==='year')mrr+=Math.round(amt*qty/12);
+                    else mrr+=amt*qty;
+                });
+            }
+        });
+        document.getElementById('statActive').textContent=active.length;
+        document.getElementById('statMRR').textContent='$'+fmt(mrr);
+        document.getElementById('statCustomers').textContent=_custs.length;
+        document.getElementById('statPastDue').textContent=pastDue.length;
+    }
+
+    // ─── Tabs ───
+    function switchTab(tab){
+        ['subscriptions','customers','invoices','products'].forEach(function(t){
+            var el=document.getElementById('tab-'+t);
+            if(el)el.classList.toggle('hidden',t!==tab);
+        });
+        document.querySelectorAll('.tab').forEach(function(t,i){
+            var tabs=['subscriptions','customers','invoices','products'];
+            t.classList.toggle('active',tabs[i]===tab);
+        });
+    }
+
+    // ─── Render Subscriptions ───
+    function renderSubscriptions(){
+        var q=(document.getElementById('subSearch').value||'').toLowerCase();
+        var filtered=_subs.filter(function(s){
+            var name=s.customer&&typeof s.customer==='object'?s.customer.name||s.customer.email||'':'';
+            var meta=JSON.stringify(s.metadata||{});
+            return (name+meta).toLowerCase().indexOf(q)!==-1;
+        });
+        var h='<table><thead><tr><th>Client</th><th>Product</th><th>Amount</th><th>Interval</th><th>Status</th><th>Payment</th><th>Created</th><th>Actions</th></tr></thead><tbody>';
+        if(filtered.length===0){
+            h+='<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:40px">No subscriptions found</td></tr>';
+        }
+        filtered.forEach(function(s){
+            var custName='—';var custEmail='';
+            if(s.customer&&typeof s.customer==='object'){custName=esc(s.customer.name||s.customer.email||s.customer.id);custEmail=s.customer.email||'';}
+            var prodName='—';var amount=0;var interval='month';var qty=1;
+            if(s.items&&s.items.data&&s.items.data[0]){
+                var item=s.items.data[0];
+                qty=item.quantity||1;
+                if(item.price){
+                    amount=item.price.unit_amount*qty;
+                    interval=item.price.recurring?item.price.recurring.interval:'month';
+                    if(item.price.product&&typeof item.price.product==='object')prodName=esc(item.price.product.name);
+                }
+            }
+            var badge='badge-'+s.status.replace('_','-');
+            var method=s.collection_method==='charge_automatically'?'<span style="color:#16a34a;font-weight:600"><i class="fas fa-bolt"></i> Auto</span>':'<span style="color:#2563eb"><i class="fas fa-envelope"></i> Invoice</span>';
+            var metaStr='';
+            if(s.metadata){
+                var keys=Object.keys(s.metadata);
+                if(keys.length>0){
+                    metaStr='<div style="font-size:11px;color:#64748b;margin-top:4px">';
+                    keys.slice(0,3).forEach(function(k){metaStr+='<span style="background:#f1f5f9;padding:1px 6px;border-radius:4px;margin:1px">'+esc(k)+': '+esc(s.metadata[k])+'</span> '});
+                    metaStr+='</div>';
+                }
+            }
+            h+='<tr>';
+            h+='<td><strong>'+custName+'</strong>'+(custEmail?'<div style="font-size:11px;color:#64748b">'+esc(custEmail)+'</div>':'')+metaStr+'</td>';
+            h+='<td>'+prodName+(qty>1?'<div style="font-size:11px;color:#64748b">x'+qty+'</div>':'')+'</td>';
+            h+='<td style="font-weight:700">$'+fmt(amount)+'<div style="font-size:11px;color:#64748b;font-weight:400">per '+interval+'</div></td>';
+            h+='<td style="text-transform:capitalize">'+interval+'ly</td>';
+            h+='<td><span class="badge '+badge+'">'+s.status.replace('_',' ')+'</span></td>';
+            h+='<td>'+method+'</td>';
+            h+='<td style="font-size:12px;color:#64748b">'+fmtDate(s.created)+'</td>';
+            h+='<td style="white-space:nowrap">';
+            h+='<button class="btn-sm btn-outline" onclick="editSub(\''+s.id+'\')" title="Edit"><i class="fas fa-pen"></i> Edit</button> ';
+            if(s.status==='active'||s.status==='trialing'){
+                h+='<button class="btn-danger btn-sm" onclick="cancelSub(\''+s.id+'\')" title="Cancel"><i class="fas fa-times"></i></button>';
+            }
+            h+='</td></tr>';
+        });
+        h+='</tbody></table>';
+        document.getElementById('subTable').innerHTML=h;
+    }
+
+    // ─── Render Customers ───
+    function renderCustomers(){
+        var q=(document.getElementById('custSearch').value||'').toLowerCase();
+        var filtered=_custs.filter(function(c){
+            return ((c.name||'')+(c.email||'')+JSON.stringify(c.metadata||{})).toLowerCase().indexOf(q)!==-1;
+        });
+        var h='<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Subscriptions</th><th>Metadata</th><th>Created</th><th>Actions</th></tr></thead><tbody>';
+        if(filtered.length===0){
+            h+='<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px">No customers found</td></tr>';
+        }
+        filtered.forEach(function(c){
+            var subCount=0;
+            if(c.subscriptions&&c.subscriptions.data)subCount=c.subscriptions.data.length;
+            var metaStr='—';
+            if(c.metadata&&Object.keys(c.metadata).length>0){
+                metaStr='<div style="font-size:11px;line-height:1.6">';
+                Object.keys(c.metadata).forEach(function(k){metaStr+='<span style="background:#f1f5f9;padding:1px 6px;border-radius:4px;margin:1px">'+esc(k)+': '+esc(c.metadata[k])+'</span> '});
+                metaStr+='</div>';
+            }
+            h+='<tr>';
+            h+='<td><strong>'+esc(c.name||'—')+'</strong></td>';
+            h+='<td>'+esc(c.email||'—')+'</td>';
+            h+='<td>'+esc(c.phone||'—')+'</td>';
+            h+='<td style="text-align:center">'+subCount+'</td>';
+            h+='<td>'+metaStr+'</td>';
+            h+='<td style="font-size:12px;color:#64748b">'+fmtDate(c.created)+'</td>';
+            h+='<td style="white-space:nowrap"><button class="btn-sm btn-outline" onclick="editCustomer(\''+c.id+'\')"><i class="fas fa-pen"></i> Edit</button> <button class="btn-sm btn-outline" onclick="sendPaymentLink(\''+c.id+'\')" title="Send payment link to client"><i class="fas fa-link"></i> Pay Link</button>';
+            if(subCount===0)h+=' <button class="btn-danger btn-sm" onclick="deleteCustomer(\''+c.id+'\')" title="Delete"><i class="fas fa-trash"></i></button>';
+            h+='</td></tr>';
+        });
+        h+='</tbody></table>';
+        document.getElementById('custTable').innerHTML=h;
+    }
+
+    // ─── Render Invoices ───
+    function renderInvoices(){
+        var q=(document.getElementById('invSearch').value||'').toLowerCase();
+        var filtered=_invs.filter(function(inv){
+            return ((inv.customer_name||'')+(inv.customer_email||'')+(inv.number||'')).toLowerCase().indexOf(q)!==-1;
+        });
+        var h='<table><thead><tr><th>Invoice #</th><th>Customer</th><th>Amount</th><th>Status</th><th>Due</th><th>Created</th><th>Actions</th></tr></thead><tbody>';
+        if(filtered.length===0){
+            h+='<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px">No invoices found</td></tr>';
+        }
+        filtered.forEach(function(inv){
+            var badge='badge-active';
+            if(inv.status==='paid')badge='badge-active';
+            else if(inv.status==='open')badge='badge-trialing';
+            else if(inv.status==='past_due')badge='badge-past-due';
+            else if(inv.status==='void')badge='badge-canceled';
+            else if(inv.status==='draft')badge='';
+            else badge='badge-canceled';
+            h+='<tr>';
+            h+='<td style="font-family:monospace;font-size:13px">'+esc(inv.number||inv.id)+'</td>';
+            h+='<td>'+esc(inv.customer_name||inv.customer_email||'—')+'</td>';
+            h+='<td style="font-weight:700">$'+fmt(inv.amount_due||0)+'</td>';
+            h+='<td><span class="badge '+badge+'">'+esc(inv.status||'—')+'</span></td>';
+            h+='<td style="font-size:13px">'+(inv.due_date?fmtDate(inv.due_date):'—')+'</td>';
+            h+='<td style="font-size:12px;color:#64748b">'+fmtDate(inv.created)+'</td>';
+            h+='<td style="white-space:nowrap">';
+            // View button
+            if(inv.hosted_invoice_url)h+='<a href="'+inv.hosted_invoice_url+'" target="_blank" class="btn-sm btn-outline" title="View invoice"><i class="fas fa-eye"></i></a> ';
+            // Edit button - opens detail modal
+            h+='<button class="btn-sm btn-outline" onclick="editInvoice(\''+inv.id+'\')" title="Edit / Actions"><i class="fas fa-pen"></i></button> ';
+            // Quick void for open invoices
+            if(inv.status==='open')h+='<button class="btn-sm btn-danger" onclick="voidInvoice(\''+inv.id+'\')" title="Void this invoice"><i class="fas fa-ban"></i></button>';
+            // Delete for draft invoices
+            if(inv.status==='draft')h+='<button class="btn-sm btn-danger" onclick="deleteInvoice(\''+inv.id+'\')" title="Delete draft"><i class="fas fa-trash"></i></button>';
+            h+='</td></tr>';
+        });
+        h+='</tbody></table>';
+        document.getElementById('invTable').innerHTML=h;
+    }
+
+    // ─── Render Products ───
+    function renderProducts(){
+        var h='<table><thead><tr><th>Product</th><th>Price</th><th>Interval</th><th>Price ID</th></tr></thead><tbody>';
+        if(_prices.length===0){
+            h+='<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:40px">No products found</td></tr>';
+        }
+        _prices.forEach(function(p){
+            var name=(p.product&&typeof p.product==='object')?p.product.name:p.product;
+            var interval=p.recurring?p.recurring.interval:'one-time';
+            h+='<tr>';
+            h+='<td><strong>'+esc(name||'—')+'</strong></td>';
+            h+='<td style="font-weight:700">$'+fmt(p.unit_amount||0)+'</td>';
+            h+='<td style="text-transform:capitalize">'+interval+'</td>';
+            h+='<td style="font-family:monospace;font-size:12px;color:#64748b">'+esc(p.id)+'</td>';
+            h+='</tr>';
+        });
+        h+='</tbody></table>';
+        document.getElementById('prodTable').innerHTML=h;
+    }
+
+    // ─── Modals ───
+    function openNewCustModal(){
+        var h='<div class="modal-overlay" onclick="if(event.target===this)this.remove()"><div class="modal">';
+        h+='<h2>New Customer</h2>';
+        h+='<label>Business / Client Name *</label><input id="ncName" placeholder="e.g. Birmingham Place LLC">';
+        h+='<div class="row"><div><label>Email</label><input id="ncEmail" placeholder="billing@example.com"></div><div><label>Phone</label><input id="ncPhone" placeholder="(248) 555-1234"></div></div>';
+        h+='<label>Address</label><input id="ncAddr1" placeholder="Street address" style="margin-bottom:6px"><div class="row"><div><input id="ncCity" placeholder="City"></div><div><input id="ncState" placeholder="State" style="width:80px;display:inline-block"> <input id="ncZip" placeholder="ZIP" style="width:100px;display:inline-block"></div></div>';
+        h+='<label style="margin-top:16px">Metadata</label>';
+        h+='<div id="ncMetaRows"></div>';
+        h+='<button class="btn-outline btn-sm" onclick="addMetaRow(\'ncMetaRows\')" style="margin-top:6px"><i class="fas fa-plus"></i> Add Field</button>';
+        h+='<div class="actions"><button class="btn-outline" onclick="this.closest(\'.modal-overlay\').remove()">Cancel</button><button class="btn-gold" onclick="saveNewCustomer()">Create Customer</button></div>';
+        h+='</div></div>';
+        document.body.insertAdjacentHTML('beforeend',h);
+        // Add default metadata fields
+        addMetaRow('ncMetaRows','service_type','');
+        addMetaRow('ncMetaRows','subdomain','');
+    }
+
+    function openNewSubModal(){
+        var h='<div class="modal-overlay" onclick="if(event.target===this)this.remove()"><div class="modal">';
+        h+='<h2>New Subscription</h2>';
+        h+='<label>Customer *</label><select id="nsCustomer"><option value="">Select customer...</option>';
+        _custs.forEach(function(c){h+='<option value="'+c.id+'">'+esc(c.name||c.email||c.id)+'</option>'});
+        h+='</select>';
+        h+='<div class="row"><div style="flex:2"><label>Product / Price *</label><select id="nsPrice"><option value="">Select product...</option>';
+        _prices.forEach(function(p){
+            var name=(p.product&&typeof p.product==='object')?p.product.name:p.product;
+            var interval=p.recurring?p.recurring.interval:'';
+            h+='<option value="'+p.id+'" data-interval="'+interval+'">'+esc(name)+' — $'+fmt(p.unit_amount)+(interval?'/'+interval:'')+'</option>';
+        });
+        h+='</select></div><div><label>Billing Cycle</label><select id="nsInterval" onchange="filterPricesByInterval()"><option value="">All</option><option value="month" selected>Monthly</option><option value="year">Yearly</option></select></div></div>';
+        h+='<div id="nsPriceSummary" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:12px;display:none"></div>';
+        h+='<label>Quantity</label><input id="nsQty" type="number" value="1" min="1">';
+        h+='<div class="row"><div><label>Start Date *</label><input id="nsStart" type="date"></div><div><label>End Date <span style="font-weight:400;color:#94a3b8">(optional — leave blank for ongoing)</span></label><input id="nsEnd" type="date"></div></div>';
+        h+='<div class="row"><div><label>Trial Days</label><input id="nsTrial" type="number" value="0" min="0"></div><div><label>Billing Method</label><select id="nsBilling"><option value="auto">Auto-Charge (ACH / Card on file)</option><option value="invoice">Send Invoice (Net 30)</option></select></div></div>';
+        h+='<label>Payment Methods</label>';
+        h+='<div style="margin-top:6px"><label style="display:inline;font-weight:400"><input type="checkbox" id="pmCard" checked> Card</label> &nbsp; <label style="display:inline;font-weight:400"><input type="checkbox" id="pmACH" checked> ACH / Bank</label> &nbsp; <label style="display:inline;font-weight:400"><input type="checkbox" id="pmCashApp" checked> Cash App</label> &nbsp; <label style="display:inline;font-weight:400"><input type="checkbox" id="pmLink" checked> Link</label></div>';
+        h+='<label style="margin-top:16px">Metadata</label>';
+        h+='<div id="nsMetaRows"></div>';
+        h+='<button class="btn-outline btn-sm" onclick="addMetaRow(\'nsMetaRows\')" style="margin-top:6px"><i class="fas fa-plus"></i> Add Field</button>';
+        h+='<div class="actions"><button class="btn-outline" onclick="this.closest(\'.modal-overlay\').remove()">Cancel</button><button class="btn-gold" id="subSubmitBtn" onclick="saveNewSub()">Create Subscription</button></div>';
+        h+='</div></div>';
+        document.body.insertAdjacentHTML('beforeend',h);
+        // Default start date to today
+        var today=new Date();var mm=String(today.getMonth()+1).padStart(2,'0');var dd=String(today.getDate()).padStart(2,'0');
+        document.getElementById('nsStart').value=today.getFullYear()+'-'+mm+'-'+dd;
+        addMetaRow('nsMetaRows','business_name','');
+        addMetaRow('nsMetaRows','service_type','');
+        addMetaRow('nsMetaRows','contract_date','');
+        // Wire up price summary updates
+        document.getElementById('nsPrice').onchange=updatePriceSummary;
+        document.getElementById('nsQty').onchange=updatePriceSummary;
+        document.getElementById('nsQty').oninput=updatePriceSummary;
+        // Filter prices by default (monthly)
+        filterPricesByInterval();
+    }
+
+    function openNewProductModal(){
+        var h='<div class="modal-overlay" onclick="if(event.target===this)this.remove()"><div class="modal">';
+        h+='<h2>New Product & Price</h2>';
+        h+='<label>Product Name *</label><input id="npName" placeholder="e.g. Property Management System">';
+        h+='<label>Description</label><textarea id="npDesc" placeholder="Monthly license for property management, kiosk, TV system..."></textarea>';
+        h+='<div class="row"><div><label>Price (USD) *</label><input id="npPrice" type="number" step="0.01" placeholder="700.00"></div><div><label>Billing Interval</label><select id="npInterval"><option value="month">Monthly</option><option value="year">Yearly</option></select></div></div>';
+        h+='<div class="actions"><button class="btn-outline" onclick="this.closest(\'.modal-overlay\').remove()">Cancel</button><button class="btn-gold" onclick="saveNewProduct()">Create Product</button></div>';
+        h+='</div></div>';
+        document.body.insertAdjacentHTML('beforeend',h);
+    }
+
+    // ─── Metadata helper ───
+    function addMetaRow(containerId,key,val){
+        var div=document.createElement('div');
+        div.className='meta-row';
+        div.innerHTML='<input placeholder="Key" value="'+(key||'')+'"> <input placeholder="Value" value="'+(val||'')+'"> <button onclick="this.parentElement.remove()">✕</button>';
+        document.getElementById(containerId).appendChild(div);
+    }
+
+    function getMetadata(containerId){
+        var meta={};
+        var rows=document.getElementById(containerId).querySelectorAll('.meta-row');
+        rows.forEach(function(row){
+            var inputs=row.querySelectorAll('input');
+            var k=inputs[0].value.trim();
+            var v=inputs[1].value.trim();
+            if(k)meta[k]=v;
+        });
+        return meta;
+    }
+
+    // ─── Save Actions ───
+    function saveNewCustomer(){
+        var name=document.getElementById('ncName').value.trim();
+        if(!name){toast('Please enter a name','error');return}
+        var body={
+            action:'create-customer',
+            name:name,
+            email:document.getElementById('ncEmail').value.trim()||undefined,
+            phone:document.getElementById('ncPhone').value.trim()||undefined,
+            metadata:getMetadata('ncMetaRows')
+        };
+        var addr1=document.getElementById('ncAddr1').value.trim();
+        if(addr1){
+            body.address={
+                line1:addr1,
+                city:document.getElementById('ncCity').value.trim(),
+                state:document.getElementById('ncState').value.trim(),
+                postal_code:document.getElementById('ncZip').value.trim(),
+                country:'US'
+            };
+        }
+        apiCall(body).then(function(data){
+            if(data.error){toast(data.error,'error');return}
+            toast('Customer created: '+name,'success');
+            document.querySelector('.modal-overlay').remove();
+            _custs.unshift(data.customer);
+            renderCustomers();
+            updateStats();
+        });
+    }
+
+    function filterPricesByInterval(){
+        var sel=document.getElementById('nsInterval').value;
+        var opts=document.getElementById('nsPrice').options;
+        for(var i=1;i<opts.length;i++){
+            var interval=opts[i].getAttribute('data-interval');
+            if(!sel||interval===sel){opts[i].style.display='';opts[i].disabled=false}
+            else{opts[i].style.display='none';opts[i].disabled=true;if(opts[i].selected)document.getElementById('nsPrice').value=''}
+        }
+        updatePriceSummary();
+    }
+    function updatePriceSummary(){
+        var sel=document.getElementById('nsPrice');
+        var opt=sel.options[sel.selectedIndex];
+        var div=document.getElementById('nsPriceSummary');
+        if(!sel.value||!opt){div.style.display='none';return}
+        var p=_prices.find(function(x){return x.id===sel.value});
+        if(!p){div.style.display='none';return}
+        var qty=parseInt(document.getElementById('nsQty').value)||1;
+        var total=(p.unit_amount*qty/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+        var interval=p.recurring?p.recurring.interval:'';
+        div.style.display='block';
+        div.innerHTML='<strong>$'+total+'</strong>'+(interval?' / '+interval:'')+' &times; '+qty+' unit'+(qty>1?'s':'');
+    }
+
+    function saveNewSub(){
+        var custId=document.getElementById('nsCustomer').value;
+        var priceId=document.getElementById('nsPrice').value;
+        if(!custId){toast('Select a customer','error');return}
+        if(!priceId){toast('Select a product/price','error');return}
+        var btn=document.getElementById('subSubmitBtn');
+        if(btn){btn.disabled=true;btn.textContent='Creating...';}
+        var methods=[];
+        if(document.getElementById('pmCard').checked)methods.push('card');
+        if(document.getElementById('pmACH').checked)methods.push('us_bank_account');
+        if(document.getElementById('pmCashApp').checked)methods.push('cashapp');
+        if(document.getElementById('pmLink').checked)methods.push('link');
+        var startDate=document.getElementById('nsStart').value;
+        var endDate=document.getElementById('nsEnd').value;
+        if(!startDate){toast('Select a start date','error');return}
+        var body={
+            action:'create-subscription',
+            customerId:custId,
+            priceId:priceId,
+            quantity:parseInt(document.getElementById('nsQty').value)||1,
+            autoCharge:document.getElementById('nsBilling').value==='auto',
+            paymentMethods:methods,
+            metadata:getMetadata('nsMetaRows'),
+            startDate:startDate
+        };
+        if(endDate)body.endDate=endDate;
+        var trial=parseInt(document.getElementById('nsTrial').value);
+        if(trial>0)body.trialDays=trial;
+        apiCall(body).then(function(data){
+            if(data.error){
+                if(btn){btn.disabled=false;btn.textContent='Create Subscription';}
+                toast(data.error,'error');return;
+            }
+            toast('Subscription created!','success');
+            document.querySelector('.modal-overlay').remove();
+            loadAll();
+        }).catch(function(err){
+            if(btn){btn.disabled=false;btn.textContent='Create Subscription';}
+            toast(err.message||'Error creating subscription','error');
+        });
+    }
+
+    function saveNewProduct(){
+        var name=document.getElementById('npName').value.trim();
+        var price=parseFloat(document.getElementById('npPrice').value);
+        if(!name){toast('Enter product name','error');return}
+        if(!price||price<=0){toast('Enter a valid price','error');return}
+        apiCall({
+            action:'create-product',
+            name:name,
+            description:document.getElementById('npDesc').value.trim(),
+            amount:Math.round(price*100),
+            interval:document.getElementById('npInterval').value
+        }).then(function(data){
+            if(data.error){toast(data.error,'error');return}
+            toast('Product created: '+name,'success');
+            document.querySelector('.modal-overlay').remove();
+            _prods.push(data.product);
+            _prices.push(data.price);
+            renderProducts();
+        });
+    }
+
+    function cancelSub(subId){
+        if(!confirm('Cancel this subscription? This will stop all future billing.'))return;
+        apiCall({action:'cancel-subscription',subscriptionId:subId}).then(function(data){
+            if(data.error){toast(data.error,'error');return}
+            toast('Subscription canceled','success');
+            loadAll();
+        });
+    }
+
+    // ─── Edit Subscription ───
+    function editSub(subId){
+        var sub=_subs.find(function(s){return s.id===subId});
+        if(!sub)return;
+        var meta=sub.metadata||{};
+        var custName=sub.customer&&typeof sub.customer==='object'?(sub.customer.name||sub.customer.email):'';
+        var prodName='—';var amt=0;var qty=1;var interval='month';
+        if(sub.items&&sub.items.data&&sub.items.data[0]){
+            var item=sub.items.data[0];
+            qty=item.quantity||1;
+            if(item.price){
+                amt=item.price.unit_amount;
+                interval=item.price.recurring?item.price.recurring.interval:'month';
+                if(item.price.product&&typeof item.price.product==='object')prodName=item.price.product.name;
+            }
+        }
+        var h='<div class="modal-overlay" onclick="if(event.target===this)this.remove()"><div class="modal">';
+        h+='<h2>Edit Subscription</h2>';
+        h+='<div class="detail-panel" style="margin-bottom:16px"><div class="detail-grid">';
+        h+='<div class="detail-item"><div class="di-label">Client</div><div class="di-val">'+esc(custName)+'</div></div>';
+        h+='<div class="detail-item"><div class="di-label">Product</div><div class="di-val">'+esc(prodName)+'</div></div>';
+        h+='<div class="detail-item"><div class="di-label">Amount</div><div class="di-val">$'+fmt(amt*qty)+'/'+interval+'</div></div>';
+        h+='<div class="detail-item"><div class="di-label">Status</div><div class="di-val">'+sub.status+'</div></div>';
+        h+='<div class="detail-item"><div class="di-label">Payment</div><div class="di-val">'+(sub.collection_method==='charge_automatically'?'Auto-charge':'Invoice')+'</div></div>';
+        h+='<div class="detail-item"><div class="di-label">Stripe ID</div><div class="di-val" style="font-size:11px;font-family:monospace">'+sub.id+'</div></div>';
+        h+='</div></div>';
+        h+='<label>Metadata</label><p style="font-size:12px;color:#64748b;margin-bottom:8px">Use metadata to track business details, service type, contract info, etc.</p>';
+        h+='<div id="editMetaRows"></div>';
+        h+='<button class="btn-outline btn-sm" onclick="addMetaRow(\'editMetaRows\')" style="margin-top:6px"><i class="fas fa-plus"></i> Add Field</button>';
+        h+='<div style="border-top:1px solid #e2e8f0;margin-top:20px;padding-top:16px">';
+        h+='<label style="color:#dc2626">Danger Zone</label>';
+        h+='<div style="display:flex;gap:8px;margin-top:8px">';
+        if(sub.status==='active')h+='<button class="btn-danger" onclick="cancelSub(\''+sub.id+'\');this.closest(\'.modal-overlay\').remove()"><i class="fas fa-times"></i> Cancel Subscription</button>';
+        h+='<a href="https://dashboard.stripe.com/subscriptions/'+sub.id+'" target="_blank" class="btn-outline btn-sm" style="text-decoration:none"><i class="fas fa-external-link-alt"></i> Open in Stripe</a>';
+        h+='</div></div>';
+        h+='<div class="actions"><button class="btn-outline" onclick="this.closest(\'.modal-overlay\').remove()">Close</button><button class="btn-gold" onclick="saveSubMeta(\''+sub.id+'\')">Save Changes</button></div>';
+        h+='</div></div>';
+        document.body.insertAdjacentHTML('beforeend',h);
+        Object.keys(meta).forEach(function(k){addMetaRow('editMetaRows',k,meta[k])});
+        if(Object.keys(meta).length===0){
+            addMetaRow('editMetaRows','business_name','');
+            addMetaRow('editMetaRows','service_type','');
+            addMetaRow('editMetaRows','contract_date','');
+        }
+    }
+
+    function saveSubMeta(subId){
+        var meta=getMetadata('editMetaRows');
+        apiCall({action:'update-subscription',subscriptionId:subId,metadata:meta}).then(function(data){
+            if(data.error){toast(data.error,'error');return}
+            toast('Subscription updated','success');
+            var overlay=document.querySelector('.modal-overlay');
+            if(overlay)overlay.remove();
+            loadAll();
+        });
+    }
+
+    // ─── Edit Customer ───
+    function editCustomer(custId){
+        var c=_custs.find(function(x){return x.id===custId});
+        if(!c)return;
+        var meta=c.metadata||{};
+        var addr=c.address||{};
+        var h='<div class="modal-overlay" onclick="if(event.target===this)this.remove()"><div class="modal">';
+        h+='<h2>Edit Customer</h2>';
+        h+='<label>Business / Client Name *</label><input id="ecName" value="'+esc(c.name||'')+'">';
+        h+='<div class="row"><div><label>Email</label><input id="ecEmail" value="'+esc(c.email||'')+'"></div><div><label>Phone</label><input id="ecPhone" value="'+esc(c.phone||'')+'"></div></div>';
+        h+='<label>Address</label><input id="ecAddr1" value="'+esc(addr.line1||'')+'" placeholder="Street address" style="margin-bottom:6px"><div class="row"><div><input id="ecCity" value="'+esc(addr.city||'')+'" placeholder="City"></div><div><input id="ecState" value="'+esc(addr.state||'')+'" placeholder="State" style="width:80px;display:inline-block"> <input id="ecZip" value="'+esc(addr.postal_code||'')+'" placeholder="ZIP" style="width:100px;display:inline-block"></div></div>';
+        h+='<label style="margin-top:16px">Metadata</label>';
+        h+='<div id="ecMetaRows"></div>';
+        h+='<button class="btn-outline btn-sm" onclick="addMetaRow(\'ecMetaRows\')" style="margin-top:6px"><i class="fas fa-plus"></i> Add Field</button>';
+        h+='<div style="display:flex;justify-content:space-between;margin-top:20px"><a href="https://dashboard.stripe.com/customers/'+custId+'" target="_blank" style="font-size:12px;color:#64748b"><i class="fas fa-external-link-alt"></i> Open in Stripe</a><div style="display:flex;gap:10px"><button class="btn-outline" onclick="this.closest(\'.modal-overlay\').remove()">Cancel</button><button class="btn-gold" onclick="saveCustomerEdit(\''+custId+'\')">Save Changes</button></div></div>';
+        h+='</div></div>';
+        document.body.insertAdjacentHTML('beforeend',h);
+        Object.keys(meta).forEach(function(k){addMetaRow('ecMetaRows',k,meta[k])});
+    }
+
+    function saveCustomerEdit(custId){
+        var body={
+            action:'update-customer',
+            customerId:custId,
+            name:document.getElementById('ecName').value.trim(),
+            email:document.getElementById('ecEmail').value.trim()||undefined,
+            phone:document.getElementById('ecPhone').value.trim()||undefined,
+            metadata:getMetadata('ecMetaRows')
+        };
+        var addr1=document.getElementById('ecAddr1').value.trim();
+        if(addr1){
+            body.address={line1:addr1,city:document.getElementById('ecCity').value.trim(),state:document.getElementById('ecState').value.trim(),postal_code:document.getElementById('ecZip').value.trim(),country:'US'};
+        }
+        apiCall(body).then(function(data){
+            if(data.error){toast(data.error,'error');return}
+            toast('Customer updated','success');
+            document.querySelector('.modal-overlay').remove();
+            loadAll();
+        });
+    }
+
+    function deleteCustomer(custId){
+        var c=_custs.find(function(x){return x.id===custId});
+        if(!confirm('Delete customer "'+(c?c.name:custId)+'"? This cannot be undone.'))return;
+        apiCall({action:'delete-customer',customerId:custId}).then(function(data){
+            if(data.error){toast(data.error,'error');return}
+            toast('Customer deleted','success');
+            loadAll();
+        });
+    }
+
+    // ─── Send Payment Link ───
+    function sendPaymentLink(custId){
+        var c=_custs.find(function(x){return x.id===custId});
+        if(!c)return;
+        var h='<div class="modal-overlay" onclick="if(event.target===this)this.remove()"><div class="modal">';
+        h+='<h2>Send Payment Link</h2>';
+        h+='<p style="font-size:14px;color:#64748b;margin-bottom:16px">Generate a Stripe Checkout link for <strong>'+esc(c.name||c.email)+'</strong>. They\'ll choose ACH or card and set up auto-pay themselves.</p>';
+        h+='<label>Product / Price *</label><select id="plPrice"><option value="">Select product...</option>';
+        _prices.forEach(function(p){
+            var name=(p.product&&typeof p.product==='object')?p.product.name:p.product;
+            var interval=p.recurring?'/'+p.recurring.interval:'';
+            h+='<option value="'+p.id+'">'+esc(name)+' — $'+fmt(p.unit_amount)+interval+'</option>';
+        });
+        h+='</select>';
+        h+='<div class="row"><div><label>Quantity</label><input id="plQty" type="number" value="1" min="1"></div><div></div></div>';
+        h+='<label>Payment Methods</label>';
+        h+='<div style="margin-top:6px"><label style="display:inline;font-weight:400"><input type="checkbox" id="plCard" checked> Card</label> &nbsp; <label style="display:inline;font-weight:400"><input type="checkbox" id="plACH" checked> ACH / Bank</label></div>';
+        h+='<div id="plResult" style="display:none;margin-top:16px;padding:16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px"></div>';
+        h+='<div class="actions"><button class="btn-outline" onclick="this.closest(\'.modal-overlay\').remove()">Close</button><button class="btn-gold" id="plGenBtn" onclick="generatePaymentLink(\''+custId+'\')"><i class="fas fa-link"></i> Generate Link</button></div>';
+        h+='</div></div>';
+        document.body.insertAdjacentHTML('beforeend',h);
+    }
+
+    function generatePaymentLink(custId){
+        var priceId=document.getElementById('plPrice').value;
+        if(!priceId){toast('Select a product','error');return}
+        var methods=[];
+        if(document.getElementById('plCard').checked)methods.push('card');
+        if(document.getElementById('plACH').checked)methods.push('us_bank_account');
+        document.getElementById('plGenBtn').textContent='Generating...';
+        document.getElementById('plGenBtn').disabled=true;
+        apiCall({
+            action:'create-payment-link',
+            customerId:custId,
+            priceId:priceId,
+            quantity:parseInt(document.getElementById('plQty').value)||1,
+            paymentMethods:methods,
+            successUrl:'https://thebusiness-lab.com/?payment=success',
+            cancelUrl:'https://thebusiness-lab.com/?payment=canceled'
+        }).then(function(data){
+            if(data.error){toast(data.error,'error');document.getElementById('plGenBtn').textContent='Generate Link';document.getElementById('plGenBtn').disabled=false;return}
+            var res=document.getElementById('plResult');
+            res.style.display='block';
+            res.innerHTML='<div style="font-weight:700;color:#16a34a;margin-bottom:8px"><i class="fas fa-check-circle"></i> Payment link ready!</div><div style="margin-bottom:8px"><input id="plUrl" value="'+data.url+'" style="width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px" readonly onclick="this.select()"></div><div style="display:flex;gap:8px"><button class="btn-gold btn-sm" onclick="document.getElementById(\'plUrl\').select();document.execCommand(\'copy\');toast(\'Link copied!\',\'success\')"><i class="fas fa-copy"></i> Copy Link</button><a href="'+data.url+'" target="_blank" class="btn-outline btn-sm" style="text-decoration:none"><i class="fas fa-external-link-alt"></i> Open</a></div><p style="font-size:12px;color:#64748b;margin-top:8px">Send this link to the client. They\'ll enter their payment details and billing starts automatically.</p>';
+            document.getElementById('plGenBtn').textContent='Generate Link';
+            document.getElementById('plGenBtn').disabled=false;
+        });
+    }
+
+    // ─── Invoice Management ───
+    function editInvoice(invId){
+        toast('Loading invoice details...','success');
+        apiCall({action:'get-invoice',invoiceId:invId}).then(function(data){
+            if(data.error){toast(data.error,'error');return}
+            var inv=data.invoice;
+            var custName=inv.customer&&typeof inv.customer==='object'?(inv.customer.name||inv.customer.email):(inv.customer_name||inv.customer_email||'—');
+            var meta=inv.metadata||{};
+            var h='<div class="modal-overlay" onclick="if(event.target===this)this.remove()"><div class="modal" style="max-width:600px">';
+            h+='<h2>Invoice Details</h2>';
+            // Info panel
+            h+='<div class="detail-panel" style="margin-bottom:16px"><div class="detail-grid">';
+            h+='<div class="detail-item"><div class="di-label">Invoice #</div><div class="di-val" style="font-family:monospace">'+esc(inv.number||inv.id)+'</div></div>';
+            h+='<div class="detail-item"><div class="di-label">Customer</div><div class="di-val">'+esc(custName)+'</div></div>';
+            h+='<div class="detail-item"><div class="di-label">Amount</div><div class="di-val" style="font-weight:700;font-size:18px">$'+fmt(inv.amount_due||0)+'</div></div>';
+            h+='<div class="detail-item"><div class="di-label">Status</div><div class="di-val" style="text-transform:capitalize;font-weight:600">'+esc(inv.status)+'</div></div>';
+            h+='<div class="detail-item"><div class="di-label">Due Date</div><div class="di-val">'+(inv.due_date?fmtDate(inv.due_date):'—')+'</div></div>';
+            h+='<div class="detail-item"><div class="di-label">Created</div><div class="di-val">'+fmtDate(inv.created)+'</div></div>';
+            h+='</div></div>';
+            // Line items
+            if(inv.lines&&inv.lines.data&&inv.lines.data.length){
+                h+='<label>Line Items</label>';
+                h+='<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:16px">';
+                inv.lines.data.forEach(function(li){
+                    var desc=li.description||li.plan&&li.plan.nickname||'Item';
+                    h+='<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f1f5f9"><span style="font-size:13px">'+esc(desc)+'</span><span style="font-weight:600">$'+fmt(li.amount||0)+'</span></div>';
+                });
+                h+='</div>';
+            }
+            // Description (editable for draft)
+            if(inv.status==='draft'){
+                h+='<label>Description</label><textarea id="eiDesc" style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;min-height:60px">'+(inv.description||'')+'</textarea>';
+            } else if(inv.description){
+                h+='<label>Description</label><p style="font-size:13px;color:#475569;margin-bottom:16px">'+esc(inv.description)+'</p>';
+            }
+            // Metadata
+            h+='<label>Metadata</label>';
+            h+='<div id="eiMetaRows"></div>';
+            h+='<button class="btn-outline btn-sm" onclick="addMetaRow(\'eiMetaRows\')" style="margin-top:6px"><i class="fas fa-plus"></i> Add Field</button>';
+            // Actions
+            h+='<div style="border-top:1px solid #e2e8f0;margin-top:20px;padding-top:16px">';
+            h+='<label>Actions</label>';
+            h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">';
+            if(inv.status==='open'){
+                h+='<button class="btn-gold btn-sm" onclick="markInvoicePaid(\''+inv.id+'\',false);this.closest(\'.modal-overlay\').remove()"><i class="fas fa-check"></i> Charge Payment Method</button>';
+                h+='<button class="btn-outline btn-sm" onclick="markInvoicePaid(\''+inv.id+'\',true);this.closest(\'.modal-overlay\').remove()"><i class="fas fa-money-bill"></i> Mark Paid (Offline)</button>';
+                h+='<button class="btn-danger btn-sm" onclick="voidInvoice(\''+inv.id+'\');this.closest(\'.modal-overlay\').remove()"><i class="fas fa-ban"></i> Void Invoice</button>';
+            }
+            if(inv.status==='draft'){
+                h+='<button class="btn-gold btn-sm" onclick="sendInvoice(\''+inv.id+'\');this.closest(\'.modal-overlay\').remove()"><i class="fas fa-paper-plane"></i> Finalize & Send</button>';
+                h+='<button class="btn-danger btn-sm" onclick="deleteInvoice(\''+inv.id+'\');this.closest(\'.modal-overlay\').remove()"><i class="fas fa-trash"></i> Delete Draft</button>';
+            }
+            if(inv.hosted_invoice_url)h+='<a href="'+inv.hosted_invoice_url+'" target="_blank" class="btn-outline btn-sm" style="text-decoration:none"><i class="fas fa-external-link-alt"></i> View Online</a>';
+            h+='<a href="https://dashboard.stripe.com/invoices/'+inv.id+'" target="_blank" class="btn-outline btn-sm" style="text-decoration:none"><i class="fas fa-external-link-alt"></i> Open in Stripe</a>';
+            h+='</div></div>';
+            // Save / Close
+            h+='<div class="actions"><button class="btn-outline" onclick="this.closest(\'.modal-overlay\').remove()">Close</button>';
+            if(inv.status==='draft'||inv.status==='open')h+='<button class="btn-gold" onclick="saveInvoiceEdit(\''+inv.id+'\',\''+inv.status+'\')">Save Changes</button>';
+            h+='</div>';
+            h+='</div></div>';
+            document.body.insertAdjacentHTML('beforeend',h);
+            Object.keys(meta).forEach(function(k){addMetaRow('eiMetaRows',k,meta[k])});
+        });
+    }
+
+    function saveInvoiceEdit(invId,status){
+        var body={action:'update-invoice',invoiceId:invId,metadata:getMetadata('eiMetaRows')};
+        if(status==='draft'){
+            var desc=document.getElementById('eiDesc');
+            if(desc)body.description=desc.value.trim();
+        }
+        apiCall(body).then(function(data){
+            if(data.error){toast(data.error,'error');return}
+            toast('Invoice updated','success');
+            var overlay=document.querySelector('.modal-overlay');
+            if(overlay)overlay.remove();
+            loadAll();
+        });
+    }
+
+    function voidInvoice(invId){
+        if(!confirm('Void this invoice? The client will no longer be able to pay it. This cannot be undone.'))return;
+        apiCall({action:'void-invoice',invoiceId:invId}).then(function(data){
+            if(data.error){toast(data.error,'error');return}
+            toast('Invoice voided','success');
+            loadAll();
+        });
+    }
+
+    function deleteInvoice(invId){
+        if(!confirm('Delete this draft invoice? This cannot be undone.'))return;
+        apiCall({action:'delete-invoice',invoiceId:invId}).then(function(data){
+            if(data.error){toast(data.error,'error');return}
+            toast('Invoice deleted','success');
+            loadAll();
+        });
+    }
+
+    function sendInvoice(invId){
+        if(!confirm('Finalize and send this invoice to the customer via email?'))return;
+        apiCall({action:'send-invoice',invoiceId:invId}).then(function(data){
+            if(data.error){toast(data.error,'error');return}
+            toast('Invoice sent!','success');
+            loadAll();
+        });
+    }
+
+    function markInvoicePaid(invId,outOfBand){
+        var msg=outOfBand?'Mark this invoice as paid offline (cash, check, etc.)?':'Attempt to charge the customer\'s payment method on file?';
+        if(!confirm(msg))return;
+        apiCall({action:'pay-invoice',invoiceId:invId,outOfBand:outOfBand}).then(function(data){
+            if(data.error){toast(data.error,'error');return}
+            toast('Invoice marked as paid!','success');
+            loadAll();
+        });
+    }
+
+    // ─── Create Standalone Invoice ───
+    function openNewInvoiceModal(){
+        var h='<div class="modal-overlay" onclick="if(event.target===this)this.remove()"><div class="modal">';
+        h+='<h2>Create Invoice</h2>';
+        h+='<label>Customer *</label><select id="niCustomer"><option value="">Select customer...</option>';
+        _custs.forEach(function(c){h+='<option value="'+c.id+'">'+esc(c.name||c.email||c.id)+'</option>'});
+        h+='</select>';
+        h+='<label>Description</label><textarea id="niDesc" placeholder="Services rendered, monthly fee, etc." style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;min-height:60px"></textarea>';
+        h+='<label>Line Items</label>';
+        h+='<div id="niItems"></div>';
+        h+='<button class="btn-outline btn-sm" onclick="addInvItem()" style="margin-top:6px"><i class="fas fa-plus"></i> Add Line Item</button>';
+        h+='<div class="row" style="margin-top:16px"><div><label>Due Date</label><input id="niDueDate" type="date"></div><div><label>Auto-Send?</label><select id="niAutoSend"><option value="yes">Yes — finalize & email</option><option value="no">No — save as draft</option></select></div></div>';
+        h+='<label style="margin-top:16px">Metadata</label>';
+        h+='<div id="niMetaRows"></div>';
+        h+='<button class="btn-outline btn-sm" onclick="addMetaRow(\'niMetaRows\')" style="margin-top:6px"><i class="fas fa-plus"></i> Add Field</button>';
+        h+='<div class="actions"><button class="btn-outline" onclick="this.closest(\'.modal-overlay\').remove()">Cancel</button><button class="btn-gold" id="invSubmitBtn" onclick="saveNewInvoice()">Create Invoice</button></div>';
+        h+='</div></div>';
+        document.body.insertAdjacentHTML('beforeend',h);
+        // Default due date to 30 days from now
+        var due=new Date();due.setDate(due.getDate()+30);
+        var dm=String(due.getMonth()+1).padStart(2,'0');var dd2=String(due.getDate()).padStart(2,'0');
+        document.getElementById('niDueDate').value=due.getFullYear()+'-'+dm+'-'+dd2;
+        addInvItem();
+    }
+
+    function addInvItem(){
+        var div=document.createElement('div');
+        div.className='meta-row';
+        div.innerHTML='<input placeholder="Description" style="flex:2"> <input type="number" step="0.01" placeholder="Amount ($)" style="flex:1"> <button onclick="this.parentElement.remove()">✕</button>';
+        document.getElementById('niItems').appendChild(div);
+    }
+
+    function saveNewInvoice(){
+        var custId=document.getElementById('niCustomer').value;
+        if(!custId){toast('Select a customer','error');return}
+        var invBtn=document.getElementById('invSubmitBtn');
+        if(invBtn){invBtn.disabled=true;invBtn.textContent='Creating...';}
+        var items=[];
+        document.getElementById('niItems').querySelectorAll('.meta-row').forEach(function(row){
+            var inputs=row.querySelectorAll('input');
+            var desc=inputs[0].value.trim();
+            var amt=parseFloat(inputs[1].value);
+            if(desc&&amt>0)items.push({description:desc,amount:Math.round(amt*100)});
+        });
+        if(items.length===0){
+            if(invBtn){invBtn.disabled=false;invBtn.textContent='Create Invoice';}
+            toast('Add at least one line item','error');return;
+        }
+        apiCall({
+            action:'create-invoice',
+            customerId:custId,
+            description:document.getElementById('niDesc').value.trim(),
+            items:items,
+            due_date:Math.floor(new Date(document.getElementById('niDueDate').value+'T23:59:59').getTime()/1000),
+            autoSend:document.getElementById('niAutoSend').value==='yes',
+            metadata:getMetadata('niMetaRows')
+        }).then(function(data){
+            if(data.error){
+                if(invBtn){invBtn.disabled=false;invBtn.textContent='Create Invoice';}
+                toast(data.error,'error');return;
+            }
+            toast('Invoice created!','success');
+            document.querySelector('.modal-overlay').remove();
+            loadAll();
+        }).catch(function(err){
+            if(invBtn){invBtn.disabled=false;invBtn.textContent='Create Invoice';}
+            toast(err.message||'Error creating invoice','error');
+        });
+    }
+
+    // ─── Helpers ───
+    function fmt(cents){return(cents/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+    function fmtDate(ts){if(!ts)return '—';var d=new Date(typeof ts==='number'?ts*1000:ts);return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+    function esc(s){if(!s)return '';var d=document.createElement('div');d.textContent=s;return d.innerHTML}
+    function toast(msg,type){var t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'success')+' show';setTimeout(function(){t.classList.remove('show')},3000)}
+    </script>
+</body>
+</html>
