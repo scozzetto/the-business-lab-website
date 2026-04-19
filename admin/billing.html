@@ -188,15 +188,42 @@
                     <p style="font-size:13px;color:#64748b;margin:0">Fill out the form below to generate and send a service agreement via Dropbox Sign. The client will receive an email with a link to review and sign.</p>
                 </div>
 
+                <!-- Client Type Toggle -->
+                <div class="detail-panel" style="margin-bottom:16px;padding:16px 24px">
+                    <div style="display:flex;gap:24px;flex-wrap:wrap">
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:14px">
+                            <input type="radio" name="sc-client-type" value="new" checked onchange="switchClientMode('new')" style="width:auto;accent-color:#16a34a">
+                            New client <span style="font-weight:400;color:#64748b;font-size:13px">— not yet in Stripe</span>
+                        </label>
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:14px">
+                            <input type="radio" name="sc-client-type" value="existing" onchange="switchClientMode('existing')" style="width:auto;accent-color:#16a34a">
+                            Existing client <span style="font-weight:400;color:#64748b;font-size:13px">— already has a Stripe record</span>
+                        </label>
+                    </div>
+                </div>
+
                 <!-- Client Info -->
                 <div class="detail-panel" style="margin-bottom:16px">
                     <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px">Client Information</h3>
-                    <div class="modal" style="box-shadow:none;padding:0">
-                        <div class="row">
-                            <div><label>Full Name *</label><input id="sc-name" placeholder="Jane Smith" oninput="updateSignupSummary()"></div>
-                            <div><label>Email *</label><input id="sc-email" type="email" placeholder="jane@acme.com"></div>
+
+                    <!-- New client fields -->
+                    <div id="sc-new-client-fields">
+                        <div class="modal" style="box-shadow:none;padding:0">
+                            <div class="row">
+                                <div><label>Full Name *</label><input id="sc-name" placeholder="Jane Smith" oninput="updateSignupSummary()"></div>
+                                <div><label>Email *</label><input id="sc-email" type="email" placeholder="jane@acme.com"></div>
+                            </div>
+                            <label>Company / Business Name</label><input id="sc-company" placeholder="Acme Corp" oninput="updateSignupSummary()">
                         </div>
-                        <label>Company / Business Name</label><input id="sc-company" placeholder="Acme Corp" oninput="updateSignupSummary()">
+                    </div>
+
+                    <!-- Existing client fields -->
+                    <div id="sc-existing-client-fields" class="hidden">
+                        <input id="sc-cust-search" placeholder="Type name or email to filter..." oninput="filterCustomerList()" style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:Inter,sans-serif;margin-bottom:8px">
+                        <select id="sc-cust-select" size="6" onchange="selectExistingCustomer()" style="width:100%;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:Inter,sans-serif;padding:4px 0">
+                            <option value="">— select a customer —</option>
+                        </select>
+                        <div id="sc-cust-selected" style="display:none;margin-top:12px;padding:12px 16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;font-size:13px"></div>
                     </div>
                 </div>
 
@@ -265,6 +292,7 @@
     var _invs=[];
     var _prods=[];
     var _prices=[];
+    var _existingClient={id:'',name:'',email:'',company:''};
 
     // ─── Auto-login if remembered ───
     (function(){
@@ -1356,17 +1384,99 @@
         summaryEl.style.display='block';
     }
 
+    function switchClientMode(mode){
+        var isNew=mode==='new';
+        document.getElementById('sc-new-client-fields').classList.toggle('hidden',!isNew);
+        document.getElementById('sc-existing-client-fields').classList.toggle('hidden',isNew);
+        if(!isNew){
+            // Populate the customer list the first time we switch to existing mode
+            buildCustomerList();
+        } else {
+            // Reset existing selection so it doesn't bleed through
+            _existingClient={id:'',name:'',email:'',company:''};
+        }
+    }
+
+    function buildCustomerList(){
+        // Render all customers into the select; filter input further narrows it
+        renderCustomerList(_custs);
+    }
+
+    function filterCustomerList(){
+        var q=(document.getElementById('sc-cust-search').value||'').toLowerCase();
+        var matches=_custs.filter(function(c){
+            return ((c.name||'')+(c.email||'')).toLowerCase().indexOf(q)!==-1;
+        });
+        renderCustomerList(matches);
+        // Clear selection when filter changes
+        _existingClient={id:'',name:'',email:'',company:''};
+        var det=document.getElementById('sc-cust-selected');
+        if(det)det.style.display='none';
+    }
+
+    function renderCustomerList(list){
+        var sel=document.getElementById('sc-cust-select');
+        if(!sel)return;
+        if(list.length===0){
+            sel.innerHTML='<option disabled value="">No customers match</option>';
+            return;
+        }
+        var h='<option value="">— select a customer —</option>';
+        list.forEach(function(c){
+            var label=(c.name||'(no name)')+(c.email?' · '+c.email:'');
+            h+='<option value="'+c.id+'">'+esc(label)+'</option>';
+        });
+        sel.innerHTML=h;
+    }
+
+    function selectExistingCustomer(){
+        var sel=document.getElementById('sc-cust-select');
+        var custId=sel?sel.value:'';
+        if(!custId){_existingClient={id:'',name:'',email:'',company:''};return;}
+        var c=_custs.find(function(x){return x.id===custId;});
+        if(!c){return;}
+        _existingClient={
+            id:c.id,
+            name:c.name||'',
+            email:c.email||'',
+            company:(c.metadata&&c.metadata.company)||(c.metadata&&c.metadata.business_name)||''
+        };
+        var det=document.getElementById('sc-cust-selected');
+        if(det){
+            det.style.display='block';
+            det.innerHTML='<strong>'+esc(_existingClient.name||'—')+'</strong>'+
+                (_existingClient.email?' &lt;'+esc(_existingClient.email)+'&gt;':'')+
+                (_existingClient.company?'<span style="color:#64748b"> · '+esc(_existingClient.company)+'</span>':'')+
+                '<div style="font-size:11px;color:#94a3b8;margin-top:4px">Stripe ID: '+esc(c.id)+'</div>';
+        }
+        updateSignupSummary();
+    }
+
     function sendEnvelope(){
         var tierInput=document.querySelector('input[name="sc-tier"]:checked');
         var cadenceInput=document.querySelector('input[name="sc-cadence"]:checked');
-        var name=document.getElementById('sc-name').value.trim();
-        var email=document.getElementById('sc-email').value.trim();
-        var company=document.getElementById('sc-company').value.trim();
+        var clientTypeInput=document.querySelector('input[name="sc-client-type"]:checked');
+        var isNew=!clientTypeInput||clientTypeInput.value==='new';
         var startDate=document.getElementById('sc-start').value;
         var notes=document.getElementById('sc-notes').value.trim();
 
-        if(!name){toast('Enter client name','error');return;}
-        if(!email){toast('Enter client email','error');return;}
+        // Resolve name/email/company/customerId based on mode
+        var name,email,company,customerId='';
+        if(isNew){
+            name=document.getElementById('sc-name').value.trim();
+            email=document.getElementById('sc-email').value.trim();
+            company=document.getElementById('sc-company').value.trim();
+            if(!name){toast('Enter client name','error');return;}
+            if(!email){toast('Enter client email','error');return;}
+        } else {
+            if(!_existingClient.id){toast('Select an existing customer','error');return;}
+            name=_existingClient.name;
+            email=_existingClient.email;
+            company=_existingClient.company;
+            customerId=_existingClient.id;
+            if(!email){toast('Selected customer has no email — add one in the Customers tab first','error');return;}
+        }
+
         if(!tierInput){toast('Select a service tier','error');return;}
         if(!startDate){toast('Select a start date','error');return;}
 
@@ -1389,7 +1499,7 @@
         var btn=document.getElementById('sc-submit');
         if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';}
 
-        signupApiCall({
+        var payload={
             action:'create-envelope',
             name:name,
             email:email,
@@ -1402,12 +1512,20 @@
             annualAmount:yrAmt,
             addons:addons,
             notes:notes
-        }).then(function(data){
+        };
+        if(customerId)payload.customerId=customerId;
+
+        signupApiCall(payload).then(function(data){
             if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Contract via Dropbox Sign';}
             if(data.error){toast(data.error,'error');return;}
             toast('Contract sent to '+email+'!','success');
-            // Clear form
-            ['sc-name','sc-email','sc-company','sc-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+            // Clear new-client fields (existing-client mode keeps the dropdown as-is)
+            if(isNew){
+                ['sc-name','sc-email','sc-company','sc-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+            } else {
+                var notesEl=document.getElementById('sc-notes');
+                if(notesEl)notesEl.value='';
+            }
             document.querySelectorAll('input[name="sc-tier"]').forEach(function(r){r.checked=false;});
             document.querySelectorAll('#sc-addon-options input[type="checkbox"]').forEach(function(cb){cb.checked=false;});
             document.getElementById('sc-summary').style.display='none';

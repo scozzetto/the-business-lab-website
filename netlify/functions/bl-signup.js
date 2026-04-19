@@ -186,6 +186,7 @@ async function sendToDropboxSign(apiKey, data, contractHtml) {
     addField('metadata[company]', data.company || '');
     addField('metadata[addons]', JSON.stringify(data.addons || []));
     if (data.notes) addField('metadata[notes]', data.notes);
+    if (data.customerId) addField('metadata[customer_id]', data.customerId);
 
     // CC admin
     const adminEmail = process.env.BL_ADMIN_EMAIL;
