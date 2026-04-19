@@ -513,7 +513,7 @@
             var badge,statusLabel;
             if(inv.status==='paid'){
                 badge='badge-active';
-                statusLabel=inv.paid_out_of_band
+                statusLabel=(!inv.charge)
                     ?'Paid <em style="font-size:10px;font-weight:400;font-style:italic">(offline)</em>'
                     :'Paid';
             } else if(inv.status==='open'){badge='badge-trialing';statusLabel='open';}
@@ -1030,7 +1030,7 @@
             h+='<div class="detail-item"><div class="di-label">Invoice #</div><div class="di-val" style="font-family:monospace">'+esc(inv.number||inv.id)+'</div></div>';
             h+='<div class="detail-item"><div class="di-label">Customer</div><div class="di-val">'+esc(custName)+'</div></div>';
             h+='<div class="detail-item"><div class="di-label">Amount</div><div class="di-val" style="font-weight:700;font-size:18px">$'+fmt(inv.amount_due||0)+'</div></div>';
-            var mStatus=inv.status==='paid'?(inv.paid_out_of_band?'Paid (offline)':'Paid'):inv.status;
+            var mStatus=inv.status==='paid'?(!inv.charge?'Paid (offline)':'Paid'):inv.status;
             h+='<div class="detail-item"><div class="di-label">Status</div><div class="di-val" style="text-transform:capitalize;font-weight:600">'+esc(mStatus)+'</div></div>';
             h+='<div class="detail-item"><div class="di-label">Due Date</div><div class="di-val">'+(inv.due_date?fmtDateTime(inv.due_date):'—')+'</div></div>';
             h+='<div class="detail-item"><div class="di-label">Created</div><div class="di-val">'+fmtDateTime(inv.created)+'</div></div>';
