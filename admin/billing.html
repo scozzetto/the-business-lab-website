@@ -1281,7 +1281,13 @@
         var annualTierPrices=tierPrices.filter(function(p){return p.recurring&&p.recurring.interval==='year'});
         var monthlyTierPrices=tierPrices.filter(function(p){return p.recurring&&p.recurring.interval==='month'});
 
-        var tierOrder=['basic','professional','enterprise'];
+        // Build tier order from actual prices (known order first, unknowns appended)
+        var knownOrder=['basic','professional','enterprise','test'];
+        var tierKeys={};
+        tierPrices.forEach(function(p){if(p.product.metadata.bl_tier)tierKeys[p.product.metadata.bl_tier]=true;});
+        var tierOrder=knownOrder.filter(function(t){return tierKeys[t];});
+        Object.keys(tierKeys).forEach(function(t){if(knownOrder.indexOf(t)===-1)tierOrder.push(t);});
+
         var tierEl=document.getElementById('sc-tier-options');
         if(!tierEl)return;
 
