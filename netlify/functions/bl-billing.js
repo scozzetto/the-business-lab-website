@@ -197,11 +197,16 @@ exports.handler = async (event) => {
                 return respond(200, { success: true, invoices: invoices.data });
             }
 
-            // ─── GET INVOICE (with line items) ───
+            // ─── GET INVOICE (with line items + charge/payment details) ───
             case 'get-invoice': {
                 if (!body.invoiceId) return respond(400, { error: 'invoiceId required' });
                 const invoice = await stripe.invoices.retrieve(body.invoiceId, {
-                    expand: ['lines.data', 'customer']
+                    expand: [
+                        'lines.data',
+                        'customer',
+                        'charge',
+                        'charge.balance_transaction'
+                    ]
                 });
                 return respond(200, { success: true, invoice });
             }
@@ -312,6 +317,39 @@ exports.handler = async (event) => {
                     recurring: { interval: body.interval || 'month' }
                 });
                 return respond(200, { success: true, product, price });
+            }
+
+            // ─── UPDATE PRODUCT (name/description/metadata; price change = archive + create new) ───
+            case 'update-product': {
+                if (!body.productId) return respond(400, { error: 'productId required' });
+                const prodUpdate = {};
+                if (body.name !== undefined) prodUpdate.name = body.name;
+                if (body.description !== undefined) prodUpdate.description = body.description || '';
+                if (body.metadata) prodUpdate.metadata = body.metadata;
+                const updatedProduct = await stripe.products.update(body.productId, prodUpdate);
+
+                let newPrice = null;
+                if (body.priceId && body.amount !== undefined) {
+                    const oldPrice = await stripe.prices.retrieve(body.priceId);
+                    if (oldPrice.unit_amount !== body.amount) {
+                        await stripe.prices.update(body.priceId, { active: false });
+                        const priceData = { product: body.productId, unit_amount: body.amount, currency: 'usd' };
+                        if (oldPrice.recurring) priceData.recurring = { interval: oldPrice.recurring.interval };
+                        newPrice = await stripe.prices.create(priceData);
+                    }
+                }
+                return respond(200, { success: true, product: updatedProduct, newPrice });
+            }
+
+            // ─── ARCHIVE PRODUCT (deactivates product + all its active prices) ───
+            case 'archive-product': {
+                if (!body.productId) return respond(400, { error: 'productId required' });
+                const priceList = await stripe.prices.list({ product: body.productId, active: true, limit: 100 });
+                for (const pr of priceList.data) {
+                    await stripe.prices.update(pr.id, { active: false });
+                }
+                const archivedProduct = await stripe.products.update(body.productId, { active: false });
+                return respond(200, { success: true, product: archivedProduct });
             }
 
             // ─── SETUP INTENT (for saving payment methods) ───

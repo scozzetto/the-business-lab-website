@@ -36,6 +36,7 @@
         .stat-card .value{font-size:28px;font-weight:800;margin-top:4px}
         .stat-card .value.green{color:#16a34a}
         .stat-card .value.gold{color:#d4af37}
+        .stat-card .value.blue{color:#2563eb}
         .stat-card .value.red{color:#dc2626}
 
         /* Tabs */
@@ -116,7 +117,7 @@
     <div id="mainContent" class="container hidden">
         <!-- Stats -->
         <div class="stats" id="statsRow">
-            <div class="stat-card"><div class="label">Active Subscriptions</div><div class="value gold" id="statActive">—</div></div>
+            <div class="stat-card"><div class="label">Active Subscriptions</div><div class="value blue" id="statActive">—</div></div>
             <div class="stat-card"><div class="label">Monthly Revenue</div><div class="value green" id="statMRR">—</div></div>
             <div class="stat-card"><div class="label">Total Customers</div><div class="value" id="statCustomers">—</div></div>
             <div class="stat-card"><div class="label">Past Due</div><div class="value red" id="statPastDue">—</div></div>
@@ -429,28 +430,28 @@
             h+='<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px">No invoices found</td></tr>';
         }
         filtered.forEach(function(inv){
-            var badge='badge-active';
-            if(inv.status==='paid')badge='badge-active';
-            else if(inv.status==='open')badge='badge-trialing';
-            else if(inv.status==='past_due')badge='badge-past-due';
-            else if(inv.status==='void')badge='badge-canceled';
-            else if(inv.status==='draft')badge='';
-            else badge='badge-canceled';
-            h+='<tr>';
+            var badge,statusLabel;
+            if(inv.status==='paid'){
+                badge='badge-active';
+                statusLabel=inv.paid_out_of_band
+                    ?'Paid <em style="font-size:10px;font-weight:400;font-style:italic">(offline)</em>'
+                    :'Paid';
+            } else if(inv.status==='open'){badge='badge-trialing';statusLabel='open';}
+            else if(inv.status==='past_due'){badge='badge-past-due';statusLabel='past due';}
+            else if(inv.status==='void'){badge='badge-canceled';statusLabel='void';}
+            else if(inv.status==='draft'){badge='';statusLabel='draft';}
+            else{badge='badge-canceled';statusLabel=esc(inv.status||'—');}
+            h+='<tr style="cursor:pointer" onclick="editInvoice(\''+inv.id+'\')">';
             h+='<td style="font-family:monospace;font-size:13px">'+esc(inv.number||inv.id)+'</td>';
             h+='<td>'+esc(inv.customer_name||inv.customer_email||'—')+'</td>';
             h+='<td style="font-weight:700">$'+fmt(inv.amount_due||0)+'</td>';
-            h+='<td><span class="badge '+badge+'">'+esc(inv.status||'—')+'</span></td>';
-            h+='<td style="font-size:13px">'+(inv.due_date?fmtDate(inv.due_date):'—')+'</td>';
-            h+='<td style="font-size:12px;color:#64748b">'+fmtDate(inv.created)+'</td>';
-            h+='<td style="white-space:nowrap">';
-            // View button
+            h+='<td><span class="badge '+badge+'">'+statusLabel+'</span></td>';
+            h+='<td style="font-size:13px">'+(inv.due_date?fmtDateTime(inv.due_date):'—')+'</td>';
+            h+='<td style="font-size:12px;color:#64748b">'+fmtDateTime(inv.created)+'</td>';
+            h+='<td style="white-space:nowrap" onclick="event.stopPropagation()">';
             if(inv.hosted_invoice_url)h+='<a href="'+inv.hosted_invoice_url+'" target="_blank" class="btn-sm btn-outline" title="View invoice"><i class="fas fa-eye"></i></a> ';
-            // Edit button - opens detail modal
-            h+='<button class="btn-sm btn-outline" onclick="editInvoice(\''+inv.id+'\')" title="Edit / Actions"><i class="fas fa-pen"></i></button> ';
-            // Quick void for open invoices
+            h+='<button class="btn-sm btn-outline" onclick="editInvoice(\''+inv.id+'\')" title="Details / Actions"><i class="fas fa-pen"></i></button> ';
             if(inv.status==='open')h+='<button class="btn-sm btn-danger" onclick="voidInvoice(\''+inv.id+'\')" title="Void this invoice"><i class="fas fa-ban"></i></button>';
-            // Delete for draft invoices
             if(inv.status==='draft')h+='<button class="btn-sm btn-danger" onclick="deleteInvoice(\''+inv.id+'\')" title="Delete draft"><i class="fas fa-trash"></i></button>';
             h+='</td></tr>';
         });
@@ -460,19 +461,23 @@
 
     // ─── Render Products ───
     function renderProducts(){
-        var h='<table><thead><tr><th>Product</th><th>Price</th><th>Interval</th><th>Price ID</th></tr></thead><tbody>';
+        var h='<table><thead><tr><th>Product</th><th>Price</th><th>Interval</th><th>Price ID</th><th>Actions</th></tr></thead><tbody>';
         if(_prices.length===0){
-            h+='<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:40px">No products found</td></tr>';
+            h+='<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:40px">No products found</td></tr>';
         }
         _prices.forEach(function(p){
             var name=(p.product&&typeof p.product==='object')?p.product.name:p.product;
+            var productId=(p.product&&typeof p.product==='object')?p.product.id:(typeof p.product==='string'?p.product:'');
             var interval=p.recurring?p.recurring.interval:'one-time';
             h+='<tr>';
             h+='<td><strong>'+esc(name||'—')+'</strong></td>';
             h+='<td style="font-weight:700">$'+fmt(p.unit_amount||0)+'</td>';
             h+='<td style="text-transform:capitalize">'+interval+'</td>';
             h+='<td style="font-family:monospace;font-size:12px;color:#64748b">'+esc(p.id)+'</td>';
-            h+='</tr>';
+            h+='<td style="white-space:nowrap">';
+            h+='<button class="btn-sm btn-outline" onclick="editProduct(\''+p.id+'\')" title="Edit"><i class="fas fa-pen"></i> Edit</button> ';
+            h+='<button class="btn-danger btn-sm" onclick="archiveProduct(\''+productId+'\')" title="Archive product"><i class="fas fa-archive"></i></button>';
+            h+='</td></tr>';
         });
         h+='</tbody></table>';
         document.getElementById('prodTable').innerHTML=h;
@@ -684,6 +689,86 @@
         });
     }
 
+    // ─── Edit Product ───
+    function editProduct(priceId){
+        var p=_prices.find(function(x){return x.id===priceId});
+        if(!p)return;
+        var prod=p.product&&typeof p.product==='object'?p.product:null;
+        var productId=prod?prod.id:(typeof p.product==='string'?p.product:'');
+        var prodName=prod?prod.name:'';
+        var prodDesc=prod?prod.description||'':'';
+        var prodMeta=prod?prod.metadata||{}:{};
+        var interval=p.recurring?p.recurring.interval:null;
+        var h='<div class="modal-overlay" onclick="if(event.target===this)this.remove()"><div class="modal">';
+        h+='<h2>Edit Product</h2>';
+        h+='<label>Product Name *</label><input id="epName" value="'+esc(prodName)+'">';
+        h+='<label>Description</label><textarea id="epDesc">'+esc(prodDesc)+'</textarea>';
+        h+='<label>Price (USD) *</label><input id="epAmount" type="number" step="0.01" value="'+(p.unit_amount/100).toFixed(2)+'">';
+        if(interval){
+            h+='<p style="font-size:12px;color:#64748b;margin-top:4px"><i class="fas fa-info-circle"></i> Changing the price archives the old price and creates a new one. Existing subscriptions continue at their current rate until manually updated.</p>';
+        }
+        h+='<label style="margin-top:16px">Metadata</label>';
+        h+='<div id="epMetaRows"></div>';
+        h+='<button class="btn-outline btn-sm" onclick="addMetaRow(\'epMetaRows\')" style="margin-top:6px"><i class="fas fa-plus"></i> Add Field</button>';
+        h+='<div class="actions"><button class="btn-outline" onclick="this.closest(\'.modal-overlay\').remove()">Cancel</button><button class="btn-gold" id="prodSaveBtn" onclick="saveProductEdit(\''+productId+'\',\''+priceId+'\',\''+interval+'\')">Save Changes</button></div>';
+        h+='</div></div>';
+        document.body.insertAdjacentHTML('beforeend',h);
+        Object.keys(prodMeta).forEach(function(k){addMetaRow('epMetaRows',k,prodMeta[k])});
+    }
+
+    function saveProductEdit(productId,priceId,interval){
+        var name=document.getElementById('epName').value.trim();
+        if(!name){toast('Name required','error');return}
+        var amount=Math.round(parseFloat(document.getElementById('epAmount').value)*100);
+        if(!amount||amount<=0){toast('Enter a valid price','error');return}
+        var btn=document.getElementById('prodSaveBtn');
+        if(btn){btn.disabled=true;btn.textContent='Saving...';}
+        apiCall({
+            action:'update-product',
+            productId:productId,
+            priceId:priceId,
+            name:name,
+            description:document.getElementById('epDesc').value.trim(),
+            amount:amount,
+            interval:interval||'month',
+            metadata:getMetadata('epMetaRows')
+        }).then(function(data){
+            if(data.error){
+                if(btn){btn.disabled=false;btn.textContent='Save Changes';}
+                toast(data.error,'error');return;
+            }
+            toast('Product updated','success');
+            document.querySelector('.modal-overlay').remove();
+            apiCall({action:'list-products'}).then(function(d){
+                if(d.products)_prods=d.products;
+                if(d.prices)_prices=d.prices;
+                renderProducts();
+            });
+        }).catch(function(err){
+            if(btn){btn.disabled=false;btn.textContent='Save Changes';}
+            toast(err.message||'Error updating product','error');
+        });
+    }
+
+    function archiveProduct(productId){
+        var p=_prices.find(function(x){
+            var pid=x.product&&typeof x.product==='object'?x.product.id:x.product;
+            return pid===productId;
+        });
+        var name=p&&p.product&&typeof p.product==='object'?p.product.name:productId;
+        if(!confirm('Archive "'+name+'"?\n\nThe product and all its prices will be deactivated. Existing subscriptions are unaffected until they are canceled or updated.'))return;
+        apiCall({action:'archive-product',productId:productId}).then(function(data){
+            if(data.error){toast(data.error,'error');return}
+            toast('Product archived','success');
+            _prods=_prods.filter(function(x){return x.id!==productId});
+            _prices=_prices.filter(function(x){
+                var pid=x.product&&typeof x.product==='object'?x.product.id:x.product;
+                return pid!==productId;
+            });
+            renderProducts();
+        });
+    }
+
     function cancelSub(subId){
         if(!confirm('Cancel this subscription? This will stop all future billing.'))return;
         apiCall({action:'cancel-subscription',subscriptionId:subId}).then(function(data){
@@ -865,10 +950,41 @@
             h+='<div class="detail-item"><div class="di-label">Invoice #</div><div class="di-val" style="font-family:monospace">'+esc(inv.number||inv.id)+'</div></div>';
             h+='<div class="detail-item"><div class="di-label">Customer</div><div class="di-val">'+esc(custName)+'</div></div>';
             h+='<div class="detail-item"><div class="di-label">Amount</div><div class="di-val" style="font-weight:700;font-size:18px">$'+fmt(inv.amount_due||0)+'</div></div>';
-            h+='<div class="detail-item"><div class="di-label">Status</div><div class="di-val" style="text-transform:capitalize;font-weight:600">'+esc(inv.status)+'</div></div>';
-            h+='<div class="detail-item"><div class="di-label">Due Date</div><div class="di-val">'+(inv.due_date?fmtDate(inv.due_date):'—')+'</div></div>';
-            h+='<div class="detail-item"><div class="di-label">Created</div><div class="di-val">'+fmtDate(inv.created)+'</div></div>';
+            var mStatus=inv.status==='paid'?(inv.paid_out_of_band?'Paid (offline)':'Paid'):inv.status;
+            h+='<div class="detail-item"><div class="di-label">Status</div><div class="di-val" style="text-transform:capitalize;font-weight:600">'+esc(mStatus)+'</div></div>';
+            h+='<div class="detail-item"><div class="di-label">Due Date</div><div class="di-val">'+(inv.due_date?fmtDateTime(inv.due_date):'—')+'</div></div>';
+            h+='<div class="detail-item"><div class="di-label">Created</div><div class="di-val">'+fmtDateTime(inv.created)+'</div></div>';
             h+='</div></div>';
+            // Payment details panel
+            if(inv.charge&&typeof inv.charge==='object'){
+                var ch=inv.charge;
+                var pmd=ch.payment_method_details;
+                var pmLabel='—';
+                if(pmd){
+                    if(pmd.type==='card'&&pmd.card){
+                        pmLabel=(pmd.card.brand?pmd.card.brand.charAt(0).toUpperCase()+pmd.card.brand.slice(1):'Card')+' ••••'+pmd.card.last4;
+                    } else if(pmd.type==='us_bank_account'&&pmd.us_bank_account){
+                        pmLabel=(pmd.us_bank_account.bank_name||'Bank')+' ••••'+pmd.us_bank_account.last4;
+                    } else if(pmd.type){
+                        pmLabel=pmd.type.replace(/_/g,' ');
+                    }
+                }
+                var bt=ch.balance_transaction&&typeof ch.balance_transaction==='object'?ch.balance_transaction:null;
+                h+='<div class="detail-panel" style="margin-bottom:16px;border-left:3px solid #16a34a">';
+                h+='<h3 style="font-size:0.9rem;color:#16a34a;margin-bottom:12px"><i class="fas fa-check-circle"></i> Payment Details</h3>';
+                h+='<div class="detail-grid">';
+                h+='<div class="detail-item"><div class="di-label">Charge ID</div><div class="di-val" style="font-family:monospace;font-size:11px">'+esc(ch.id)+'</div></div>';
+                h+='<div class="detail-item"><div class="di-label">Payment Method</div><div class="di-val">'+esc(pmLabel)+'</div></div>';
+                h+='<div class="detail-item"><div class="di-label">Amount Paid</div><div class="di-val" style="font-weight:700">$'+fmt(ch.amount_captured||ch.amount||0)+'</div></div>';
+                h+='<div class="detail-item"><div class="di-label">Paid At</div><div class="di-val">'+fmtDateTime(ch.created)+'</div></div>';
+                if(bt){h+='<div class="detail-item"><div class="di-label">Stripe Fee</div><div class="di-val">$'+fmt(bt.fee||0)+'</div></div>';}
+                if(bt){h+='<div class="detail-item"><div class="di-label">Net Payout</div><div class="di-val" style="font-weight:700;color:#16a34a">$'+fmt(bt.net||0)+'</div></div>';}
+                h+='</div>';
+                h+='<div style="margin-top:10px"><a href="https://dashboard.stripe.com/charges/'+esc(ch.id)+'" target="_blank" style="font-size:12px;color:#64748b;text-decoration:none"><i class="fas fa-external-link-alt"></i> View charge in Stripe</a></div>';
+                h+='</div>';
+            } else if(inv.status==='paid'){
+                h+='<div class="detail-panel" style="margin-bottom:16px"><p style="font-size:13px;color:#64748b;margin:0"><i class="fas fa-money-bill-wave"></i> Marked as paid offline — no Stripe charge on record.</p></div>';
+            }
             // Line items
             if(inv.lines&&inv.lines.data&&inv.lines.data.length){
                 h+='<label>Line Items</label>';
@@ -1040,6 +1156,7 @@
     // ─── Helpers ───
     function fmt(cents){return(cents/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
     function fmtDate(ts){if(!ts)return '—';var d=new Date(typeof ts==='number'?ts*1000:ts);return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+    function fmtDateTime(ts){if(!ts)return '—';var d=new Date(typeof ts==='number'?ts*1000:ts);return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+', '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true})}
     function esc(s){if(!s)return '';var d=document.createElement('div');d.textContent=s;return d.innerHTML}
     function toast(msg,type){var t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'success')+' show';setTimeout(function(){t.classList.remove('show')},3000)}
     </script>
