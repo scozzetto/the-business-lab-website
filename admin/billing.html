@@ -125,6 +125,7 @@
 
         <!-- Tabs -->
         <div class="tabs">
+            <div class="tab" onclick="switchTab('newclient')" style="color:#16a34a;border-bottom-color:transparent"><i class="fas fa-user-plus"></i> New Client</div>
             <div class="tab active" onclick="switchTab('subscriptions')">Subscriptions</div>
             <div class="tab" onclick="switchTab('customers')">Customers</div>
             <div class="tab" onclick="switchTab('invoices')">Invoices</div>
@@ -171,9 +172,84 @@
         <div id="tab-products" class="hidden">
             <div class="toolbar">
                 <div></div>
-                <button class="btn-gold" onclick="openNewProductModal()"><i class="fas fa-plus"></i> New Product</button>
+                <div style="display:flex;gap:8px">
+                    <button class="btn-outline" onclick="seedTierProducts(this)" title="Create Basic/Professional/Enterprise tier products in Stripe if not already present"><i class="fas fa-layer-group"></i> Setup Tier Products</button>
+                    <button class="btn-gold" onclick="openNewProductModal()"><i class="fas fa-plus"></i> New Product</button>
+                </div>
             </div>
             <div id="prodTable"></div>
+        </div>
+
+        <!-- New Client Tab -->
+        <div id="tab-newclient" class="hidden">
+            <div style="max-width:720px">
+                <div class="detail-panel" style="margin-bottom:20px;border-left:3px solid #16a34a">
+                    <h3 style="font-size:1rem;color:#16a34a;margin-bottom:4px"><i class="fas fa-file-signature"></i> New Client Signup</h3>
+                    <p style="font-size:13px;color:#64748b;margin:0">Fill out the form below to generate and send a service agreement via Dropbox Sign. The client will receive an email with a link to review and sign.</p>
+                </div>
+
+                <!-- Client Info -->
+                <div class="detail-panel" style="margin-bottom:16px">
+                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px">Client Information</h3>
+                    <div class="modal" style="box-shadow:none;padding:0">
+                        <div class="row">
+                            <div><label>Full Name *</label><input id="sc-name" placeholder="Jane Smith" oninput="updateSignupSummary()"></div>
+                            <div><label>Email *</label><input id="sc-email" type="email" placeholder="jane@acme.com"></div>
+                        </div>
+                        <label>Company / Business Name</label><input id="sc-company" placeholder="Acme Corp" oninput="updateSignupSummary()">
+                    </div>
+                </div>
+
+                <!-- Tier Selection -->
+                <div class="detail-panel" style="margin-bottom:16px">
+                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px">Service Tier</h3>
+                    <div id="sc-tier-options">
+                        <p style="color:#94a3b8;font-size:13px"><i class="fas fa-exclamation-circle"></i> No tier products found. Click <strong>Setup Tier Products</strong> in the Products tab first.</p>
+                    </div>
+                </div>
+
+                <!-- Billing Cadence -->
+                <div class="detail-panel" style="margin-bottom:16px">
+                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px">Billing Cadence</h3>
+                    <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-weight:400;margin-bottom:6px">
+                        <input type="radio" name="sc-cadence" value="annual" checked onchange="updateSignupSummary()" style="margin-top:3px;width:auto">
+                        <span><strong>Annual</strong> — 12-month commitment, billed upfront (10% off monthly rate)<br><span style="font-size:12px;color:#64748b">Client receives one invoice for the full year</span></span>
+                    </label>
+                    <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-weight:400">
+                        <input type="radio" name="sc-cadence" value="monthly" onchange="updateSignupSummary()" style="margin-top:3px;width:auto">
+                        <span><strong>Monthly</strong> — billed each month, cancel anytime<br><span style="font-size:12px;color:#64748b">Client receives an invoice each billing cycle</span></span>
+                    </label>
+                </div>
+
+                <!-- Start Date -->
+                <div class="detail-panel" style="margin-bottom:16px">
+                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px">Start Date</h3>
+                    <input type="date" id="sc-start" style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:Inter,sans-serif" oninput="updateSignupSummary()">
+                </div>
+
+                <!-- Add-Ons -->
+                <div class="detail-panel" style="margin-bottom:16px">
+                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px">Add-Ons <span style="font-weight:400;font-style:italic">(optional)</span></h3>
+                    <div id="sc-addon-options">
+                        <p style="color:#94a3b8;font-size:13px">No add-on products found.</p>
+                    </div>
+                </div>
+
+                <!-- Rate Summary -->
+                <div id="sc-summary" class="detail-panel" style="margin-bottom:16px;background:#f0fdf4;border:1px solid #bbf7d0;display:none">
+                    <h3 style="font-size:0.85rem;color:#16a34a;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px"><i class="fas fa-receipt"></i> Rate Summary</h3>
+                    <div id="sc-summary-body"></div>
+                </div>
+
+                <!-- Notes -->
+                <div class="detail-panel" style="margin-bottom:20px">
+                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px">Additional Notes</h3>
+                    <textarea id="sc-notes" style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:Inter,sans-serif;min-height:80px;resize:vertical" placeholder="Any special terms, context, or notes to include in the agreement..."></textarea>
+                </div>
+
+                <button class="btn-gold" id="sc-submit" onclick="sendEnvelope()" style="width:100%;padding:14px;font-size:15px"><i class="fas fa-paper-plane"></i> Send Contract via Dropbox Sign</button>
+                <p style="font-size:12px;color:#94a3b8;text-align:center;margin-top:10px">The client will receive an email with a link to review and e-sign the agreement. You'll be CC'd if BL_ADMIN_EMAIL is set.</p>
+            </div>
         </div>
     </div>
 
@@ -182,6 +258,7 @@
 
     <script>
     var API='/.netlify/functions/bl-billing';
+    var SIGNUP_API='/.netlify/functions/bl-signup';
     var ADMIN_KEY='';
     var _subs=[];
     var _custs=[];
@@ -283,6 +360,7 @@
             renderCustomers();
             renderInvoices();
             renderProducts();
+            initSignupTab();
         });
     }
 
@@ -320,13 +398,15 @@
 
     // ─── Tabs ───
     function switchTab(tab){
-        ['subscriptions','customers','invoices','products'].forEach(function(t){
+        ['newclient','subscriptions','customers','invoices','products'].forEach(function(t){
             var el=document.getElementById('tab-'+t);
             if(el)el.classList.toggle('hidden',t!==tab);
         });
         document.querySelectorAll('.tab').forEach(function(t,i){
-            var tabs=['subscriptions','customers','invoices','products'];
+            var tabs=['newclient','subscriptions','customers','invoices','products'];
             t.classList.toggle('active',tabs[i]===tab);
+            // Keep New Client green when active
+            if(tabs[i]==='newclient')t.style.color=tabs[i]===tab?'#16a34a':'#16a34a';
         });
     }
 
@@ -1150,6 +1230,220 @@
         }).catch(function(err){
             if(invBtn){invBtn.disabled=false;invBtn.textContent='Create Invoice';}
             toast(err.message||'Error creating invoice','error');
+        });
+    }
+
+    // ─── Signup Tab ───
+    function signupApiCall(body){
+        return fetch(SIGNUP_API,{
+            method:'POST',
+            headers:{'Content-Type':'application/json','X-Admin-Key':ADMIN_KEY},
+            body:JSON.stringify(body)
+        }).then(function(r){
+            if(r.status===401){logout();throw new Error('Session expired — please log in again');}
+            return r.json();
+        });
+    }
+
+    function initSignupTab(){
+        // Tier products: have bl_tier metadata, annual prices only shown as the primary option
+        var tierPrices=_prices.filter(function(p){
+            return p.product&&typeof p.product==='object'&&p.product.metadata&&p.product.metadata.bl_tier;
+        });
+        var annualTierPrices=tierPrices.filter(function(p){return p.recurring&&p.recurring.interval==='year'});
+        var monthlyTierPrices=tierPrices.filter(function(p){return p.recurring&&p.recurring.interval==='month'});
+
+        var tierOrder=['basic','professional','enterprise'];
+        var tierEl=document.getElementById('sc-tier-options');
+        if(!tierEl)return;
+
+        if(annualTierPrices.length===0&&monthlyTierPrices.length===0){
+            tierEl.innerHTML='<p style="color:#94a3b8;font-size:13px"><i class="fas fa-exclamation-circle"></i> No tier products found. Click <strong>Setup Tier Products</strong> in the Products tab first, then return here.</p>';
+        } else {
+            var h='';
+            tierOrder.forEach(function(tierKey){
+                var annP=annualTierPrices.find(function(p){return p.product.metadata.bl_tier===tierKey});
+                var monP=monthlyTierPrices.find(function(p){return p.product.metadata.bl_tier===tierKey});
+                if(!annP&&!monP)return;
+                var ref=annP||monP;
+                var name=ref.product.name;
+                var moAmt=monP?monP.unit_amount:Math.round((annP.unit_amount/12));
+                var yrAmt=annP?annP.unit_amount:Math.round(monP.unit_amount*12);
+                var priceId=annP?annP.id:(monP?monP.id:'');
+                h+='<label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-weight:400;margin-bottom:10px;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px" id="sc-tier-label-'+tierKey+'">';
+                h+='<input type="radio" name="sc-tier" value="'+tierKey+'" data-price-id="'+priceId+'" data-monthly="'+moAmt+'" data-annual="'+yrAmt+'" onchange="updateSignupSummary()" style="margin-top:3px;width:auto">';
+                h+='<span><strong>'+esc(name)+'</strong><br>';
+                h+='<span style="font-size:12px;color:#64748b">$'+fmt(moAmt)+'/mo &nbsp;·&nbsp; $'+fmt(yrAmt)+'/yr (annual)</span></span>';
+                h+='</label>';
+            });
+            tierEl.innerHTML=h||'<p style="color:#94a3b8;font-size:13px">No tier products found.</p>';
+        }
+
+        // Add-ons: prices where product has NO bl_tier metadata
+        var addonPrices=_prices.filter(function(p){
+            return !(p.product&&typeof p.product==='object'&&p.product.metadata&&p.product.metadata.bl_tier);
+        });
+        var addonEl=document.getElementById('sc-addon-options');
+        if(addonEl){
+            if(addonPrices.length===0){
+                addonEl.innerHTML='<p style="color:#94a3b8;font-size:13px">No add-on products found. Create them in the Products tab.</p>';
+            } else {
+                var ah='';
+                addonPrices.forEach(function(p){
+                    var name=p.product&&typeof p.product==='object'?p.product.name:p.product;
+                    var interval=p.recurring?p.recurring.interval:'one-time';
+                    ah+='<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:400;margin-bottom:8px">';
+                    ah+='<input type="checkbox" data-price-id="'+p.id+'" data-name="'+esc(name)+'" data-amount="'+p.unit_amount+'" data-interval="'+interval+'" onchange="updateSignupSummary()" style="width:auto">';
+                    ah+='<span>'+esc(name)+'<span style="color:#64748b;font-size:12px"> — $'+fmt(p.unit_amount)+'/'+interval+'</span></span>';
+                    ah+='</label>';
+                });
+                addonEl.innerHTML=ah;
+            }
+        }
+
+        // Set default start date to today
+        var sd=document.getElementById('sc-start');
+        if(sd&&!sd.value){
+            var t=new Date();var mm=String(t.getMonth()+1).padStart(2,'0');var dd=String(t.getDate()).padStart(2,'0');
+            sd.value=t.getFullYear()+'-'+mm+'-'+dd;
+        }
+
+        updateSignupSummary();
+    }
+
+    function updateSignupSummary(){
+        var tierInput=document.querySelector('input[name="sc-tier"]:checked');
+        var cadenceInput=document.querySelector('input[name="sc-cadence"]:checked');
+        var summaryEl=document.getElementById('sc-summary');
+        var summaryBody=document.getElementById('sc-summary-body');
+        if(!summaryEl||!summaryBody)return;
+
+        if(!tierInput){summaryEl.style.display='none';return;}
+
+        var moAmt=parseInt(tierInput.getAttribute('data-monthly'))||0;
+        var yrAmt=parseInt(tierInput.getAttribute('data-annual'))||0;
+        var isAnnual=cadenceInput?cadenceInput.value==='annual':true;
+        var tierName=tierInput.value.charAt(0).toUpperCase()+tierInput.value.slice(1);
+
+        // Highlight selected tier card
+        document.querySelectorAll('[id^="sc-tier-label-"]').forEach(function(el){el.style.borderColor='#e2e8f0';});
+        var activeLabel=document.getElementById('sc-tier-label-'+tierInput.value);
+        if(activeLabel)activeLabel.style.borderColor='#16a34a';
+
+        // Collect add-ons
+        var addons=[];
+        document.querySelectorAll('#sc-addon-options input[type="checkbox"]:checked').forEach(function(cb){
+            addons.push({
+                priceId:cb.getAttribute('data-price-id'),
+                name:cb.getAttribute('data-name'),
+                amount:parseInt(cb.getAttribute('data-amount'))||0,
+                interval:cb.getAttribute('data-interval')
+            });
+        });
+
+        var startDate=document.getElementById('sc-start').value||'—';
+        var addonMonthly=addons.reduce(function(sum,a){return sum+(a.interval==='year'?Math.round(a.amount/12):a.amount)},0);
+
+        var h='<div class="detail-grid">';
+        h+='<div class="detail-item"><div class="di-label">Tier</div><div class="di-val">'+esc(tierName)+'</div></div>';
+        h+='<div class="detail-item"><div class="di-label">Cadence</div><div class="di-val">'+(isAnnual?'Annual':'Monthly')+'</div></div>';
+        h+='<div class="detail-item"><div class="di-label">Base Rate</div><div class="di-val">$'+fmt(moAmt)+'/mo'+(isAnnual?' · $'+fmt(yrAmt)+'/yr':'')+'</div></div>';
+        if(addons.length){h+='<div class="detail-item"><div class="di-label">Add-Ons</div><div class="di-val">+$'+fmt(addonMonthly)+'/mo</div></div>';}
+        h+='<div class="detail-item"><div class="di-label">Total</div><div class="di-val" style="font-size:18px;color:#16a34a">'+(isAnnual?'$'+fmt(yrAmt+addonMonthly*12)+'/yr':'$'+fmt(moAmt+addonMonthly)+'/mo')+'</div></div>';
+        h+='<div class="detail-item"><div class="di-label">Start Date</div><div class="di-val">'+esc(startDate)+'</div></div>';
+        h+='</div>';
+        summaryBody.innerHTML=h;
+        summaryEl.style.display='block';
+    }
+
+    function sendEnvelope(){
+        var tierInput=document.querySelector('input[name="sc-tier"]:checked');
+        var cadenceInput=document.querySelector('input[name="sc-cadence"]:checked');
+        var name=document.getElementById('sc-name').value.trim();
+        var email=document.getElementById('sc-email').value.trim();
+        var company=document.getElementById('sc-company').value.trim();
+        var startDate=document.getElementById('sc-start').value;
+        var notes=document.getElementById('sc-notes').value.trim();
+
+        if(!name){toast('Enter client name','error');return;}
+        if(!email){toast('Enter client email','error');return;}
+        if(!tierInput){toast('Select a service tier','error');return;}
+        if(!startDate){toast('Select a start date','error');return;}
+
+        var tier=tierInput.value;
+        var cadence=cadenceInput?cadenceInput.value:'annual';
+        var priceId=tierInput.getAttribute('data-price-id');
+        var moAmt=parseInt(tierInput.getAttribute('data-monthly'))||0;
+        var yrAmt=parseInt(tierInput.getAttribute('data-annual'))||0;
+
+        var addons=[];
+        document.querySelectorAll('#sc-addon-options input[type="checkbox"]:checked').forEach(function(cb){
+            addons.push({
+                priceId:cb.getAttribute('data-price-id'),
+                name:cb.getAttribute('data-name'),
+                amount:parseInt(cb.getAttribute('data-amount'))||0,
+                interval:cb.getAttribute('data-interval')
+            });
+        });
+
+        var btn=document.getElementById('sc-submit');
+        if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';}
+
+        signupApiCall({
+            action:'create-envelope',
+            name:name,
+            email:email,
+            company:company,
+            tier:tier,
+            cadence:cadence,
+            startDate:startDate,
+            stripePriceId:priceId,
+            monthlyAmount:moAmt,
+            annualAmount:yrAmt,
+            addons:addons,
+            notes:notes
+        }).then(function(data){
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Contract via Dropbox Sign';}
+            if(data.error){toast(data.error,'error');return;}
+            toast('Contract sent to '+email+'!','success');
+            // Clear form
+            ['sc-name','sc-email','sc-company','sc-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+            document.querySelectorAll('input[name="sc-tier"]').forEach(function(r){r.checked=false;});
+            document.querySelectorAll('#sc-addon-options input[type="checkbox"]').forEach(function(cb){cb.checked=false;});
+            document.getElementById('sc-summary').style.display='none';
+            // Show result
+            var msg='<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:20px;margin-top:16px">';
+            msg+='<div style="font-weight:700;color:#16a34a;margin-bottom:8px"><i class="fas fa-check-circle"></i> Contract sent successfully!</div>';
+            if(data.signatureRequestId)msg+='<div style="font-size:12px;color:#64748b">Signature Request ID: <code>'+esc(data.signatureRequestId)+'</code></div>';
+            msg+='<p style="font-size:13px;color:#475569;margin-top:8px">'+esc(name)+' will receive an email with a link to review and sign the agreement.</p>';
+            msg+='</div>';
+            var notesPanel=document.getElementById('sc-notes').closest('.detail-panel');
+            if(notesPanel)notesPanel.insertAdjacentHTML('afterend',msg);
+        }).catch(function(err){
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Contract via Dropbox Sign';}
+            toast(err.message||'Error sending contract','error');
+        });
+    }
+
+    function seedTierProducts(btn){
+        btn.disabled=true;btn.textContent='Setting up...';
+        apiCall({action:'seed-tier-products'}).then(function(data){
+            btn.disabled=false;btn.innerHTML='<i class="fas fa-layer-group"></i> Setup Tier Products';
+            if(data.error){toast(data.error,'error');return;}
+            var msg='';
+            if(data.created&&data.created.length)msg+='Created: '+data.created.join(', ')+'. ';
+            if(data.skipped&&data.skipped.length)msg+='Already existed: '+data.skipped.join(', ')+'.';
+            toast(msg||'Tier products ready','success');
+            // Reload products and reinit signup tab
+            apiCall({action:'list-products'}).then(function(d){
+                if(d.products)_prods=d.products;
+                if(d.prices)_prices=d.prices;
+                renderProducts();
+                initSignupTab();
+            });
+        }).catch(function(err){
+            btn.disabled=false;btn.innerHTML='<i class="fas fa-layer-group"></i> Setup Tier Products';
+            toast(err.message||'Error setting up tier products','error');
         });
     }
 

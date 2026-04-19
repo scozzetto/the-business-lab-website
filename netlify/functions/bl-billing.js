@@ -362,6 +362,45 @@ exports.handler = async (event) => {
                 return respond(200, { success: true, clientSecret: setupIntent.client_secret });
             }
 
+            // ─── SEED TIER PRODUCTS ───
+            case 'seed-tier-products': {
+                const tiers = [
+                    { name: 'Basic',        tier: 'basic',        monthly: 20000,  annual: 216000  },
+                    { name: 'Professional', tier: 'professional', monthly: 50000,  annual: 540000  },
+                    { name: 'Enterprise',   tier: 'enterprise',   monthly: 100000, annual: 1080000 }
+                ];
+                const existing = await stripe.products.list({ limit: 100, active: true });
+                const existingByTier = {};
+                existing.data.forEach(p => {
+                    if (p.metadata && p.metadata.bl_tier) existingByTier[p.metadata.bl_tier] = p;
+                });
+                const created = [], skipped = [];
+                for (const t of tiers) {
+                    if (existingByTier[t.tier]) { skipped.push(t.name); continue; }
+                    const product = await stripe.products.create({
+                        name: t.name,
+                        description: `The Business Lab ${t.name} service tier`,
+                        metadata: { bl_tier: t.tier }
+                    });
+                    await stripe.prices.create({
+                        product: product.id,
+                        unit_amount: t.monthly,
+                        currency: 'usd',
+                        recurring: { interval: 'month' },
+                        metadata: { bl_tier: t.tier, bl_cadence: 'monthly' }
+                    });
+                    await stripe.prices.create({
+                        product: product.id,
+                        unit_amount: t.annual,
+                        currency: 'usd',
+                        recurring: { interval: 'year' },
+                        metadata: { bl_tier: t.tier, bl_cadence: 'annual' }
+                    });
+                    created.push(t.name);
+                }
+                return respond(200, { success: true, created, skipped });
+            }
+
             default:
                 return respond(400, { error: 'Unknown action: ' + action });
         }
