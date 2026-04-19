@@ -1281,7 +1281,7 @@
         var annualTierPrices=tierPrices.filter(function(p){return p.recurring&&p.recurring.interval==='year'});
         var monthlyTierPrices=tierPrices.filter(function(p){return p.recurring&&p.recurring.interval==='month'});
 
-        var tierOrder=['basic','professional','enterprise'];
+        var tierOrder=['basic','professional','enterprise','test'];
         var tierEl=document.getElementById('sc-tier-options');
         if(!tierEl)return;
 
