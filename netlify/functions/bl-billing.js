@@ -367,7 +367,8 @@ exports.handler = async (event) => {
                 const tiers = [
                     { name: 'Basic',        tier: 'basic',        monthly: 20000,  annual: 216000  },
                     { name: 'Professional', tier: 'professional', monthly: 50000,  annual: 540000  },
-                    { name: 'Enterprise',   tier: 'enterprise',   monthly: 100000, annual: 1080000 }
+                    { name: 'Enterprise',   tier: 'enterprise',   monthly: 100000, annual: 1080000 },
+                    { name: 'Test Tier',    tier: 'test',         monthly: 100,    annual: 1080    }
                 ];
                 const existing = await stripe.products.list({ limit: 100, active: true });
                 const existingByTier = {};
