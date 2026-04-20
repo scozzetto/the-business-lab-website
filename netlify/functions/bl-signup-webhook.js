@@ -86,8 +86,20 @@ exports.handler = async (event) => {
         return { statusCode: 200, body: DS_ACK };
     }
 
+    // Route test envelopes to STRIPE_TEST_KEY if configured; otherwise fall
+    // through to the live key (test subs are cheap but still real objects).
+    const sr          = payload.signature_request || {};
+    const isTestEnv   = !!(sr.test_mode || sr.is_test_signature);
+    const activeKey   = (isTestEnv && process.env.STRIPE_TEST_KEY)
+        ? process.env.STRIPE_TEST_KEY
+        : stripeKey;
+
+    if (isTestEnv && !process.env.STRIPE_TEST_KEY) {
+        console.warn('Test envelope received but STRIPE_TEST_KEY not set — using live key. Add STRIPE_TEST_KEY in Netlify env vars to avoid live objects during testing.');
+    }
+
     try {
-        await handleAllSigned(payload, stripeKey);
+        await handleAllSigned(payload, activeKey);
     } catch (err) {
         // Log but still ACK — we don't want Dropbox Sign hammering retries.
         // Investigate in Netlify function logs.
