@@ -331,7 +331,7 @@ async function sendToDropboxSign(apiKey, data, contractHtml) {
     // Text tags
     addField('use_text_tags', '1');
     addField('hide_text_tags', '1');
-    addField('test_mode', '1');
+    addField('test_mode', '0');
 
     // Custom metadata (passed to webhook)
     addField('metadata[source]', 'business-lab-admin');
