@@ -188,7 +188,8 @@
             <div class="toolbar">
                 <div></div>
                 <div style="display:flex;gap:8px">
-                    <button class="btn-outline" onclick="seedTierProducts(this)" title="Create Basic/Professional/Enterprise tier products in Stripe if not already present"><i class="fas fa-layer-group"></i> Setup Tier Products</button>
+                    <button class="btn-danger" onclick="archiveOldTiers(this)" title="Archive Basic/Professional/Enterprise tier products in Stripe" style="font-size:13px;padding:8px 14px"><i class="fas fa-archive"></i> Archive Old Tiers</button>
+                    <button class="btn-outline" onclick="setupServiceCatalog(this)" title="Seed retainer / package / hourly products in Stripe"><i class="fas fa-layer-group"></i> Setup Service Catalog</button>
                     <button class="btn-gold" onclick="openNewProductModal()"><i class="fas fa-plus"></i> New Product</button>
                 </div>
             </div>
@@ -242,44 +243,59 @@
                     </div>
                 </div>
 
-                <!-- Tier Selection -->
+                <!-- Engagement Builder: Retainers -->
                 <div class="detail-panel" style="margin-bottom:16px">
-                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px">Service Tier</h3>
-                    <div id="sc-tier-options">
-                        <p style="color:#94a3b8;font-size:13px"><i class="fas fa-exclamation-circle"></i> No tier products found. Click <strong>Setup Tier Products</strong> in the Products tab first.</p>
+                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Monthly Retainers</h3>
+                    <p style="font-size:12px;color:#94a3b8;margin:0 0 12px">Ongoing advisory — 12-month commitment, billed monthly</p>
+                    <div id="sc-retainer-options">
+                        <p style="color:#94a3b8;font-size:13px"><i class="fas fa-exclamation-circle"></i> No retainer products found. Click <strong>Setup Service Catalog</strong> in the Products tab first.</p>
                     </div>
                 </div>
 
-                <!-- Billing Cadence -->
+                <!-- Engagement Builder: Packages -->
                 <div class="detail-panel" style="margin-bottom:16px">
-                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px">Billing Cadence</h3>
-                    <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-weight:400;margin-bottom:6px">
-                        <input type="radio" name="sc-cadence" value="annual" checked onchange="updateSignupSummary()" style="margin-top:3px;width:auto">
-                        <span><strong>Annual</strong> — 12-month commitment, billed upfront (10% off monthly rate)<br><span style="font-size:12px;color:#64748b">Client receives one invoice for the full year</span></span>
-                    </label>
-                    <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-weight:400">
-                        <input type="radio" name="sc-cadence" value="monthly" onchange="updateSignupSummary()" style="margin-top:3px;width:auto">
-                        <span><strong>Monthly</strong> — billed each month, cancel anytime<br><span style="font-size:12px;color:#64748b">Client receives an invoice each billing cycle</span></span>
-                    </label>
+                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">One-Time Packages</h3>
+                    <p style="font-size:12px;color:#94a3b8;margin:0 0 12px">Fixed-fee projects — 50% deposit at signing, 50% at midpoint</p>
+                    <div id="sc-package-options">
+                        <p style="color:#94a3b8;font-size:13px">No package products found.</p>
+                    </div>
+                </div>
+
+                <!-- Engagement Builder: Hourly -->
+                <div class="detail-panel" style="margin-bottom:16px">
+                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Hourly Services <span style="font-weight:400;font-style:italic">(optional pre-auth)</span></h3>
+                    <p style="font-size:12px;color:#94a3b8;margin:0 0 12px">Billed per session — invoiced within 15 days of completed work</p>
+                    <div id="sc-hourly-options">
+                        <p style="color:#94a3b8;font-size:13px">No hourly products found.</p>
+                    </div>
                 </div>
 
                 <!-- Start Date -->
                 <div class="detail-panel" style="margin-bottom:16px">
-                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px">Start Date</h3>
+                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px">Engagement Start Date</h3>
                     <input type="date" id="sc-start" style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:Inter,sans-serif" oninput="updateSignupSummary()">
                 </div>
 
-                <!-- Add-Ons -->
+                <!-- Payment Method -->
                 <div class="detail-panel" style="margin-bottom:16px">
-                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px">Add-Ons <span style="font-weight:400;font-style:italic">(optional)</span></h3>
-                    <div id="sc-addon-options">
-                        <p style="color:#94a3b8;font-size:13px">No add-on products found.</p>
-                    </div>
+                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px">Payment Method</h3>
+                    <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-weight:400;margin-bottom:8px">
+                        <input type="radio" name="sc-payment" value="autopay-card" checked onchange="updateSignupSummary()" style="margin-top:3px;width:auto">
+                        <span><strong>Autopay — Card</strong><br><span style="font-size:12px;color:#64748b">Card charged automatically on billing date</span></span>
+                    </label>
+                    <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-weight:400;margin-bottom:8px">
+                        <input type="radio" name="sc-payment" value="autopay-ach" onchange="updateSignupSummary()" style="margin-top:3px;width:auto">
+                        <span><strong>Autopay — ACH Bank Transfer</strong><br><span style="font-size:12px;color:#64748b">Bank account debited automatically (lower processing fees)</span></span>
+                    </label>
+                    <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-weight:400">
+                        <input type="radio" name="sc-payment" value="invoice" onchange="updateSignupSummary()" style="margin-top:3px;width:auto">
+                        <span><strong>Invoice (Net-15)</strong><br><span style="font-size:12px;color:#64748b">Client pays each invoice manually within 15 days</span></span>
+                    </label>
                 </div>
 
-                <!-- Rate Summary -->
+                <!-- Scope Summary -->
                 <div id="sc-summary" class="detail-panel" style="margin-bottom:16px;background:#f0fdf4;border:1px solid #bbf7d0;display:none">
-                    <h3 style="font-size:0.85rem;color:#16a34a;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px"><i class="fas fa-receipt"></i> Rate Summary</h3>
+                    <h3 style="font-size:0.85rem;color:#16a34a;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px"><i class="fas fa-receipt"></i> Engagement Summary</h3>
                     <div id="sc-summary-body"></div>
                 </div>
 
@@ -289,8 +305,8 @@
                     <textarea id="sc-notes" style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:Inter,sans-serif;min-height:80px;resize:vertical" placeholder="Any special terms, context, or notes to include in the agreement..."></textarea>
                 </div>
 
-                <button class="btn-gold" id="sc-submit" onclick="sendEnvelope()" style="width:100%;padding:14px;font-size:15px"><i class="fas fa-paper-plane"></i> Send Contract via Dropbox Sign</button>
-                <p style="font-size:12px;color:#94a3b8;text-align:center;margin-top:10px">The client will receive an email with a link to review and e-sign the agreement. You'll be CC'd if BL_ADMIN_EMAIL is set.</p>
+                <button class="btn-gold" id="sc-submit" onclick="sendEnvelope()" style="width:100%;padding:14px;font-size:15px"><i class="fas fa-paper-plane"></i> Send MSA via Dropbox Sign</button>
+                <p style="font-size:12px;color:#94a3b8;text-align:center;margin-top:10px">The client receives a Master Services Agreement via email. Once signed, Stripe subscriptions and deposit invoices are created automatically.</p>
             </div>
         </div>
     </div>
@@ -1302,58 +1318,71 @@
     }
 
     function initSignupTab(){
-        // Tier products: have bl_tier metadata, annual prices only shown as the primary option
-        var tierPrices=_prices.filter(function(p){
-            return p.product&&typeof p.product==='object'&&p.product.metadata&&p.product.metadata.bl_tier;
-        });
-        var annualTierPrices=tierPrices.filter(function(p){return p.recurring&&p.recurring.interval==='year'});
-        var monthlyTierPrices=tierPrices.filter(function(p){return p.recurring&&p.recurring.interval==='month'});
+        // Separate prices by bl_category metadata
+        var retainerPrices=_prices.filter(function(p){return p.product&&typeof p.product==='object'&&(p.product.metadata||{}).bl_category==='retainer';});
+        var packagePrices =_prices.filter(function(p){return p.product&&typeof p.product==='object'&&(p.product.metadata||{}).bl_category==='package';});
+        var hourlyPrices  =_prices.filter(function(p){return p.product&&typeof p.product==='object'&&(p.product.metadata||{}).bl_category==='hourly';});
 
-        var tierOrder=['basic','professional','enterprise','test'];
-        var tierEl=document.getElementById('sc-tier-options');
-        if(!tierEl)return;
-
-        if(annualTierPrices.length===0&&monthlyTierPrices.length===0){
-            tierEl.innerHTML='<p style="color:#94a3b8;font-size:13px"><i class="fas fa-exclamation-circle"></i> No tier products found. Click <strong>Setup Tier Products</strong> in the Products tab first, then return here.</p>';
-        } else {
-            var h='';
-            tierOrder.forEach(function(tierKey){
-                var annP=annualTierPrices.find(function(p){return p.product.metadata.bl_tier===tierKey});
-                var monP=monthlyTierPrices.find(function(p){return p.product.metadata.bl_tier===tierKey});
-                if(!annP&&!monP)return;
-                var ref=annP||monP;
-                var name=ref.product.name;
-                var moAmt=monP?monP.unit_amount:Math.round((annP.unit_amount/12));
-                var yrAmt=annP?annP.unit_amount:Math.round(monP.unit_amount*12);
-                var priceId=annP?annP.id:(monP?monP.id:'');
-                h+='<label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-weight:400;margin-bottom:10px;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px" id="sc-tier-label-'+tierKey+'">';
-                h+='<input type="radio" name="sc-tier" value="'+tierKey+'" data-price-id="'+priceId+'" data-monthly="'+moAmt+'" data-annual="'+yrAmt+'" onchange="updateSignupSummary()" style="margin-top:3px;width:auto">';
-                h+='<span><strong>'+esc(name)+'</strong><br>';
-                h+='<span style="font-size:12px;color:#64748b">$'+fmt(moAmt)+'/mo &nbsp;·&nbsp; $'+fmt(yrAmt)+'/yr (annual)</span></span>';
-                h+='</label>';
-            });
-            tierEl.innerHTML=h||'<p style="color:#94a3b8;font-size:13px">No tier products found.</p>';
+        // Retainers — checkboxes
+        var retainerEl=document.getElementById('sc-retainer-options');
+        if(retainerEl){
+            if(retainerPrices.length===0){
+                retainerEl.innerHTML='<p style="color:#94a3b8;font-size:13px"><i class="fas fa-exclamation-circle"></i> No retainer products found. Click <strong>Setup Service Catalog</strong> in the Products tab first.</p>';
+            } else {
+                var rh='';
+                retainerPrices.forEach(function(p){
+                    var name=p.product.name;
+                    rh+='<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:400;margin-bottom:10px;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px" id="sc-ret-label-'+p.id+'">';
+                    rh+='<input type="checkbox" class="sc-retainer-cb" data-price-id="'+p.id+'" data-name="'+esc(name)+'" data-amount="'+p.unit_amount+'" onchange="updateSignupSummary()" style="width:auto;accent-color:#16a34a">';
+                    rh+='<span><strong>'+esc(name)+'</strong> <span style="color:#64748b;font-size:12px">— $'+fmt(p.unit_amount)+'/mo</span></span>';
+                    rh+='</label>';
+                });
+                retainerEl.innerHTML=rh;
+            }
         }
 
-        // Add-ons: prices where product has NO bl_tier metadata
-        var addonPrices=_prices.filter(function(p){
-            return !(p.product&&typeof p.product==='object'&&p.product.metadata&&p.product.metadata.bl_tier);
-        });
-        var addonEl=document.getElementById('sc-addon-options');
-        if(addonEl){
-            if(addonPrices.length===0){
-                addonEl.innerHTML='<p style="color:#94a3b8;font-size:13px">No add-on products found. Create them in the Products tab.</p>';
+        // Packages — checkboxes + optional midpoint date
+        var packageEl=document.getElementById('sc-package-options');
+        if(packageEl){
+            if(packagePrices.length===0){
+                packageEl.innerHTML='<p style="color:#94a3b8;font-size:13px">No package products found.</p>';
             } else {
-                var ah='';
-                addonPrices.forEach(function(p){
-                    var name=p.product&&typeof p.product==='object'?p.product.name:p.product;
-                    var interval=p.recurring?p.recurring.interval:'one-time';
-                    ah+='<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:400;margin-bottom:8px">';
-                    ah+='<input type="checkbox" data-price-id="'+p.id+'" data-name="'+esc(name)+'" data-amount="'+p.unit_amount+'" data-interval="'+interval+'" onchange="updateSignupSummary()" style="width:auto">';
-                    ah+='<span>'+esc(name)+'<span style="color:#64748b;font-size:12px"> — $'+fmt(p.unit_amount)+'/'+interval+'</span></span>';
-                    ah+='</label>';
+                var ph='';
+                packagePrices.forEach(function(p){
+                    var name=p.product.name;
+                    var deposit=Math.round(p.unit_amount/2);
+                    ph+='<div style="margin-bottom:12px;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px" id="sc-pkg-wrap-'+p.id+'">';
+                    ph+='<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:400">';
+                    ph+='<input type="checkbox" class="sc-package-cb" data-price-id="'+p.id+'" data-name="'+esc(name)+'" data-amount="'+p.unit_amount+'" onchange="togglePackageMidpoint(\''+p.id+'\');updateSignupSummary()" style="width:auto;accent-color:#16a34a">';
+                    ph+='<span><strong>'+esc(name)+'</strong> <span style="color:#64748b;font-size:12px">— $'+fmt(p.unit_amount)+' total · $'+fmt(deposit)+' deposit at signing</span></span>';
+                    ph+='</label>';
+                    ph+='<div id="sc-pkg-midpoint-'+p.id+'" style="display:none;margin-top:10px;padding-left:26px">';
+                    ph+='<label style="font-size:12px;font-weight:600;color:#334155;display:block;margin-bottom:4px">Midpoint date (2nd payment due)</label>';
+                    ph+='<input type="date" id="sc-pkg-mid-'+p.id+'" style="padding:7px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:Inter,sans-serif">';
+                    ph+='</div></div>';
                 });
-                addonEl.innerHTML=ah;
+                packageEl.innerHTML=ph;
+            }
+        }
+
+        // Hourly — checkboxes + hours input
+        var hourlyEl=document.getElementById('sc-hourly-options');
+        if(hourlyEl){
+            if(hourlyPrices.length===0){
+                hourlyEl.innerHTML='<p style="color:#94a3b8;font-size:13px">No hourly products found.</p>';
+            } else {
+                var hh='';
+                hourlyPrices.forEach(function(p){
+                    var name=p.product.name;
+                    hh+='<div style="margin-bottom:8px;padding:8px 14px;border:2px solid #e2e8f0;border-radius:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap" id="sc-hr-wrap-'+p.id+'">';
+                    hh+='<input type="checkbox" class="sc-hourly-cb" data-price-id="'+p.id+'" data-name="'+esc(name)+'" data-amount="'+p.unit_amount+'" onchange="toggleHourlyInput(\''+p.id+'\');updateSignupSummary()" style="width:auto;flex-shrink:0;accent-color:#16a34a">';
+                    hh+='<span style="flex:1;font-size:14px"><strong>'+esc(name)+'</strong> <span style="color:#64748b;font-size:12px">$'+fmt(p.unit_amount)+'/hr</span></span>';
+                    hh+='<div id="sc-hr-input-'+p.id+'" style="display:none;gap:6px;align-items:center">';
+                    hh+='<input type="number" id="sc-hr-hours-'+p.id+'" min="1" value="5" style="width:70px;padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:Inter,sans-serif" oninput="updateSignupSummary()" placeholder="hrs">';
+                    hh+='<span style="font-size:12px;color:#64748b">hrs pre-auth</span>';
+                    hh+='</div></div>';
+                });
+                hourlyEl.innerHTML=hh;
             }
         }
 
@@ -1367,47 +1396,82 @@
         updateSignupSummary();
     }
 
+    function togglePackageMidpoint(priceId){
+        var cb=document.querySelector('.sc-package-cb[data-price-id="'+priceId+'"]');
+        var midDiv=document.getElementById('sc-pkg-midpoint-'+priceId);
+        var wrap=document.getElementById('sc-pkg-wrap-'+priceId);
+        if(!cb||!midDiv)return;
+        midDiv.style.display=cb.checked?'block':'none';
+        if(wrap)wrap.style.borderColor=cb.checked?'#16a34a':'#e2e8f0';
+    }
+
+    function toggleHourlyInput(priceId){
+        var cb=document.querySelector('.sc-hourly-cb[data-price-id="'+priceId+'"]');
+        var inp=document.getElementById('sc-hr-input-'+priceId);
+        var wrap=document.getElementById('sc-hr-wrap-'+priceId);
+        if(!cb||!inp)return;
+        inp.style.display=cb.checked?'flex':'none';
+        if(wrap)wrap.style.borderColor=cb.checked?'#16a34a':'#e2e8f0';
+    }
+
     function updateSignupSummary(){
-        var tierInput=document.querySelector('input[name="sc-tier"]:checked');
-        var cadenceInput=document.querySelector('input[name="sc-cadence"]:checked');
         var summaryEl=document.getElementById('sc-summary');
         var summaryBody=document.getElementById('sc-summary-body');
         if(!summaryEl||!summaryBody)return;
 
-        if(!tierInput){summaryEl.style.display='none';return;}
-
-        var moAmt=parseInt(tierInput.getAttribute('data-monthly'))||0;
-        var yrAmt=parseInt(tierInput.getAttribute('data-annual'))||0;
-        var isAnnual=cadenceInput?cadenceInput.value==='annual':true;
-        var tierName=tierInput.value.charAt(0).toUpperCase()+tierInput.value.slice(1);
-
-        // Highlight selected tier card
-        document.querySelectorAll('[id^="sc-tier-label-"]').forEach(function(el){el.style.borderColor='#e2e8f0';});
-        var activeLabel=document.getElementById('sc-tier-label-'+tierInput.value);
-        if(activeLabel)activeLabel.style.borderColor='#16a34a';
-
-        // Collect add-ons
-        var addons=[];
-        document.querySelectorAll('#sc-addon-options input[type="checkbox"]:checked').forEach(function(cb){
-            addons.push({
-                priceId:cb.getAttribute('data-price-id'),
-                name:cb.getAttribute('data-name'),
-                amount:parseInt(cb.getAttribute('data-amount'))||0,
-                interval:cb.getAttribute('data-interval')
-            });
+        // Collect selected retainers
+        var retainers=[];
+        document.querySelectorAll('.sc-retainer-cb:checked').forEach(function(cb){
+            retainers.push({priceId:cb.getAttribute('data-price-id'),name:cb.getAttribute('data-name'),amount:parseInt(cb.getAttribute('data-amount'))||0,category:'retainer'});
+            var lbl=document.getElementById('sc-ret-label-'+cb.getAttribute('data-price-id'));
+            if(lbl)lbl.style.borderColor='#16a34a';
+        });
+        document.querySelectorAll('.sc-retainer-cb:not(:checked)').forEach(function(cb){
+            var lbl=document.getElementById('sc-ret-label-'+cb.getAttribute('data-price-id'));
+            if(lbl)lbl.style.borderColor='#e2e8f0';
         });
 
-        var startDate=document.getElementById('sc-start').value||'—';
-        var addonMonthly=addons.reduce(function(sum,a){return sum+(a.interval==='year'?Math.round(a.amount/12):a.amount)},0);
+        // Collect selected packages
+        var packages=[];
+        document.querySelectorAll('.sc-package-cb:checked').forEach(function(cb){
+            packages.push({priceId:cb.getAttribute('data-price-id'),name:cb.getAttribute('data-name'),amount:parseInt(cb.getAttribute('data-amount'))||0,category:'package'});
+        });
 
-        var h='<div class="detail-grid">';
-        h+='<div class="detail-item"><div class="di-label">Tier</div><div class="di-val">'+esc(tierName)+'</div></div>';
-        h+='<div class="detail-item"><div class="di-label">Cadence</div><div class="di-val">'+(isAnnual?'Annual':'Monthly')+'</div></div>';
-        h+='<div class="detail-item"><div class="di-label">Base Rate</div><div class="di-val">$'+fmt(moAmt)+'/mo'+(isAnnual?' · $'+fmt(yrAmt)+'/yr':'')+'</div></div>';
-        if(addons.length){h+='<div class="detail-item"><div class="di-label">Add-Ons</div><div class="di-val">+$'+fmt(addonMonthly)+'/mo</div></div>';}
-        h+='<div class="detail-item"><div class="di-label">Total</div><div class="di-val" style="font-size:18px;color:#16a34a">'+(isAnnual?'$'+fmt(yrAmt+addonMonthly*12)+'/yr':'$'+fmt(moAmt+addonMonthly)+'/mo')+'</div></div>';
-        h+='<div class="detail-item"><div class="di-label">Start Date</div><div class="di-val">'+esc(startDate)+'</div></div>';
-        h+='</div>';
+        // Collect selected hourly
+        var hourlyItems=[];
+        document.querySelectorAll('.sc-hourly-cb:checked').forEach(function(cb){
+            var pid=cb.getAttribute('data-price-id');
+            var hrs=parseInt((document.getElementById('sc-hr-hours-'+pid)||{}).value)||0;
+            hourlyItems.push({priceId:pid,name:cb.getAttribute('data-name'),amount:parseInt(cb.getAttribute('data-amount'))||0,hours:hrs,category:'hourly'});
+        });
+
+        if(retainers.length===0&&packages.length===0&&hourlyItems.length===0){summaryEl.style.display='none';return;}
+
+        var startDate=document.getElementById('sc-start').value||'—';
+        var paymentInput=document.querySelector('input[name="sc-payment"]:checked');
+        var paymentLabel=paymentInput?{
+            'autopay-card':'Autopay — Card',
+            'autopay-ach':'Autopay — ACH',
+            'invoice':'Invoice (Net-15)'
+        }[paymentInput.value]||paymentInput.value:'—';
+
+        var totalMonthly=retainers.reduce(function(s,r){return s+r.amount},0);
+        var totalDeposit=packages.reduce(function(s,p){return s+Math.round(p.amount/2)},0);
+        var totalHourlyEst=hourlyItems.reduce(function(s,h){return s+(h.amount*(h.hours||0))},0);
+
+        var h='<table style="border:none;font-size:13px;margin:0">';
+        retainers.forEach(function(r){h+='<tr><td style="border:none;padding:3px 0;color:#334155">'+esc(r.name)+'</td><td style="border:none;padding:3px 0 3px 16px;font-weight:600;color:#16a34a;white-space:nowrap">$'+fmt(r.amount)+'/mo</td></tr>';});
+        packages.forEach(function(p){h+='<tr><td style="border:none;padding:3px 0;color:#334155">'+esc(p.name)+'</td><td style="border:none;padding:3px 0 3px 16px;font-weight:600;color:#2563eb;white-space:nowrap">$'+fmt(Math.round(p.amount/2))+' deposit</td></tr>';});
+        hourlyItems.forEach(function(h2){h+='<tr><td style="border:none;padding:3px 0;color:#334155">'+esc(h2.name)+(h2.hours?' ('+h2.hours+' hrs)':'')+'</td><td style="border:none;padding:3px 0 3px 16px;font-weight:600;color:#64748b;white-space:nowrap">'+(h2.hours?'$'+fmt(h2.amount*h2.hours)+' est.':'TBD')+'</td></tr>';});
+        h+='</table>';
+        if(totalMonthly||totalDeposit||totalHourlyEst){
+            h+='<div style="border-top:1px solid #bbf7d0;margin-top:10px;padding-top:10px;display:flex;flex-wrap:wrap;gap:16px">';
+            if(totalMonthly)h+='<span style="font-size:13px"><span style="color:#64748b">Monthly:</span> <strong>$'+fmt(totalMonthly)+'/mo</strong></span>';
+            if(totalDeposit)h+='<span style="font-size:13px"><span style="color:#64748b">Due at signing:</span> <strong>$'+fmt(totalDeposit)+'</strong></span>';
+            if(totalHourlyEst)h+='<span style="font-size:13px"><span style="color:#64748b">Hourly est.:</span> <strong>$'+fmt(totalHourlyEst)+'</strong></span>';
+            h+='</div>';
+        }
+        h+='<div style="margin-top:8px;font-size:12px;color:#64748b">Start: <strong>'+esc(startDate)+'</strong> &nbsp;·&nbsp; Payment: <strong>'+esc(paymentLabel)+'</strong></div>';
         summaryBody.innerHTML=h;
         summaryEl.style.display='block';
     }
@@ -1481,14 +1545,16 @@
     }
 
     function sendEnvelope(){
-        var tierInput=document.querySelector('input[name="sc-tier"]:checked');
-        var cadenceInput=document.querySelector('input[name="sc-cadence"]:checked');
         var clientTypeInput=document.querySelector('input[name="sc-client-type"]:checked');
         var isNew=!clientTypeInput||clientTypeInput.value==='new';
         var startDate=document.getElementById('sc-start').value;
         var notes=document.getElementById('sc-notes').value.trim();
+        var paymentInput=document.querySelector('input[name="sc-payment"]:checked');
+        var paymentVal=paymentInput?paymentInput.value:'autopay-card';
+        var collectionMethod=paymentVal==='invoice'?'send_invoice':'charge_automatically';
+        var paymentMethod=paymentVal==='autopay-ach'?'ach':'card';
 
-        // Resolve name/email/company/customerId based on mode
+        // Resolve client info
         var name,email,company,customerId='';
         if(isNew){
             name=document.getElementById('sc-name').value.trim();
@@ -1498,94 +1564,73 @@
             if(!email){toast('Enter client email','error');return;}
         } else {
             if(!_existingClient.id){toast('Select an existing customer','error');return;}
-            name=_existingClient.name;
-            email=_existingClient.email;
-            company=_existingClient.company;
-            customerId=_existingClient.id;
-            if(!email){toast('Selected customer has no email — add one in the Customers tab first','error');return;}
+            name=_existingClient.name;email=_existingClient.email;
+            company=_existingClient.company;customerId=_existingClient.id;
+            if(!email){toast('Selected customer has no email — add one in Customers tab first','error');return;}
         }
-
-        if(!tierInput){toast('Select a service tier','error');return;}
         if(!startDate){toast('Select a start date','error');return;}
 
-        var tier=tierInput.value;
-        var cadence=cadenceInput?cadenceInput.value:'annual';
-        var priceId=tierInput.getAttribute('data-price-id');
-        var moAmt=parseInt(tierInput.getAttribute('data-monthly'))||0;
-        var yrAmt=parseInt(tierInput.getAttribute('data-annual'))||0;
-
-        var addons=[];
-        document.querySelectorAll('#sc-addon-options input[type="checkbox"]:checked').forEach(function(cb){
-            addons.push({
-                priceId:cb.getAttribute('data-price-id'),
-                name:cb.getAttribute('data-name'),
-                amount:parseInt(cb.getAttribute('data-amount'))||0,
-                interval:cb.getAttribute('data-interval')
-            });
+        // Build items array
+        var items=[];
+        document.querySelectorAll('.sc-retainer-cb:checked').forEach(function(cb){
+            items.push({priceId:cb.getAttribute('data-price-id'),name:cb.getAttribute('data-name'),amount:parseInt(cb.getAttribute('data-amount'))||0,category:'retainer'});
         });
+        document.querySelectorAll('.sc-package-cb:checked').forEach(function(cb){
+            items.push({priceId:cb.getAttribute('data-price-id'),name:cb.getAttribute('data-name'),amount:parseInt(cb.getAttribute('data-amount'))||0,category:'package'});
+        });
+        document.querySelectorAll('.sc-hourly-cb:checked').forEach(function(cb){
+            var pid=cb.getAttribute('data-price-id');
+            var hrs=parseInt((document.getElementById('sc-hr-hours-'+pid)||{}).value)||0;
+            items.push({priceId:pid,name:cb.getAttribute('data-name'),amount:parseInt(cb.getAttribute('data-amount'))||0,hours:hrs,category:'hourly'});
+        });
+
+        if(items.length===0){toast('Select at least one service (retainer, package, or hourly)','error');return;}
 
         var btn=document.getElementById('sc-submit');
         if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';}
 
-        var payload={
-            action:'create-envelope',
-            name:name,
-            email:email,
-            company:company,
-            tier:tier,
-            cadence:cadence,
-            startDate:startDate,
-            stripePriceId:priceId,
-            monthlyAmount:moAmt,
-            annualAmount:yrAmt,
-            addons:addons,
-            notes:notes
-        };
+        var payload={action:'create-envelope',name:name,email:email,company:company,items:items,
+            collectionMethod:collectionMethod,paymentMethod:paymentMethod,startDate:startDate,notes:notes};
         if(customerId)payload.customerId=customerId;
 
         signupApiCall(payload).then(function(data){
-            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Contract via Dropbox Sign';}
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send MSA via Dropbox Sign';}
             if(data.error){toast(data.error,'error');return;}
-            toast('Contract sent to '+email+'!','success');
-            // Clear new-client fields (existing-client mode keeps the dropdown as-is)
-            if(isNew){
-                ['sc-name','sc-email','sc-company','sc-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-            } else {
-                var notesEl=document.getElementById('sc-notes');
-                if(notesEl)notesEl.value='';
-            }
-            document.querySelectorAll('input[name="sc-tier"]').forEach(function(r){r.checked=false;});
-            document.querySelectorAll('#sc-addon-options input[type="checkbox"]').forEach(function(cb){cb.checked=false;});
+            toast('MSA sent to '+email+'!','success');
+            // Clear fields
+            if(isNew){['sc-name','sc-email','sc-company','sc-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});}
+            else{var n=document.getElementById('sc-notes');if(n)n.value='';}
+            document.querySelectorAll('.sc-retainer-cb,.sc-package-cb,.sc-hourly-cb').forEach(function(cb){cb.checked=false;cb.dispatchEvent(new Event('change'));});
             document.getElementById('sc-summary').style.display='none';
-            // Show result
+            // Show result banner
             var msg='<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:20px;margin-top:16px">';
-            msg+='<div style="font-weight:700;color:#16a34a;margin-bottom:10px"><i class="fas fa-check-circle"></i> Contract sent successfully!</div>';
+            msg+='<div style="font-weight:700;color:#16a34a;margin-bottom:10px"><i class="fas fa-check-circle"></i> MSA sent successfully!</div>';
             msg+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">';
             msg+='<span style="background:#fef9c3;color:#854d0e;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid #fde047"><i class="fas fa-clock"></i> PENDING SIGNATURE</span>';
             msg+='<span style="font-size:12px;color:#64748b">Waiting for '+esc(name)+'\'s signature</span>';
             msg+='</div>';
             if(data.signatureRequestId)msg+='<div style="font-size:11px;color:#94a3b8;margin-bottom:6px">Envelope ID: <code style="user-select:all">'+esc(data.signatureRequestId)+'</code></div>';
-            msg+='<p style="font-size:13px;color:#475569;margin:0 0 10px">Once signed, the subscription will be created automatically and '+esc(name)+' will receive a link to add their payment method.</p>';
+            msg+='<p style="font-size:13px;color:#475569;margin:0 0 10px">Once signed, Stripe subscriptions and/or deposit invoices will be created automatically and '+esc(name)+' will receive next-steps instructions.</p>';
             msg+='<button class="btn-outline btn-sm" onclick="_contractsLoaded=false;switchTab(\'contracts\')" style="font-size:12px"><i class="fas fa-file-contract"></i> View in Contracts →</button>';
             msg+='</div>';
             var notesPanel=document.getElementById('sc-notes').closest('.detail-panel');
             if(notesPanel)notesPanel.insertAdjacentHTML('afterend',msg);
         }).catch(function(err){
-            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Contract via Dropbox Sign';}
-            toast(err.message||'Error sending contract','error');
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send MSA via Dropbox Sign';}
+            toast(err.message||'Error sending MSA','error');
         });
     }
 
-    function seedTierProducts(btn){
-        btn.disabled=true;btn.textContent='Setting up...';
-        apiCall({action:'seed-tier-products'}).then(function(data){
-            btn.disabled=false;btn.innerHTML='<i class="fas fa-layer-group"></i> Setup Tier Products';
+    function setupServiceCatalog(btn){
+        if(!confirm('Create retainer, package, and hourly service products in Stripe? Existing products with the same name will be skipped.'))return;
+        btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Setting up...';
+        apiCall({action:'setup-service-catalog'}).then(function(data){
+            btn.disabled=false;btn.innerHTML='<i class="fas fa-layer-group"></i> Setup Service Catalog';
             if(data.error){toast(data.error,'error');return;}
             var msg='';
             if(data.created&&data.created.length)msg+='Created: '+data.created.join(', ')+'. ';
             if(data.skipped&&data.skipped.length)msg+='Already existed: '+data.skipped.join(', ')+'.';
-            toast(msg||'Tier products ready','success');
-            // Reload products and reinit signup tab
+            toast(msg||'Service catalog ready','success');
             apiCall({action:'list-products'}).then(function(d){
                 if(d.products)_prods=d.products;
                 if(d.prices)_prices=d.prices;
@@ -1593,9 +1638,46 @@
                 initSignupTab();
             });
         }).catch(function(err){
-            btn.disabled=false;btn.innerHTML='<i class="fas fa-layer-group"></i> Setup Tier Products';
-            toast(err.message||'Error setting up tier products','error');
+            btn.disabled=false;btn.innerHTML='<i class="fas fa-layer-group"></i> Setup Service Catalog';
+            toast(err.message||'Error setting up catalog','error');
         });
+    }
+
+    function archiveOldTiers(btn){
+        if(!confirm('Archive Basic, Professional, and Enterprise tier products in Stripe?\n\nThis deactivates those products and all their prices. Existing subscriptions are unaffected.'))return;
+        btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Archiving...';
+        apiCall({action:'archive-old-tiers'}).then(function(data){
+            btn.disabled=false;btn.innerHTML='<i class="fas fa-archive"></i> Archive Old Tiers';
+            if(data.error){toast(data.error,'error');return;}
+            var msg='';
+            if(data.archived&&data.archived.length)msg+='Archived: '+data.archived.join(', ')+'. ';
+            if(data.skipped&&data.skipped.length)msg+='Already inactive / not found: '+data.skipped.join(', ')+'.';
+            toast(msg||'Old tiers archived','success');
+            apiCall({action:'list-products'}).then(function(d){
+                if(d.products)_prods=d.products;
+                if(d.prices)_prices=d.prices;
+                renderProducts();
+                initSignupTab();
+            });
+        }).catch(function(err){
+            btn.disabled=false;btn.innerHTML='<i class="fas fa-archive"></i> Archive Old Tiers';
+            toast(err.message||'Error archiving old tiers','error');
+        });
+    }
+
+    // kept for backwards compat (not exposed in UI)
+    function seedTierProducts(btn){
+        btn.disabled=true;btn.textContent='Setting up...';
+        apiCall({action:'seed-tier-products'}).then(function(data){
+            btn.disabled=false;btn.textContent='Setup Tier Products';
+            if(data.error){toast(data.error,'error');return;}
+            toast('Tier products ready','success');
+            apiCall({action:'list-products'}).then(function(d){
+                if(d.products)_prods=d.products;
+                if(d.prices)_prices=d.prices;
+                renderProducts();initSignupTab();
+            });
+        }).catch(function(err){btn.disabled=false;btn.textContent='Setup Tier Products';toast(err.message||'Error','error');});
     }
 
     // ─── Contracts ───

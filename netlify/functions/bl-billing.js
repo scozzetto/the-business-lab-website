@@ -402,6 +402,73 @@ exports.handler = async (event) => {
                 return respond(200, { success: true, created, skipped });
             }
 
+            // ─── ARCHIVE OLD TIERS (Basic / Professional / Enterprise) ───
+            case 'archive-old-tiers': {
+                const OLD_IDS = [
+                    'prod_UMfxBJIBureo9M', // Enterprise
+                    'prod_UMfxmmLIPgqBI6', // Professional
+                    'prod_UMfxjPiuCOZ7cG', // Basic
+                ];
+                const archived = [], skipped = [];
+                for (const productId of OLD_IDS) {
+                    try {
+                        const prod = await stripe.products.retrieve(productId);
+                        if (!prod.active) { skipped.push(prod.name || productId); continue; }
+                        const prices = await stripe.prices.list({ product: productId, active: true, limit: 100 });
+                        for (const pr of prices.data) {
+                            await stripe.prices.update(pr.id, { active: false });
+                        }
+                        await stripe.products.update(productId, { active: false });
+                        archived.push(prod.name || productId);
+                    } catch (err) {
+                        console.error('archive-old-tiers error for', productId, ':', err.message);
+                        skipped.push(productId);
+                    }
+                }
+                return respond(200, { success: true, archived, skipped });
+            }
+
+            // ─── SETUP SERVICE CATALOG (retainers / packages / hourly) ───
+            case 'setup-service-catalog': {
+                const catalog = [
+                    // Retainers
+                    { name: 'Startup Retainer',             category: 'retainer', amount: 57500,  interval: 'month' },
+                    { name: 'Growth Retainer',              category: 'retainer', amount: 75000,  interval: 'month' },
+                    // Packages (one-time)
+                    { name: 'Business Launch Package',      category: 'package',  amount: 850000, interval: null    },
+                    { name: 'Brand & Marketing Package',    category: 'package',  amount: 800000, interval: null    },
+                    // Hourly (one-time price per hour block)
+                    { name: 'Strategy & Business Planning', category: 'hourly',   amount: 50000,  interval: null    },
+                    { name: 'Financial Advisory',           category: 'hourly',   amount: 40000,  interval: null    },
+                    { name: 'Legal & Compliance Review',    category: 'hourly',   amount: 35000,  interval: null    },
+                    { name: 'Marketing Strategy',           category: 'hourly',   amount: 30000,  interval: null    },
+                    { name: 'HR & Staffing',                category: 'hourly',   amount: 25000,  interval: null    },
+                    { name: 'Technology & Systems',         category: 'hourly',   amount: 22500,  interval: null    },
+                    { name: 'Bookkeeping & Accounting',     category: 'hourly',   amount: 17500,  interval: null    },
+                ];
+                const existing = await stripe.products.list({ limit: 100, active: true });
+                const existingByName = {};
+                existing.data.forEach(p => { existingByName[p.name.toLowerCase()] = true; });
+                const created = [], skipped = [];
+                for (const item of catalog) {
+                    if (existingByName[item.name.toLowerCase()]) { skipped.push(item.name); continue; }
+                    const product = await stripe.products.create({
+                        name: item.name,
+                        metadata: { bl_category: item.category }
+                    });
+                    const priceData = {
+                        product: product.id,
+                        unit_amount: item.amount,
+                        currency: 'usd',
+                        metadata: { bl_category: item.category }
+                    };
+                    if (item.interval === 'month') priceData.recurring = { interval: 'month' };
+                    await stripe.prices.create(priceData);
+                    created.push(item.name);
+                }
+                return respond(200, { success: true, created, skipped });
+            }
+
             default:
                 return respond(400, { error: 'Unknown action: ' + action });
         }

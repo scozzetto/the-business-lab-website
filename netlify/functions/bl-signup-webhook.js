@@ -114,38 +114,55 @@ exports.handler = async (event) => {
 async function handleAllSigned(payload, stripeKey) {
     const stripe = require('stripe')(stripeKey);
 
-    const sr                = payload.signature_request || {};
-    const meta              = sr.metadata || {};
+    const sr               = payload.signature_request || {};
+    const meta             = sr.metadata || {};
     const signatureRequestId = sr.signature_request_id || '';
 
-    // ── Metadata from the Dropbox Sign envelope (set in bl-signup.js) ─────────
-    const tier               = meta.tier              || '';
-    const stripePriceId      = meta.stripe_price_id   || '';
-    const notes              = (meta.notes            || '').slice(0, 500);
-    const existingCustomerId = meta.customer_id       || '';
-    let   addons             = [];
-    try { addons = JSON.parse(meta.addons || '[]'); } catch (_) { addons = []; }
-
-    // ── Client info from the signer list ─────────────────────────────────────
+    // ── Client info from signer list ──────────────────────────────────────────
     const signers     = sr.signatures || [];
     const signer      = signers[0]    || {};
     const clientEmail = signer.signer_email_address || '';
     const clientName  = signer.signer_name          || '';
     const company     = meta.company || '';
+    const notes       = (meta.notes  || '').slice(0, 500);
+    const startDate   = meta.start_date || '';
+    const existingCustomerId = meta.customer_id || '';
 
-    if (!clientEmail)   throw new Error('No client email in webhook payload');
-    if (!stripePriceId) throw new Error('No stripe_price_id in webhook metadata');
+    // ── Parse items (Phase 3A format) ─────────────────────────────────────────
+    let items = [];
+    try { items = JSON.parse(meta.items || '[]'); } catch (_) { items = []; }
 
-    console.log(`Processing signup: ${clientName} <${clientEmail}> tier=${tier} sigId=${signatureRequestId}`);
+    // Backwards compat: old-style single tier envelope
+    if (items.length === 0 && meta.stripe_price_id) {
+        items = [{ priceId: meta.stripe_price_id, category: 'retainer', name: meta.tier || 'Retainer', amount: 0 }];
+    }
 
-    // ── Idempotency check: skip if we already have a sub for this envelope ────
-    const existingSubs = await stripe.subscriptions.search({
-        query: `metadata['signature_request_id']:'${signatureRequestId}'`,
-        limit: 1
-    }).catch(() => ({ data: [] })); // search not available on all accounts — safe fallback
+    const retainers = items.filter(i => i.category === 'retainer');
+    const packages  = items.filter(i => i.category === 'package');
+    const hourly    = items.filter(i => i.category === 'hourly');
 
-    if (existingSubs.data && existingSubs.data.length > 0) {
-        console.log('Duplicate webhook — subscription already created:', existingSubs.data[0].id);
+    if (!clientEmail) throw new Error('No client email in webhook payload');
+    if (items.length === 0) throw new Error('No items in webhook metadata');
+
+    const collectionMethod = meta.collection_method || 'charge_automatically';
+    const paymentMethod    = meta.payment_method    || 'card';
+    const pmTypes = paymentMethod === 'ach' ? ['us_bank_account', 'card'] : ['card', 'us_bank_account'];
+
+    console.log(`Processing signup: ${clientName} <${clientEmail}> retainers=${retainers.length} packages=${packages.length} hourly=${hourly.length} sigId=${signatureRequestId}`);
+
+    // ── Idempotency check ─────────────────────────────────────────────────────
+    const [existingSubs, existingInvs] = await Promise.all([
+        stripe.subscriptions.search({
+            query: `metadata['signature_request_id']:'${signatureRequestId}'`,
+            limit: 1
+        }).catch(() => ({ data: [] })),
+        stripe.invoices.search({
+            query: `metadata['signature_request_id']:'${signatureRequestId}'`,
+            limit: 1
+        }).catch(() => ({ data: [] }))
+    ]);
+    if ((existingSubs.data && existingSubs.data.length) || (existingInvs.data && existingInvs.data.length)) {
+        console.log('Duplicate webhook — already processed signatureRequestId:', signatureRequestId);
         return;
     }
 
@@ -160,73 +177,104 @@ async function handleAllSigned(payload, stripeKey) {
             const newCust = await stripe.customers.create({
                 email:    clientEmail,
                 name:     clientName,
-                metadata: { company, tier, signature_request_id: signatureRequestId }
+                metadata: { company, signature_request_id: signatureRequestId }
             });
             customerId = newCust.id;
             console.log('Created customer:', customerId);
         }
     }
 
-    // ── Compute trial_end: 14 days from now, rounded UP to next 1st of month ─
-    const trialEnd = computeTrialEnd();
-    console.log('Trial end:', new Date(trialEnd * 1000).toISOString());
+    // ── RETAINERS → Stripe subscriptions ─────────────────────────────────────
+    let checkoutUrl = null;
+    if (retainers.length > 0) {
+        const trialEnd = computeTrialEnd();
+        console.log('Trial end:', new Date(trialEnd * 1000).toISOString());
 
-    // ── Build subscription items ──────────────────────────────────────────────
-    // Tier price is the required item; addon price IDs are optional extras.
-    const items = [{ price: stripePriceId }];
-    addons.forEach(function(addon) {
-        if (addon.priceId) items.push({ price: addon.priceId });
-    });
+        const subItems = retainers.filter(i => i.priceId).map(i => ({ price: i.priceId }));
+        if (subItems.length === 0) throw new Error('Retainer items missing priceId');
 
-    // ── Create Stripe subscription ────────────────────────────────────────────
-    const subscription = await stripe.subscriptions.create({
-        customer: customerId,
-        items,
-        trial_end,
-        payment_behavior: 'default_incomplete',
-        payment_settings: {
-            save_default_payment_method: 'on_subscription',
-            payment_method_types: ['card', 'us_bank_account']
-        },
-        metadata: {
-            signature_request_id: signatureRequestId,
-            tier,
-            notes
-        }
-    });
-    console.log('Subscription created:', subscription.id, 'status:', subscription.status);
-
-    // ── Create Checkout session (setup mode) to collect payment method ────────
-    // Phase 2B will add a custom branded page with cycle-selection (monthly vs annual).
-    // For now, Stripe-hosted setup captures the payment method (card + ACH).
-    const session = await stripe.checkout.sessions.create({
-        mode:     'setup',
-        customer: customerId,
-        payment_method_types: ['card', 'us_bank_account'],
-        payment_method_options: {
-            us_bank_account: {
-                financial_connections: { permissions: ['payment_method'] }
-            }
-        },
-        setup_intent_data: {
+        const subscription = await stripe.subscriptions.create({
+            customer:         customerId,
+            items:            subItems,
+            trial_end:        trialEnd,
+            payment_behavior: 'default_incomplete',
+            collection_method: collectionMethod,
+            payment_settings: {
+                save_default_payment_method: 'on_subscription',
+                payment_method_types: pmTypes
+            },
             metadata: {
-                subscription_id: subscription.id,
-                customer_id:     customerId
+                signature_request_id: signatureRequestId,
+                notes
             }
-        },
-        success_url: 'https://thebusiness-lab.com/payment-confirmed?session_id={CHECKOUT_SESSION_ID}',
-        cancel_url:  'https://thebusiness-lab.com',
-        metadata:    { subscription_id: subscription.id }
-    });
-    console.log('Checkout session created:', session.id);
+        });
+        console.log('Subscription created:', subscription.id, 'status:', subscription.status);
 
-    // ── Email checkout link to client ─────────────────────────────────────────
+        // Checkout session to capture payment method
+        const setupOpts = {
+            mode:     'setup',
+            customer: customerId,
+            payment_method_types: pmTypes,
+            setup_intent_data: {
+                metadata: { subscription_id: subscription.id, customer_id: customerId }
+            },
+            success_url: 'https://thebusiness-lab.com/payment-confirmed?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url:  'https://thebusiness-lab.com',
+            metadata:    { subscription_id: subscription.id }
+        };
+        if (pmTypes.includes('us_bank_account')) {
+            setupOpts.payment_method_options = {
+                us_bank_account: { financial_connections: { permissions: ['payment_method'] } }
+            };
+        }
+        const session = await stripe.checkout.sessions.create(setupOpts);
+        checkoutUrl = session.url;
+        console.log('Checkout session created:', session.id);
+    }
+
+    // ── PACKAGES → 50% deposit invoices ──────────────────────────────────────
+    const packageInvoiceUrls = [];
+    for (const pkg of packages) {
+        if (!pkg.priceId || !pkg.amount) continue;
+        const depositAmount = Math.round(pkg.amount / 2);
+        await stripe.invoiceItems.create({
+            customer:    customerId,
+            amount:      depositAmount,
+            currency:    'usd',
+            description: `${pkg.name} — 50% deposit`,
+        });
+        const inv = await stripe.invoices.create({
+            customer:          customerId,
+            collection_method: collectionMethod,
+            days_until_due:    15,
+            description:       `${pkg.name} — Project Deposit`,
+            metadata: {
+                signature_request_id: signatureRequestId,
+                package_name:         pkg.name,
+                deposit_of:           String(pkg.amount)
+            }
+        });
+        const finalized = await stripe.invoices.finalizeInvoice(inv.id);
+        const sent      = await stripe.invoices.sendInvoice(finalized.id);
+        if (sent.hosted_invoice_url) packageInvoiceUrls.push({ name: pkg.name, url: sent.hosted_invoice_url });
+        console.log('Package invoice sent:', sent.id, 'for', pkg.name);
+    }
+
+    // ── HOURLY → log only (invoiced later per session) ────────────────────────
+    if (hourly.length > 0) {
+        const hourlyLog = hourly.map(i => `${i.name} x${i.hours || '?'}hrs`).join(', ');
+        console.log('Hourly pre-auth logged:', hourlyLog);
+    }
+
+    // ── Send email to client ──────────────────────────────────────────────────
     await sendEmail({
-        to:         clientEmail,
-        name:       clientName,
-        tier,
-        checkoutUrl: session.url,
-        trialEnd
+        to:                 clientEmail,
+        name:               clientName,
+        retainers,
+        packages:           packageInvoiceUrls,
+        hourly,
+        checkoutUrl,
+        trialEnd:           retainers.length > 0 ? computeTrialEnd() : null
     });
 }
 
@@ -254,12 +302,12 @@ function computeTrialEnd() {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-async function sendEmail({ to, name, tier, checkoutUrl, trialEnd }) {
+async function sendEmail({ to, name, retainers = [], packages = [], hourly = [], checkoutUrl, trialEnd }) {
     const gmailUser = process.env.GMAIL_USER;
     const gmailPass = process.env.GMAIL_APP_PASSWORD;
 
     if (!gmailUser || !gmailPass) {
-        console.warn('Email skipped — GMAIL_USER/GMAIL_APP_PASSWORD not set. Checkout URL:', checkoutUrl);
+        console.warn('Email skipped — GMAIL_USER/GMAIL_APP_PASSWORD not set. checkoutUrl:', checkoutUrl);
         return;
     }
 
@@ -269,31 +317,58 @@ async function sendEmail({ to, name, tier, checkoutUrl, trialEnd }) {
         auth: { user: gmailUser, pass: gmailPass }
     });
 
-    const tierLabel    = tier ? tier.charAt(0).toUpperCase() + tier.slice(1) : 'Service';
-    const firstName    = (name || '').split(' ')[0] || name || 'there';
-    const trialEndStr  = new Date(trialEnd * 1000).toLocaleDateString('en-US', {
-        month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC'
-    });
+    const firstName = (name || '').split(' ')[0] || name || 'there';
+    const trialEndStr = trialEnd
+        ? new Date(trialEnd * 1000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
+        : null;
+
+    // Build action sections
+    let actionBlocks = '';
+
+    if (checkoutUrl && retainers.length > 0) {
+        const retainerNames = retainers.map(r => escHtml(r.name || 'Retainer')).join(', ');
+        actionBlocks += `
+  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:20px 24px;margin-bottom:20px">
+    <p style="margin:0 0 6px;font-size:14px;font-weight:600">Step 1 — Add your payment method</p>
+    <p style="margin:0 0 12px;font-size:13px;color:#475569">Required for: ${retainerNames}${trialEndStr ? `. Your trial runs until <strong>${trialEndStr}</strong> — no charge until then.` : '.'}</p>
+    <a href="${checkoutUrl}" style="display:inline-block;background:#d4af37;color:#0f172a;font-weight:700;font-size:14px;padding:12px 24px;border-radius:8px;text-decoration:none">Add Payment Method →</a>
+    <p style="font-size:12px;color:#94a3b8;margin:8px 0 0">Can't click? <a href="${checkoutUrl}" style="color:#2563eb;word-break:break-all">${checkoutUrl}</a></p>
+  </div>`;
+    }
+
+    if (packages.length > 0) {
+        const stepNum = checkoutUrl ? 'Step 2' : 'Step 1';
+        packages.forEach(function(pkg) {
+            actionBlocks += `
+  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:20px 24px;margin-bottom:20px">
+    <p style="margin:0 0 6px;font-size:14px;font-weight:600">${stepNum} — Pay your ${escHtml(pkg.name)} deposit</p>
+    <p style="margin:0 0 12px;font-size:13px;color:#475569">A 50% deposit invoice has been sent. Please pay within 15 days to begin the project.</p>
+    <a href="${pkg.url}" style="display:inline-block;background:#0f172a;color:#d4af37;font-weight:700;font-size:14px;padding:12px 24px;border-radius:8px;text-decoration:none">View Invoice →</a>
+  </div>`;
+        });
+    }
+
+    if (hourly.length > 0 && !checkoutUrl && packages.length === 0) {
+        actionBlocks += `
+  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:20px 24px;margin-bottom:20px">
+    <p style="margin:0 0 6px;font-size:14px;font-weight:600">Hourly Services Pre-Authorization</p>
+    <p style="margin:0;font-size:13px;color:#475569">Your pre-authorized hourly services are now active. You'll receive invoices within 15 days of completed sessions. Contact us to schedule your first session.</p>
+  </div>`;
+    }
+
+    if (!actionBlocks) {
+        actionBlocks = `<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:20px 24px;margin-bottom:20px"><p style="margin:0;font-size:14px;color:#16a34a;font-weight:600">Your engagement is now active. We'll be in touch shortly.</p></div>`;
+    }
 
     const html = `
 <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px 24px;color:#1a1a1a">
-  <img src="https://thebusiness-lab.com/logo-dark.png" alt="The Business Lab" style="height:36px;margin-bottom:24px" onerror="this.style.display='none'">
-  <h1 style="font-size:22px;font-weight:700;color:#0f172a;margin:0 0 6px">Welcome, ${escHtml(firstName)}!</h1>
-  <p style="color:#64748b;font-size:14px;margin:0 0 28px">Your <strong>${escHtml(tierLabel)} Plan</strong> agreement has been signed — you're almost set.</p>
-
-  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:20px 24px;margin-bottom:28px">
-    <p style="margin:0 0 8px;font-size:14px;font-weight:600">One step remaining: add a payment method</p>
-    <p style="margin:0;font-size:13px;color:#475569">Your 14-day trial runs until <strong>${trialEndStr}</strong>. You won't be charged until then, but we need a card or bank account on file before the trial ends.</p>
+  <div style="border-bottom:3px solid #d4af37;padding-bottom:16px;margin-bottom:24px">
+    <div style="font-size:18px;font-weight:700;color:#0f172a">The Business <span style="color:#d4af37">Lab</span></div>
+    <div style="font-size:11px;color:#64748b">Strategy &middot; Finance &middot; Marketing &middot; Legal &middot; Technology</div>
   </div>
-
-  <a href="${checkoutUrl}"
-     style="display:inline-block;background:#d4af37;color:#0f172a;font-weight:700;font-size:15px;padding:14px 28px;border-radius:8px;text-decoration:none;margin-bottom:28px">
-    Add Payment Method →
-  </a>
-
-  <p style="font-size:13px;color:#64748b;margin-bottom:6px">Button not working? Copy this link:</p>
-  <p style="font-size:12px;margin:0 0 32px"><a href="${checkoutUrl}" style="color:#2563eb;word-break:break-all">${checkoutUrl}</a></p>
-
+  <h1 style="font-size:22px;font-weight:700;color:#0f172a;margin:0 0 6px">Welcome, ${escHtml(firstName)}!</h1>
+  <p style="color:#64748b;font-size:14px;margin:0 0 24px">Your Master Services Agreement has been signed. Here's what's next:</p>
+  ${actionBlocks}
   <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 16px">
   <p style="font-size:12px;color:#94a3b8;margin:0">
     Questions? Reply to this email or call 248-775-5058.<br>
@@ -304,7 +379,7 @@ async function sendEmail({ to, name, tier, checkoutUrl, trialEnd }) {
     await transport.sendMail({
         from:    `The Business Lab <${gmailUser}>`,
         to,
-        subject: `Action Required: Add your payment method — Business Lab ${tierLabel} Plan`,
+        subject: `Welcome to The Business Lab — Next steps inside`,
         html
     });
 

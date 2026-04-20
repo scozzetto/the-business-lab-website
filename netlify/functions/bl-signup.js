@@ -37,8 +37,8 @@ exports.handler = async (event) => {
             case 'create-envelope': {
                 if (!body.name)  return respond(400, { error: 'name required' });
                 if (!body.email) return respond(400, { error: 'email required' });
-                if (!body.tier)  return respond(400, { error: 'tier required' });
-                if (!body.stripePriceId) return respond(400, { error: 'stripePriceId required' });
+                const items = body.items || [];
+                if (!items.length) return respond(400, { error: 'items required — add at least one retainer, package, or hourly service' });
 
                 const contractHtml = buildContractHtml(body);
                 const result = await sendToDropboxSign(hsKey, body, contractHtml);
@@ -121,84 +121,152 @@ exports.handler = async (event) => {
 // ─── Contract HTML ───────────────────────────────────────────────────────────
 
 function buildContractHtml(data) {
-    const { name, email, company, tier, cadence, startDate, monthlyAmount, annualAmount, addons = [], notes = '' } = data;
-    const tierLabel = tier.charAt(0).toUpperCase() + tier.slice(1);
-    const isAnnual = cadence === 'annual';
+    const { name, email, company, items = [], collectionMethod, paymentMethod, startDate, notes = '' } = data;
+    const retainers = items.filter(i => i.category === 'retainer');
+    const packages  = items.filter(i => i.category === 'package');
+    const hourly    = items.filter(i => i.category === 'hourly');
 
-    const addonRows = addons.length
-        ? addons.map(a => `<tr><td>${escHtml(a.name)}</td><td>$${fmtAmount(a.amount)}/${a.interval || 'mo'}</td></tr>`).join('')
-        : '';
+    const isAutopay = collectionMethod !== 'send_invoice';
+    const isACH     = paymentMethod === 'ach';
+
+    // Scope of Engagement table rows
+    let scopeRows = '';
+    if (retainers.length) {
+        retainers.forEach(i => {
+            scopeRows += `<tr><td>${escHtml(i.name)}</td><td>Monthly Retainer</td><td>$${fmtAmount(i.amount)}/mo</td><td>12-month commitment</td></tr>`;
+        });
+    }
+    if (packages.length) {
+        packages.forEach(i => {
+            scopeRows += `<tr><td>${escHtml(i.name)}</td><td>One-Time Package</td><td>$${fmtAmount(i.amount)}</td><td>50% due at signing, 50% at midpoint</td></tr>`;
+        });
+    }
+    if (hourly.length) {
+        hourly.forEach(i => {
+            const hrs = i.hours || 0;
+            const est = hrs ? '$' + fmtAmount(i.amount * hrs) + ' est.' : 'Per invoice';
+            scopeRows += `<tr><td>${escHtml(i.name)}</td><td>Hourly (Pre-Auth)</td><td>$${fmtAmount(i.amount)}/hr${hrs ? ' &times; ' + hrs + ' hrs' : ''}</td><td>${est}</td></tr>`;
+        });
+    }
+
+    const totalMonthly = retainers.reduce((s, i) => s + i.amount, 0);
+    const totalPackage = packages.reduce((s, i) => s + i.amount, 0);
+    const totalHourly  = hourly.reduce((s, i) => s + (i.amount * (i.hours || 0)), 0);
 
     return `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>The Business Lab — Service Agreement</title>
+<title>The Business Lab — Master Services Agreement</title>
 <style>
-  body { font-family: Arial, sans-serif; font-size: 13px; color: #222; max-width: 740px; margin: 40px auto; padding: 0 28px; line-height: 1.65; }
-  h1 { font-size: 21px; color: #0f172a; border-bottom: 3px solid #d4af37; padding-bottom: 10px; margin-bottom: 22px; }
-  h2 { font-size: 14px; color: #0f172a; font-weight: 700; margin-top: 26px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-  table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
-  td, th { border: 1px solid #ddd; padding: 8px 12px; font-size: 13px; text-align: left; }
-  th { background: #f8fafc; font-weight: 700; width: 40%; }
+  body { font-family: Arial, sans-serif; font-size: 13px; color: #222; max-width: 760px; margin: 40px auto; padding: 0 28px; line-height: 1.7; }
+  .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid #d4af37; padding-bottom: 14px; margin-bottom: 24px; }
+  .brand { font-size: 18px; font-weight: 700; color: #0f172a; letter-spacing: -0.5px; }
+  .brand span { color: #d4af37; }
+  .tagline { font-size: 11px; color: #64748b; margin-top: 2px; }
+  h1 { font-size: 19px; color: #0f172a; margin: 0 0 4px; }
+  h2 { font-size: 13px; color: #0f172a; font-weight: 700; margin-top: 24px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.6px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 13px; }
+  td, th { border: 1px solid #ddd; padding: 8px 12px; text-align: left; }
+  th { background: #f8fafc; font-weight: 700; }
+  .scope th { background: #0f172a; color: #fff; }
+  .scope tr:nth-child(even) td { background: #f8fafc; }
   p { margin: 6px 0 10px; }
+  .totals { background: #fefce8; border: 1px solid #fde047; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; }
+  .totals strong { color: #0f172a; }
+  .payment-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; }
   .sig-block { margin-top: 48px; page-break-inside: avoid; }
+  .sig-block p { margin-bottom: 6px; }
 </style>
 </head>
 <body>
 
-<h1>The Business Lab — Service Agreement</h1>
+<div class="header">
+  <div>
+    <div class="brand">The Business <span>Lab</span></div>
+    <div class="tagline">Strategy &middot; Finance &middot; Marketing &middot; Legal &middot; Technology</div>
+  </div>
+  <div style="text-align:right">
+    <h1>Master Services Agreement</h1>
+    <div style="font-size:12px;color:#64748b">Effective: ${escHtml(startDate || new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }))}</div>
+  </div>
+</div>
+
+<h2>About The Business Lab</h2>
+<p>The Business Lab is a full-service business advisory firm helping entrepreneurs and growing companies build, scale, and sustain competitive businesses. Our integrated team of strategists, financial advisors, legal professionals, and marketing specialists delivers hands-on guidance — not generic advice. We work alongside our clients as a trusted partner, combining big-picture strategy with on-the-ground execution.</p>
 
 <h2>Client Information</h2>
 <table>
-  <tr><th>Client Name</th><td>${escHtml(name)}</td></tr>
+  <tr><th style="width:35%">Client Name</th><td>${escHtml(name)}</td></tr>
   <tr><th>Company</th><td>${escHtml(company || '—')}</td></tr>
   <tr><th>Email</th><td>${escHtml(email)}</td></tr>
+  <tr><th>Engagement Start Date</th><td>${escHtml(startDate || '—')}</td></tr>
 </table>
 
-<h2>Service Details</h2>
-<table>
-  <tr><th>Service Tier</th><td>${escHtml(tierLabel)}</td></tr>
-  <tr><th>Billing Cadence</th><td>${isAnnual ? 'Annual (12-month commitment, billed upfront)' : 'Monthly'}</td></tr>
-  <tr><th>Monthly Rate</th><td>$${fmtAmount(monthlyAmount)}/month</td></tr>
-  ${isAnnual ? `<tr><th>Annual Total</th><td><strong>$${fmtAmount(annualAmount)}/year</strong></td></tr>` : ''}
-  <tr><th>Start Date</th><td>${escHtml(startDate || '—')}</td></tr>
+<h2>Scope of Engagement</h2>
+<table class="scope">
+  <thead><tr><th>Service</th><th>Type</th><th>Fee</th><th>Terms</th></tr></thead>
+  <tbody>${scopeRows}</tbody>
 </table>
 
-${addonRows ? `<h2>Add-Ons</h2>
-<table>
-  <tr><th>Description</th><th>Price</th></tr>
-  ${addonRows}
-</table>` : ''}
+${(totalMonthly || totalPackage || totalHourly) ? `<div class="totals">
+  <strong>Fee Summary:</strong>&nbsp;
+  ${totalMonthly ? '<span>Monthly retainer: <strong>$' + fmtAmount(totalMonthly) + '/mo</strong></span>' : ''}
+  ${totalMonthly && (totalPackage || totalHourly) ? '&nbsp;&nbsp;&middot;&nbsp;&nbsp;' : ''}
+  ${totalPackage ? '<span>Package deposit (50%): <strong>$' + fmtAmount(Math.round(totalPackage / 2)) + '</strong></span>' : ''}
+  ${totalPackage && totalHourly ? '&nbsp;&nbsp;&middot;&nbsp;&nbsp;' : ''}
+  ${totalHourly ? '<span>Hourly pre-auth est.: <strong>$' + fmtAmount(totalHourly) + '</strong></span>' : ''}
+</div>` : ''}
+
+<div class="payment-box">
+  <strong>Payment Method:</strong> ${isAutopay ? ('Autopay — ' + (isACH ? 'ACH bank transfer' : 'credit/debit card') + ' charged automatically') : 'Invoice — Net-15 invoices sent at each billing event'}.
+  ${isAutopay ? ' Client authorizes The Business Lab to charge the payment method on file according to the schedule above.' : ''}
+</div>
 
 <h2>Terms &amp; Conditions</h2>
-<p>This Service Agreement ("Agreement") is entered into as of the Start Date above between <strong>The Business Lab</strong> ("Provider") and the client identified above ("Client").</p>
+<p>This Master Services Agreement ("Agreement") is entered into as of the Effective Date above between <strong>The Business Lab</strong> ("Provider") and the client identified above ("Client").</p>
 
-<p><strong>Scope of Services.</strong> Provider agrees to deliver the ${escHtml(tierLabel)} tier services as described in the current service offering at the time of signing, including all features and support levels associated with this tier.</p>
+<p><strong>1. Retainer Services.</strong> Monthly retainer fees cover the agreed scope of ongoing advisory and execution services. Retainer hours and deliverables do not roll over month to month. The retainer engagement represents a minimum 12-month commitment. Early termination before 12 months requires 60 days written notice and payment of the lesser of (i) the remaining balance through month 12 or (ii) three months of retainer fees.</p>
 
-<p><strong>Payment Terms.</strong> Client agrees to pay the fees described above. ${isAnnual ? 'Annual agreements are invoiced upfront and non-refundable once the service period begins.' : 'Monthly fees are due at the beginning of each billing cycle.'} All prices are in USD and subject to applicable taxes.</p>
+<p><strong>2. Package Services.</strong> Fixed-fee packages are due 50% upon signing (deposit) and 50% at the project midpoint as defined in the project schedule. Package fees are non-refundable after the deposit invoice is paid and work commences. Provider will deliver a written project schedule within 5 business days of the deposit being received.</p>
 
-<p><strong>12-Month Commitment.</strong> This agreement represents a minimum 12-month commitment beginning on the Start Date. Early termination may result in the remaining balance of the annual commitment becoming immediately due.</p>
+<p><strong>3. Hourly Services.</strong> Hourly services are billed against the pre-authorized hour blocks identified above. Provider will invoice within 15 days of completing hourly work. Unused pre-authorized hours expire 12 months from the Effective Date. Additional hours beyond the pre-authorized block require a written amendment.</p>
 
-<p><strong>Renewal.</strong> Unless either party provides written notice of non-renewal at least 30 days before the end of the commitment period, this Agreement will automatically renew on a month-to-month basis at the then-current monthly rate.</p>
+<p><strong>4. Auto-Renewal.</strong> Retainer agreements automatically renew for successive 12-month terms unless either party provides written notice of non-renewal at least 60 days before the end of the current term.</p>
 
-<p><strong>Confidentiality.</strong> Both parties agree to maintain the confidentiality of proprietary information, trade secrets, and sensitive business data shared in connection with this Agreement.</p>
+<p><strong>5. Backup Payment Method.</strong> Client agrees to maintain a valid backup payment method on file at all times during the engagement. Provider reserves the right to charge the backup method if the primary payment method fails and is not updated within 5 business days of notice.</p>
 
-<p><strong>Limitation of Liability.</strong> Provider's liability under this Agreement shall not exceed the fees paid in the three (3) months preceding the claim. Provider is not liable for indirect, incidental, or consequential damages.</p>
+<p><strong>6. Late Payments.</strong> Invoices not paid within the due date accrue interest at 1.5% per month. Provider may suspend services for accounts more than 30 days past due.</p>
 
-<p><strong>Governing Law.</strong> This Agreement is governed by the laws of the State of Michigan, without regard to conflict of law principles.</p>
+<p><strong>7. Confidentiality.</strong> Both parties agree to maintain the confidentiality of proprietary information, trade secrets, and sensitive business data shared in connection with this Agreement. This obligation survives termination of the Agreement for 3 years.</p>
 
-${notes ? `<h2>Additional Notes</h2><p>${escHtml(notes)}</p>` : ''}
+<p><strong>8. Limitation of Liability.</strong> Provider's total liability under this Agreement shall not exceed the fees paid in the three (3) months preceding the claim. Provider is not liable for indirect, incidental, special, or consequential damages, including lost profits.</p>
+
+<p><strong>9. Governing Law &amp; Disputes.</strong> This Agreement is governed by the laws of the State of Michigan, without regard to conflict of law principles. The parties agree to attempt good-faith mediation before initiating litigation.</p>
+
+<p><strong>10. Entire Agreement.</strong> This Agreement constitutes the entire agreement between the parties regarding the engagement described herein and supersedes all prior negotiations, representations, or agreements.</p>
+
+${notes ? `<h2>Special Terms / Notes</h2><p>${escHtml(notes)}</p>` : ''}
 
 <div class="sig-block">
 <h2>Signatures</h2>
-<p>By signing below, Client agrees to be bound by all terms of this Agreement.</p>
+<p>By signing below, Client acknowledges that they have read and understood this Agreement and agree to be bound by its terms.</p>
 <br>
-<p><strong>Client Signature:</strong><br><br>
-[sig|req|signer1]<br><br>
-[date|req|signer1]<br>
-<span style="font-size:12px;color:#555">${escHtml(name)}, ${escHtml(company || '')}</span>
-</p>
+<table style="border:none">
+  <tr>
+    <td style="border:none;width:50%;padding:8px 0;vertical-align:top">
+      <p><strong>Client</strong></p>
+      <p>Signature:&nbsp; [sig|req|signer1]</p>
+      <p>Date:&nbsp; [date|req|signer1]</p>
+      <p style="font-size:11px;color:#555">${escHtml(name)}${company ? ', ' + escHtml(company) : ''}</p>
+    </td>
+    <td style="border:none;width:50%;padding:8px 0 8px 24px;vertical-align:top">
+      <p><strong>The Business Lab</strong></p>
+      <p style="font-size:12px;color:#555">Dr. Silvio Cozzetto, CEO</p>
+      <p style="font-size:12px;color:#555">248-775-5058 &nbsp;|&nbsp; thebusiness-lab.com</p>
+    </td>
+  </tr>
+</table>
 </div>
 
 </body>
@@ -210,8 +278,16 @@ ${notes ? `<h2>Additional Notes</h2><p>${escHtml(notes)}</p>` : ''}
 async function sendToDropboxSign(apiKey, data, contractHtml) {
     const boundary = 'BL' + crypto.randomBytes(16).toString('hex');
     const contractBuf = Buffer.from(contractHtml, 'utf8');
-    const tierLabel = data.tier.charAt(0).toUpperCase() + data.tier.slice(1);
     const firstName = (data.name || '').split(' ')[0] || data.name;
+    const items = data.items || [];
+    const retainerCount = items.filter(i => i.category === 'retainer').length;
+    const packageCount  = items.filter(i => i.category === 'package').length;
+    const hourlyCount   = items.filter(i => i.category === 'hourly').length;
+    const scopeSummary  = [
+        retainerCount ? retainerCount + ' retainer' + (retainerCount > 1 ? 's' : '') : '',
+        packageCount  ? packageCount  + ' package'  + (packageCount  > 1 ? 's' : '') : '',
+        hourlyCount   ? hourlyCount   + ' hourly service' + (hourlyCount > 1 ? 's' : '') : '',
+    ].filter(Boolean).join(', ');
 
     const parts = [];
 
@@ -227,9 +303,9 @@ async function sendToDropboxSign(apiKey, data, contractHtml) {
     addField('signers[0][order]', '0');
 
     // Envelope metadata
-    addField('title', `The Business Lab ${tierLabel} Service Agreement`);
-    addField('subject', `Your Business Lab Service Agreement — ${tierLabel} Tier`);
-    addField('message', `Hi ${firstName}, please review and sign your Business Lab service agreement to get started. Questions? Reply to this email.`);
+    addField('title', `The Business Lab — Master Services Agreement`);
+    addField('subject', `Your Business Lab Master Services Agreement — Action Required`);
+    addField('message', `Hi ${firstName}, please review and sign your Business Lab Master Services Agreement (${scopeSummary}). Questions? Call 248-775-5058 or reply to this email.`);
 
     // Text tags
     addField('use_text_tags', '1');
@@ -238,12 +314,11 @@ async function sendToDropboxSign(apiKey, data, contractHtml) {
 
     // Custom metadata (passed to webhook)
     addField('metadata[source]', 'business-lab-admin');
-    addField('metadata[tier]', data.tier);
-    addField('metadata[cadence]', data.cadence || 'annual');
-    addField('metadata[stripe_price_id]', data.stripePriceId || '');
+    addField('metadata[items]', JSON.stringify(items));
+    addField('metadata[collection_method]', data.collectionMethod || 'charge_automatically');
+    addField('metadata[payment_method]', data.paymentMethod || 'card');
     addField('metadata[start_date]', data.startDate || '');
     addField('metadata[company]', data.company || '');
-    addField('metadata[addons]', JSON.stringify(data.addons || []));
     if (data.notes) addField('metadata[notes]', data.notes);
     if (data.customerId) addField('metadata[customer_id]', data.customerId);
 
