@@ -344,9 +344,12 @@ exports.handler = async (event) => {
             // ─── ARCHIVE PRODUCT (deactivates product + all its active prices) ───
             case 'archive-product': {
                 if (!body.productId) return respond(400, { error: 'productId required' });
+                // Unset default_price so Stripe lets us archive every price
+                try { await stripe.products.update(body.productId, { default_price: '' }); } catch (e) { console.warn('unset default_price failed:', e.message); }
                 const priceList = await stripe.prices.list({ product: body.productId, active: true, limit: 100 });
                 for (const pr of priceList.data) {
-                    await stripe.prices.update(pr.id, { active: false });
+                    try { await stripe.prices.update(pr.id, { active: false }); }
+                    catch (e) { console.warn('price archive failed:', pr.id, e.message); }
                 }
                 const archivedProduct = await stripe.products.update(body.productId, { active: false });
                 return respond(200, { success: true, product: archivedProduct });
@@ -414,9 +417,11 @@ exports.handler = async (event) => {
                     try {
                         const prod = await stripe.products.retrieve(productId);
                         if (!prod.active) { skipped.push(prod.name || productId); continue; }
+                        try { await stripe.products.update(productId, { default_price: '' }); } catch (e) { /* ignore */ }
                         const prices = await stripe.prices.list({ product: productId, active: true, limit: 100 });
                         for (const pr of prices.data) {
-                            await stripe.prices.update(pr.id, { active: false });
+                            try { await stripe.prices.update(pr.id, { active: false }); }
+                            catch (e) { console.warn('price archive failed:', pr.id, e.message); }
                         }
                         await stripe.products.update(productId, { active: false });
                         archived.push(prod.name || productId);
