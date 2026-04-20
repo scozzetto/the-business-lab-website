@@ -146,10 +146,14 @@ async function handleAllSigned(payload, stripeKey) {
     const company     = meta.company || '';
     const clientType  = meta.client_type || 'individual';
     const isCompany   = clientType === 'company';
-    const repFirstName = meta.rep_first_name || '';
-    const repLastName  = meta.rep_last_name  || '';
-    const repEmail     = meta.rep_email      || '';
-    const repPhone     = meta.rep_phone      || '';
+    // Rep fields arrive as a single JSON blob (metadata[rep]) to stay under Dropbox Sign's 10-key cap.
+    // Fall back to legacy individual keys so in-flight envelopes from before the consolidation still work.
+    let repBlob = {};
+    try { repBlob = meta.rep ? JSON.parse(meta.rep) : {}; } catch (_) { repBlob = {}; }
+    const repFirstName = repBlob.first || meta.rep_first_name || '';
+    const repLastName  = repBlob.last  || meta.rep_last_name  || '';
+    const repEmail     = repBlob.email || meta.rep_email      || '';
+    const repPhone     = repBlob.phone || meta.rep_phone      || '';
 
     // For a company, the Stripe customer is the business itself.
     // The representative (signer) is stored as customer metadata + shipping contact.

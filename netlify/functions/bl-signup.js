@@ -341,11 +341,15 @@ async function sendToDropboxSign(apiKey, data, contractHtml) {
     addField('metadata[start_date]', data.startDate || '');
     addField('metadata[company]', data.company || '');
     addField('metadata[client_type]', isCompany ? 'company' : 'individual');
+    // Pack rep fields into a single JSON blob to stay under Dropbox Sign's 10-key metadata cap.
     if (isCompany) {
-        if (data.repFirstName) addField('metadata[rep_first_name]', data.repFirstName);
-        if (data.repLastName)  addField('metadata[rep_last_name]',  data.repLastName);
-        if (data.repEmail)     addField('metadata[rep_email]',      data.repEmail);
-        if (data.repPhone)     addField('metadata[rep_phone]',      data.repPhone);
+        const rep = {
+            first: data.repFirstName || '',
+            last:  data.repLastName  || '',
+            email: data.repEmail     || '',
+            phone: data.repPhone     || ''
+        };
+        addField('metadata[rep]', JSON.stringify(rep));
     }
     if (data.notes) addField('metadata[notes]', data.notes);
     if (data.customerId) addField('metadata[customer_id]', data.customerId);
