@@ -36,18 +36,34 @@ exports.handler = async (event) => {
         return { statusCode: 200, body: DS_ACK };
     }
 
-    // ── Parse form-encoded body ───────────────────────────────────────────────
-    // Dropbox Sign POSTs: Content-Type: application/x-www-form-urlencoded
-    //   body = json=<url-encoded JSON string>
+    // ── Parse body ────────────────────────────────────────────────────────────
+    // Dropbox Sign POSTs the signature-request JSON in a form field named "json".
+    // Content-Type is usually multipart/form-data, but older integrations used
+    // application/x-www-form-urlencoded — handle both.
     const rawBody = event.isBase64Encoded
         ? Buffer.from(event.body, 'base64').toString('utf8')
         : (event.body || '');
 
-    const parsed  = querystring.parse(rawBody);
-    const jsonStr = parsed.json || '';
+    const contentType = (event.headers['content-type'] || event.headers['Content-Type'] || '').toLowerCase();
+
+    let jsonStr = '';
+    if (contentType.includes('multipart/form-data')) {
+        const m = rawBody.match(/name="json"\r?\n\r?\n([\s\S]*?)\r?\n--/);
+        if (m) jsonStr = m[1];
+    } else {
+        jsonStr = querystring.parse(rawBody).json || '';
+    }
+    // Last-resort fallback: try both if the first attempt failed
+    if (!jsonStr) {
+        jsonStr = querystring.parse(rawBody).json || '';
+        if (!jsonStr) {
+            const m = rawBody.match(/name="json"\r?\n\r?\n([\s\S]*?)\r?\n--/);
+            if (m) jsonStr = m[1];
+        }
+    }
 
     if (!jsonStr) {
-        console.error('Webhook: no json field in body');
+        console.error('Webhook: no json field in body. content-type=', contentType, 'body preview=', rawBody.slice(0, 300));
         return { statusCode: 200, body: DS_ACK };
     }
 
