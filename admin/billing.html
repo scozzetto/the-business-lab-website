@@ -1736,19 +1736,32 @@
     }
 
     function removeEnvelope(id,label,btn){
-        if(!confirm('Remove "'+label+'" from your list?\n\nThis hides the envelope from your list and from Dropbox Sign\'s inbox. The signed PDF remains in Dropbox Sign\'s legal record and cannot be permanently deleted.'))return;
+        var contract=_contracts.find(function(c){return c.id===id;});
+        var isPending=contract&&contract.status==='pending';
+        var confirmMsg='Remove "'+label+'" from your list?';
+        if(isPending)confirmMsg+='\n\nThis envelope is still pending. It will be canceled first, then removed.';
+        confirmMsg+='\n\nThis hides the envelope from your list and from Dropbox Sign\'s inbox. The signed PDF remains in Dropbox Sign\'s legal record and cannot be permanently deleted.';
+        if(!confirm(confirmMsg))return;
         if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i>';}
-        signupApiCall({action:'remove-envelope',signatureRequestId:id}).then(function(data){
-            if(data.error){
+
+        var doRemove=function(){
+            return signupApiCall({action:'remove-envelope',signatureRequestId:id});
+        };
+
+        var chain=isPending
+            ?signupApiCall({action:'cancel-envelope',signatureRequestId:id}).then(doRemove)
+            :doRemove();
+
+        chain.then(function(data){
+            if(data&&data.error){
                 if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-trash"></i>';}
                 toast(data.error,'error');return;
             }
-            // Remove from local array and re-render; close modal if open
             _contracts=_contracts.filter(function(c){return c.id!==id;});
             renderContracts();
             var overlay=document.querySelector('.modal-overlay');
             if(overlay)overlay.remove();
-            toast('Envelope removed from list','success');
+            toast('Envelope removed','success');
         }).catch(function(err){
             if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-trash"></i>';}
             toast(err.message||'Error removing envelope','error');

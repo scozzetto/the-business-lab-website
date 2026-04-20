@@ -95,6 +95,13 @@ exports.handler = async (event) => {
                 return respond(200, { success: true });
             }
 
+            // ─── CANCEL ENVELOPE ───
+            case 'cancel-envelope': {
+                if (!body.signatureRequestId) return respond(400, { error: 'signatureRequestId required' });
+                await dsPost(hsKey, `/v3/signature_request/cancel/${body.signatureRequestId}`, {});
+                return respond(200, { success: true });
+            }
+
             // ─── REMOVE ENVELOPE ───
             case 'remove-envelope': {
                 if (!body.signatureRequestId) return respond(400, { error: 'signatureRequestId required' });
@@ -337,16 +344,18 @@ function dsRequest(apiKey, method, path, body) {
                 let raw = '';
                 res.on('data', c => raw += c);
                 res.on('end', () => {
-                    if (res.statusCode === 200 && raw === '') { resolve({}); return; }
+                    if ((res.statusCode === 200 || res.statusCode === 204) && raw === '') { resolve({}); return; }
                     try {
                         const parsed = JSON.parse(raw);
                         if (res.statusCode >= 400) {
                             const msg = (parsed.error && parsed.error.error_msg) || `Dropbox Sign ${res.statusCode}`;
+                            console.error(`DS error ${res.statusCode} ${method} ${path}:`, raw.slice(0, 500));
                             reject(new Error(msg));
                         } else {
                             resolve(parsed);
                         }
                     } catch (e) {
+                        console.error(`DS non-JSON ${res.statusCode} ${method} ${path}:`, raw.slice(0, 200));
                         reject(new Error('Invalid DS response: ' + raw.slice(0, 200)));
                     }
                 });
