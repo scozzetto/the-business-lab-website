@@ -57,7 +57,6 @@ exports.handler = async (event) => {
                 const pageSize = parseInt(body.pageSize || 50);
                 const raw      = await dsGet(hsKey, `/v3/signature_request/list?page=${page}&page_size=${pageSize}`);
                 const envelopes = (raw.signature_requests || [])
-                    .filter(sr => (sr.metadata || {}).source === 'business-lab-admin')
                     .map(sr => {
                         const signer  = (sr.signatures || [])[0] || {};
                         const status  = sr.is_complete ? 'signed'
