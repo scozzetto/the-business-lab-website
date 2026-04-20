@@ -67,24 +67,6 @@ exports.handler = async (event) => {
         return { statusCode: 200, body: DS_ACK };
     }
 
-    // ── HMAC verification ─────────────────────────────────────────────────────
-    // Hash header = HMAC-SHA256(json_field_value, api_key), lowercase hex
-    const receivedHash = (
-        event.headers['Hash']  ||
-        event.headers['hash']  ||
-        ''
-    ).toLowerCase().trim();
-
-    const expectedHash = crypto
-        .createHmac('sha256', hsKey)
-        .update(jsonStr)
-        .digest('hex');
-
-    if (!receivedHash || receivedHash !== expectedHash) {
-        console.error('Webhook HMAC mismatch. Received:', receivedHash, 'Expected:', expectedHash);
-        return { statusCode: 403, body: 'Invalid webhook signature' };
-    }
-
     // ── Parse payload ─────────────────────────────────────────────────────────
     let payload;
     try {
@@ -94,8 +76,30 @@ exports.handler = async (event) => {
         return { statusCode: 200, body: DS_ACK };
     }
 
-    const eventType = (payload.event || {}).event_type;
+    // ── HMAC verification ─────────────────────────────────────────────────────
+    // Dropbox Sign signs each callback by including event.event_hash inside
+    // the JSON payload. It is HMAC-SHA256(event_time + event_type, api_key),
+    // hex-encoded. No HTTP header is involved.
+    const evt          = payload.event || {};
+    const receivedHash = (evt.event_hash || '').toLowerCase().trim();
+    const expectedHash = crypto
+        .createHmac('sha256', hsKey)
+        .update(String(evt.event_time || '') + String(evt.event_type || ''))
+        .digest('hex');
+
+    if (!receivedHash || receivedHash !== expectedHash) {
+        console.error('Webhook HMAC mismatch. Received:', receivedHash, 'Expected:', expectedHash, 'event_type:', evt.event_type);
+        // ACK 200 so Dropbox Sign stops retrying; the error is in logs.
+        return { statusCode: 200, body: DS_ACK };
+    }
+
+    const eventType = evt.event_type;
     console.log('Dropbox Sign event received:', eventType);
+
+    // Respond to the dashboard "Test" button and other non-signature events.
+    if (eventType === 'callback_test') {
+        return { statusCode: 200, body: DS_ACK };
+    }
 
     // Only handle the fully-signed event; ACK everything else silently.
     if (eventType !== 'signature_request_all_signed') {
