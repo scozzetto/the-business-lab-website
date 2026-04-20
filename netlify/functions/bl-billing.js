@@ -436,20 +436,16 @@ exports.handler = async (event) => {
             // ─── SETUP SERVICE CATALOG (retainers / packages / hourly) ───
             case 'setup-service-catalog': {
                 const catalog = [
-                    // Retainers
-                    { name: 'Startup Retainer',             category: 'retainer', amount: 57500,  interval: 'month' },
-                    { name: 'Growth Retainer',              category: 'retainer', amount: 75000,  interval: 'month' },
-                    // Packages (one-time)
-                    { name: 'Business Launch Package',      category: 'package',  amount: 850000, interval: null    },
-                    { name: 'Brand & Marketing Package',    category: 'package',  amount: 800000, interval: null    },
-                    // Hourly (one-time price per hour block)
-                    { name: 'Strategy & Business Planning', category: 'hourly',   amount: 50000,  interval: null    },
-                    { name: 'Financial Advisory',           category: 'hourly',   amount: 40000,  interval: null    },
-                    { name: 'Legal & Compliance Review',    category: 'hourly',   amount: 35000,  interval: null    },
-                    { name: 'Marketing Strategy',           category: 'hourly',   amount: 30000,  interval: null    },
-                    { name: 'HR & Staffing',                category: 'hourly',   amount: 25000,  interval: null    },
-                    { name: 'Technology & Systems',         category: 'hourly',   amount: 22500,  interval: null    },
-                    { name: 'Bookkeeping & Accounting',     category: 'hourly',   amount: 17500,  interval: null    },
+                    // Retainers (monthly)
+                    { name: 'Startup Retainer',                          category: 'retainer', amount: 57500,  interval: 'month' },
+                    { name: 'Growth Retainer',                           category: 'retainer', amount: 75000,  interval: 'month' },
+                    // Packages (monthly service tiers)
+                    { name: 'Basic Package',                             category: 'package',  amount: 30000,  interval: 'month' },
+                    { name: 'Professional Package',                      category: 'package',  amount: 50000,  interval: 'month' },
+                    // Hourly
+                    { name: 'Website Development',                       category: 'hourly',   amount: 12500,  interval: null    },
+                    { name: 'CRM Add-ons',                               category: 'hourly',   amount: 12500,  interval: null    },
+                    { name: 'Business Integration Brainstorm Meetings',  category: 'hourly',   amount: 5000,   interval: null    },
                 ];
                 const existing = await stripe.products.list({ limit: 100, active: true });
                 const existingByName = {};

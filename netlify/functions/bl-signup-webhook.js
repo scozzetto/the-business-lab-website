@@ -141,9 +141,21 @@ async function handleAllSigned(payload, stripeKey) {
     // ── Client info from signer list ──────────────────────────────────────────
     const signers     = sr.signatures || [];
     const signer      = signers[0]    || {};
-    const clientEmail = signer.signer_email_address || '';
-    const clientName  = signer.signer_name          || '';
+    const signerEmail = signer.signer_email_address || '';
+    const signerName  = signer.signer_name          || '';
     const company     = meta.company || '';
+    const clientType  = meta.client_type || 'individual';
+    const isCompany   = clientType === 'company';
+    const repFirstName = meta.rep_first_name || '';
+    const repLastName  = meta.rep_last_name  || '';
+    const repEmail     = meta.rep_email      || '';
+    const repPhone     = meta.rep_phone      || '';
+
+    // For a company, the Stripe customer is the business itself.
+    // The representative (signer) is stored as customer metadata + shipping contact.
+    const clientEmail = signerEmail;
+    const clientName  = isCompany ? (company || signerName) : signerName;
+
     const notes       = (meta.notes  || '').slice(0, 500);
     const startDate   = meta.start_date || '';
     const existingCustomerId = meta.customer_id || '';
@@ -194,24 +206,38 @@ async function handleAllSigned(payload, stripeKey) {
             customerId = found.data[0].id;
             console.log('Reusing existing customer:', customerId);
         } else {
-            const newCust = await stripe.customers.create({
+            const customerMeta = {
+                company,
+                signature_request_id: signatureRequestId,
+                client_type: clientType
+            };
+            if (isCompany) {
+                if (repFirstName) customerMeta.rep_first_name = repFirstName;
+                if (repLastName)  customerMeta.rep_last_name  = repLastName;
+                if (repEmail)     customerMeta.rep_email      = repEmail;
+                if (repPhone)     customerMeta.rep_phone      = repPhone;
+            }
+            const custParams = {
                 email:    clientEmail,
                 name:     clientName,
-                metadata: { company, signature_request_id: signatureRequestId }
-            });
+                metadata: customerMeta
+            };
+            if (repPhone) custParams.phone = repPhone;
+            const newCust = await stripe.customers.create(custParams);
             customerId = newCust.id;
-            console.log('Created customer:', customerId);
+            console.log('Created customer:', customerId, isCompany ? '(company)' : '(individual)');
         }
     }
 
-    // ── RETAINERS → Stripe subscriptions ─────────────────────────────────────
+    // ── RETAINERS + PACKAGES → one Stripe subscription (both monthly) ────────
     let checkoutUrl = null;
-    if (retainers.length > 0) {
+    const monthlyItems = [...retainers, ...packages];
+    if (monthlyItems.length > 0) {
         const trialEnd = computeTrialEnd();
         console.log('Trial end:', new Date(trialEnd * 1000).toISOString());
 
-        const subItems = retainers.filter(i => i.priceId).map(i => ({ price: i.priceId }));
-        if (subItems.length === 0) throw new Error('Retainer items missing priceId');
+        const subItems = monthlyItems.filter(i => i.priceId).map(i => ({ price: i.priceId }));
+        if (subItems.length === 0) throw new Error('Monthly items missing priceId');
 
         const subscription = await stripe.subscriptions.create({
             customer:         customerId,
@@ -252,34 +278,6 @@ async function handleAllSigned(payload, stripeKey) {
         console.log('Checkout session created:', session.id);
     }
 
-    // ── PACKAGES → 50% deposit invoices ──────────────────────────────────────
-    const packageInvoiceUrls = [];
-    for (const pkg of packages) {
-        if (!pkg.priceId || !pkg.amount) continue;
-        const depositAmount = Math.round(pkg.amount / 2);
-        await stripe.invoiceItems.create({
-            customer:    customerId,
-            amount:      depositAmount,
-            currency:    'usd',
-            description: `${pkg.name} — 50% deposit`,
-        });
-        const inv = await stripe.invoices.create({
-            customer:          customerId,
-            collection_method: collectionMethod,
-            days_until_due:    15,
-            description:       `${pkg.name} — Project Deposit`,
-            metadata: {
-                signature_request_id: signatureRequestId,
-                package_name:         pkg.name,
-                deposit_of:           String(pkg.amount)
-            }
-        });
-        const finalized = await stripe.invoices.finalizeInvoice(inv.id);
-        const sent      = await stripe.invoices.sendInvoice(finalized.id);
-        if (sent.hosted_invoice_url) packageInvoiceUrls.push({ name: pkg.name, url: sent.hosted_invoice_url });
-        console.log('Package invoice sent:', sent.id, 'for', pkg.name);
-    }
-
     // ── HOURLY → log only (invoiced later per session) ────────────────────────
     if (hourly.length > 0) {
         const hourlyLog = hourly.map(i => `${i.name} x${i.hours || '?'}hrs`).join(', ');
@@ -287,14 +285,18 @@ async function handleAllSigned(payload, stripeKey) {
     }
 
     // ── Send email to client ──────────────────────────────────────────────────
+    // Greeting uses the signer's first name (for company clients, the representative).
+    const greetingName = isCompany
+        ? (repFirstName || signerName || clientName)
+        : signerName;
     await sendEmail({
         to:                 clientEmail,
-        name:               clientName,
+        name:               greetingName,
         retainers,
-        packages:           packageInvoiceUrls,
+        packages,
         hourly,
         checkoutUrl,
-        trialEnd:           retainers.length > 0 ? computeTrialEnd() : null
+        trialEnd:           monthlyItems.length > 0 ? computeTrialEnd() : null
     });
 }
 
@@ -345,30 +347,18 @@ async function sendEmail({ to, name, retainers = [], packages = [], hourly = [],
     // Build action sections
     let actionBlocks = '';
 
-    if (checkoutUrl && retainers.length > 0) {
-        const retainerNames = retainers.map(r => escHtml(r.name || 'Retainer')).join(', ');
+    if (checkoutUrl && (retainers.length > 0 || packages.length > 0)) {
+        const monthlyNames = [...retainers, ...packages].map(r => escHtml(r.name || 'Service')).join(', ');
         actionBlocks += `
   <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:20px 24px;margin-bottom:20px">
     <p style="margin:0 0 6px;font-size:14px;font-weight:600">Step 1 — Add your payment method</p>
-    <p style="margin:0 0 12px;font-size:13px;color:#475569">Required for: ${retainerNames}${trialEndStr ? `. Your trial runs until <strong>${trialEndStr}</strong> — no charge until then.` : '.'}</p>
+    <p style="margin:0 0 12px;font-size:13px;color:#475569">Required for: ${monthlyNames}${trialEndStr ? `. Your trial runs until <strong>${trialEndStr}</strong> — no charge until then.` : '.'}</p>
     <a href="${checkoutUrl}" style="display:inline-block;background:#d4af37;color:#0f172a;font-weight:700;font-size:14px;padding:12px 24px;border-radius:8px;text-decoration:none">Add Payment Method →</a>
     <p style="font-size:12px;color:#94a3b8;margin:8px 0 0">Can't click? <a href="${checkoutUrl}" style="color:#2563eb;word-break:break-all">${checkoutUrl}</a></p>
   </div>`;
     }
 
-    if (packages.length > 0) {
-        const stepNum = checkoutUrl ? 'Step 2' : 'Step 1';
-        packages.forEach(function(pkg) {
-            actionBlocks += `
-  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:20px 24px;margin-bottom:20px">
-    <p style="margin:0 0 6px;font-size:14px;font-weight:600">${stepNum} — Pay your ${escHtml(pkg.name)} deposit</p>
-    <p style="margin:0 0 12px;font-size:13px;color:#475569">A 50% deposit invoice has been sent. Please pay within 15 days to begin the project.</p>
-    <a href="${pkg.url}" style="display:inline-block;background:#0f172a;color:#d4af37;font-weight:700;font-size:14px;padding:12px 24px;border-radius:8px;text-decoration:none">View Invoice →</a>
-  </div>`;
-        });
-    }
-
-    if (hourly.length > 0 && !checkoutUrl && packages.length === 0) {
+    if (hourly.length > 0 && !checkoutUrl) {
         actionBlocks += `
   <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:20px 24px;margin-bottom:20px">
     <p style="margin:0 0 6px;font-size:14px;font-weight:600">Hourly Services Pre-Authorization</p>

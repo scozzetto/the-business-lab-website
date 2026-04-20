@@ -224,12 +224,39 @@
 
                     <!-- New client fields -->
                     <div id="sc-new-client-fields">
-                        <div class="modal" style="box-shadow:none;padding:0">
+                        <!-- Client type toggle -->
+                        <div style="display:flex;gap:10px;margin-bottom:14px">
+                            <label style="flex:1;display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:400;padding:10px 14px;border:2px solid #16a34a;border-radius:10px;background:#f0fdf4" id="sc-ct-individual-lbl">
+                                <input type="radio" name="sc-client-entity" value="individual" checked onchange="switchClientEntity()" style="width:auto;accent-color:#16a34a">
+                                <span><strong>Individual</strong></span>
+                            </label>
+                            <label style="flex:1;display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:400;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px" id="sc-ct-company-lbl">
+                                <input type="radio" name="sc-client-entity" value="company" onchange="switchClientEntity()" style="width:auto;accent-color:#16a34a">
+                                <span><strong>Company / Business</strong></span>
+                            </label>
+                        </div>
+
+                        <!-- Individual fields -->
+                        <div id="sc-individual-fields" class="modal" style="box-shadow:none;padding:0">
                             <div class="row">
                                 <div><label>Full Name *</label><input id="sc-name" placeholder="Jane Smith" oninput="updateSignupSummary()"></div>
                                 <div><label>Email *</label><input id="sc-email" type="email" placeholder="jane@acme.com"></div>
                             </div>
-                            <label>Company / Business Name</label><input id="sc-company" placeholder="Acme Corp" oninput="updateSignupSummary()">
+                            <label>Company (optional)</label><input id="sc-company" placeholder="Acme Corp" oninput="updateSignupSummary()">
+                        </div>
+
+                        <!-- Company fields -->
+                        <div id="sc-company-fields" class="modal hidden" style="box-shadow:none;padding:0">
+                            <label>Company / Business Name *</label><input id="sc-co-name" placeholder="Acme Corp" oninput="updateSignupSummary()">
+                            <p style="font-size:12px;color:#64748b;margin:14px 0 8px">Authorized Representative (the person signing the agreement on behalf of the company):</p>
+                            <div class="row">
+                                <div><label>Rep First Name *</label><input id="sc-rep-first" placeholder="Jane" oninput="updateSignupSummary()"></div>
+                                <div><label>Rep Last Name *</label><input id="sc-rep-last" placeholder="Smith" oninput="updateSignupSummary()"></div>
+                            </div>
+                            <div class="row">
+                                <div><label>Rep Email *</label><input id="sc-rep-email" type="email" placeholder="jane@acme.com"></div>
+                                <div><label>Rep Phone *</label><input id="sc-rep-phone" type="tel" placeholder="248-555-1234"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -254,11 +281,15 @@
 
                 <!-- Engagement Builder: Packages -->
                 <div class="detail-panel" style="margin-bottom:16px">
-                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">One-Time Packages</h3>
-                    <p style="font-size:12px;color:#94a3b8;margin:0 0 12px">Fixed-fee projects — 50% deposit at signing, 50% at midpoint</p>
+                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Packages</h3>
+                    <p style="font-size:12px;color:#94a3b8;margin:0 0 12px">Monthly service tiers — billed monthly, month-to-month</p>
                     <div id="sc-package-options">
                         <p style="color:#94a3b8;font-size:13px">No package products found.</p>
                     </div>
+                    <label style="display:flex;align-items:center;gap:10px;font-weight:400;margin-top:10px;padding:10px 14px;border:2px dashed #e2e8f0;border-radius:10px;background:#f8fafc;cursor:default">
+                        <span style="flex:1"><strong>Enterprise</strong> <span style="color:#64748b;font-size:12px">— Call for pricing</span></span>
+                        <a href="tel:2487755058" style="font-size:12px;color:#2563eb;text-decoration:none;white-space:nowrap"><i class="fas fa-phone"></i> 248-775-5058</a>
+                    </label>
                 </div>
 
                 <!-- Engagement Builder: Hourly -->
@@ -306,7 +337,7 @@
                 </div>
 
                 <button class="btn-gold" id="sc-submit" onclick="sendEnvelope()" style="width:100%;padding:14px;font-size:15px"><i class="fas fa-paper-plane"></i> Send MSA via Dropbox Sign</button>
-                <p style="font-size:12px;color:#94a3b8;text-align:center;margin-top:10px">The client receives a Master Services Agreement via email. Once signed, Stripe subscriptions and deposit invoices are created automatically.</p>
+                <p style="font-size:12px;color:#94a3b8;text-align:center;margin-top:10px">The client receives a Master Services Agreement via email. Once signed, a Stripe subscription is created automatically for the selected monthly services.</p>
             </div>
         </div>
     </div>
@@ -1341,7 +1372,7 @@
             }
         }
 
-        // Packages — checkboxes + optional midpoint date
+        // Packages — checkboxes (monthly subscriptions)
         var packageEl=document.getElementById('sc-package-options');
         if(packageEl){
             if(packagePrices.length===0){
@@ -1350,16 +1381,10 @@
                 var ph='';
                 packagePrices.forEach(function(p){
                     var name=p.product.name;
-                    var deposit=Math.round(p.unit_amount/2);
-                    ph+='<div style="margin-bottom:12px;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px" id="sc-pkg-wrap-'+p.id+'">';
-                    ph+='<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:400">';
-                    ph+='<input type="checkbox" class="sc-package-cb" data-price-id="'+p.id+'" data-name="'+esc(name)+'" data-amount="'+p.unit_amount+'" onchange="togglePackageMidpoint(\''+p.id+'\');updateSignupSummary()" style="width:auto;accent-color:#16a34a">';
-                    ph+='<span><strong>'+esc(name)+'</strong> <span style="color:#64748b;font-size:12px">— $'+fmt(p.unit_amount)+' total · $'+fmt(deposit)+' deposit at signing</span></span>';
+                    ph+='<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:400;margin-bottom:10px;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px" id="sc-pkg-label-'+p.id+'">';
+                    ph+='<input type="checkbox" class="sc-package-cb" data-price-id="'+p.id+'" data-name="'+esc(name)+'" data-amount="'+p.unit_amount+'" onchange="togglePackageSelected(\''+p.id+'\');updateSignupSummary()" style="width:auto;accent-color:#16a34a">';
+                    ph+='<span><strong>'+esc(name)+'</strong> <span style="color:#64748b;font-size:12px">— $'+fmt(p.unit_amount)+'/mo</span></span>';
                     ph+='</label>';
-                    ph+='<div id="sc-pkg-midpoint-'+p.id+'" style="display:none;margin-top:10px;padding-left:26px">';
-                    ph+='<label style="font-size:12px;font-weight:600;color:#334155;display:block;margin-bottom:4px">Midpoint date (2nd payment due)</label>';
-                    ph+='<input type="date" id="sc-pkg-mid-'+p.id+'" style="padding:7px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:Inter,sans-serif">';
-                    ph+='</div></div>';
                 });
                 packageEl.innerHTML=ph;
             }
@@ -1396,13 +1421,11 @@
         updateSignupSummary();
     }
 
-    function togglePackageMidpoint(priceId){
+    function togglePackageSelected(priceId){
         var cb=document.querySelector('.sc-package-cb[data-price-id="'+priceId+'"]');
-        var midDiv=document.getElementById('sc-pkg-midpoint-'+priceId);
-        var wrap=document.getElementById('sc-pkg-wrap-'+priceId);
-        if(!cb||!midDiv)return;
-        midDiv.style.display=cb.checked?'block':'none';
-        if(wrap)wrap.style.borderColor=cb.checked?'#16a34a':'#e2e8f0';
+        var lbl=document.getElementById('sc-pkg-label-'+priceId);
+        if(!cb||!lbl)return;
+        lbl.style.borderColor=cb.checked?'#16a34a':'#e2e8f0';
     }
 
     function toggleHourlyInput(priceId){
@@ -1455,19 +1478,17 @@
             'invoice':'Invoice (Net-15)'
         }[paymentInput.value]||paymentInput.value:'—';
 
-        var totalMonthly=retainers.reduce(function(s,r){return s+r.amount},0);
-        var totalDeposit=packages.reduce(function(s,p){return s+Math.round(p.amount/2)},0);
+        var totalMonthly=retainers.reduce(function(s,r){return s+r.amount},0)+packages.reduce(function(s,p){return s+p.amount},0);
         var totalHourlyEst=hourlyItems.reduce(function(s,h){return s+(h.amount*(h.hours||0))},0);
 
         var h='<table style="border:none;font-size:13px;margin:0">';
         retainers.forEach(function(r){h+='<tr><td style="border:none;padding:3px 0;color:#334155">'+esc(r.name)+'</td><td style="border:none;padding:3px 0 3px 16px;font-weight:600;color:#16a34a;white-space:nowrap">$'+fmt(r.amount)+'/mo</td></tr>';});
-        packages.forEach(function(p){h+='<tr><td style="border:none;padding:3px 0;color:#334155">'+esc(p.name)+'</td><td style="border:none;padding:3px 0 3px 16px;font-weight:600;color:#2563eb;white-space:nowrap">$'+fmt(Math.round(p.amount/2))+' deposit</td></tr>';});
+        packages.forEach(function(p){h+='<tr><td style="border:none;padding:3px 0;color:#334155">'+esc(p.name)+'</td><td style="border:none;padding:3px 0 3px 16px;font-weight:600;color:#16a34a;white-space:nowrap">$'+fmt(p.amount)+'/mo</td></tr>';});
         hourlyItems.forEach(function(h2){h+='<tr><td style="border:none;padding:3px 0;color:#334155">'+esc(h2.name)+(h2.hours?' ('+h2.hours+' hrs)':'')+'</td><td style="border:none;padding:3px 0 3px 16px;font-weight:600;color:#64748b;white-space:nowrap">'+(h2.hours?'$'+fmt(h2.amount*h2.hours)+' est.':'TBD')+'</td></tr>';});
         h+='</table>';
-        if(totalMonthly||totalDeposit||totalHourlyEst){
+        if(totalMonthly||totalHourlyEst){
             h+='<div style="border-top:1px solid #bbf7d0;margin-top:10px;padding-top:10px;display:flex;flex-wrap:wrap;gap:16px">';
             if(totalMonthly)h+='<span style="font-size:13px"><span style="color:#64748b">Monthly:</span> <strong>$'+fmt(totalMonthly)+'/mo</strong></span>';
-            if(totalDeposit)h+='<span style="font-size:13px"><span style="color:#64748b">Due at signing:</span> <strong>$'+fmt(totalDeposit)+'</strong></span>';
             if(totalHourlyEst)h+='<span style="font-size:13px"><span style="color:#64748b">Hourly est.:</span> <strong>$'+fmt(totalHourlyEst)+'</strong></span>';
             h+='</div>';
         }
@@ -1487,6 +1508,20 @@
             // Reset existing selection so it doesn't bleed through
             _existingClient={id:'',name:'',email:'',company:''};
         }
+    }
+
+    function switchClientEntity(){
+        var sel=document.querySelector('input[name="sc-client-entity"]:checked');
+        var isCo=sel&&sel.value==='company';
+        var indiv=document.getElementById('sc-individual-fields');
+        var co=document.getElementById('sc-company-fields');
+        var indLbl=document.getElementById('sc-ct-individual-lbl');
+        var coLbl=document.getElementById('sc-ct-company-lbl');
+        if(indiv)indiv.classList.toggle('hidden',isCo);
+        if(co)co.classList.toggle('hidden',!isCo);
+        if(indLbl){indLbl.style.borderColor=isCo?'#e2e8f0':'#16a34a';indLbl.style.background=isCo?'':'#f0fdf4';}
+        if(coLbl){coLbl.style.borderColor=isCo?'#16a34a':'#e2e8f0';coLbl.style.background=isCo?'#f0fdf4':'';}
+        updateSignupSummary();
     }
 
     function buildCustomerList(){
@@ -1555,13 +1590,30 @@
         var paymentMethod=paymentVal==='autopay-ach'?'ach':'card';
 
         // Resolve client info
-        var name,email,company,customerId='';
+        var name,email,company,customerId='',clientType='individual';
+        var repFirstName='',repLastName='',repEmail='',repPhone='';
         if(isNew){
-            name=document.getElementById('sc-name').value.trim();
-            email=document.getElementById('sc-email').value.trim();
-            company=document.getElementById('sc-company').value.trim();
-            if(!name){toast('Enter client name','error');return;}
-            if(!email){toast('Enter client email','error');return;}
+            var entityInput=document.querySelector('input[name="sc-client-entity"]:checked');
+            clientType=entityInput?entityInput.value:'individual';
+            if(clientType==='company'){
+                company=document.getElementById('sc-co-name').value.trim();
+                repFirstName=document.getElementById('sc-rep-first').value.trim();
+                repLastName=document.getElementById('sc-rep-last').value.trim();
+                repEmail=document.getElementById('sc-rep-email').value.trim();
+                repPhone=document.getElementById('sc-rep-phone').value.trim();
+                if(!company){toast('Enter company name','error');return;}
+                if(!repFirstName||!repLastName){toast('Enter representative first and last name','error');return;}
+                if(!repEmail){toast('Enter representative email','error');return;}
+                if(!repPhone){toast('Enter representative phone','error');return;}
+                name=(repFirstName+' '+repLastName).trim();
+                email=repEmail;
+            } else {
+                name=document.getElementById('sc-name').value.trim();
+                email=document.getElementById('sc-email').value.trim();
+                company=document.getElementById('sc-company').value.trim();
+                if(!name){toast('Enter client name','error');return;}
+                if(!email){toast('Enter client email','error');return;}
+            }
         } else {
             if(!_existingClient.id){toast('Select an existing customer','error');return;}
             name=_existingClient.name;email=_existingClient.email;
@@ -1590,7 +1642,14 @@
         if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';}
 
         var payload={action:'create-envelope',name:name,email:email,company:company,items:items,
-            collectionMethod:collectionMethod,paymentMethod:paymentMethod,startDate:startDate,notes:notes};
+            collectionMethod:collectionMethod,paymentMethod:paymentMethod,startDate:startDate,notes:notes,
+            clientType:clientType};
+        if(clientType==='company'){
+            payload.repFirstName=repFirstName;
+            payload.repLastName=repLastName;
+            payload.repEmail=repEmail;
+            payload.repPhone=repPhone;
+        }
         if(customerId)payload.customerId=customerId;
 
         signupApiCall(payload).then(function(data){
@@ -1598,7 +1657,7 @@
             if(data.error){toast(data.error,'error');return;}
             toast('MSA sent to '+email+'!','success');
             // Clear fields
-            if(isNew){['sc-name','sc-email','sc-company','sc-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});}
+            if(isNew){['sc-name','sc-email','sc-company','sc-co-name','sc-rep-first','sc-rep-last','sc-rep-email','sc-rep-phone','sc-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});}
             else{var n=document.getElementById('sc-notes');if(n)n.value='';}
             document.querySelectorAll('.sc-retainer-cb,.sc-package-cb,.sc-hourly-cb').forEach(function(cb){cb.checked=false;cb.dispatchEvent(new Event('change'));});
             document.getElementById('sc-summary').style.display='none';
@@ -1610,7 +1669,7 @@
             msg+='<span style="font-size:12px;color:#64748b">Waiting for '+esc(name)+'\'s signature</span>';
             msg+='</div>';
             if(data.signatureRequestId)msg+='<div style="font-size:11px;color:#94a3b8;margin-bottom:6px">Envelope ID: <code style="user-select:all">'+esc(data.signatureRequestId)+'</code></div>';
-            msg+='<p style="font-size:13px;color:#475569;margin:0 0 10px">Once signed, Stripe subscriptions and/or deposit invoices will be created automatically and '+esc(name)+' will receive next-steps instructions.</p>';
+            msg+='<p style="font-size:13px;color:#475569;margin:0 0 10px">Once signed, a Stripe subscription will be created automatically and '+esc(name)+' will receive next-steps instructions.</p>';
             msg+='<button class="btn-outline btn-sm" onclick="_contractsLoaded=false;switchTab(\'contracts\')" style="font-size:12px"><i class="fas fa-file-contract"></i> View in Contracts →</button>';
             msg+='</div>';
             var notesPanel=document.getElementById('sc-notes').closest('.detail-panel');

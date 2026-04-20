@@ -121,11 +121,17 @@ exports.handler = async (event) => {
 // ─── Contract HTML ───────────────────────────────────────────────────────────
 
 function buildContractHtml(data) {
-    const { name, email, company, items = [], collectionMethod, paymentMethod, startDate, notes = '' } = data;
+    const {
+        clientType = 'individual',
+        name, email, company,
+        repFirstName = '', repLastName = '', repEmail = '', repPhone = '',
+        items = [], collectionMethod, paymentMethod, startDate, notes = ''
+    } = data;
     const retainers = items.filter(i => i.category === 'retainer');
     const packages  = items.filter(i => i.category === 'package');
     const hourly    = items.filter(i => i.category === 'hourly');
 
+    const isCompany = clientType === 'company';
     const isAutopay = collectionMethod !== 'send_invoice';
     const isACH     = paymentMethod === 'ach';
 
@@ -138,7 +144,7 @@ function buildContractHtml(data) {
     }
     if (packages.length) {
         packages.forEach(i => {
-            scopeRows += `<tr><td>${escHtml(i.name)}</td><td>One-Time Package</td><td>$${fmtAmount(i.amount)}</td><td>50% due at signing, 50% at midpoint</td></tr>`;
+            scopeRows += `<tr><td>${escHtml(i.name)}</td><td>Monthly Package</td><td>$${fmtAmount(i.amount)}/mo</td><td>Month-to-month</td></tr>`;
         });
     }
     if (hourly.length) {
@@ -149,8 +155,7 @@ function buildContractHtml(data) {
         });
     }
 
-    const totalMonthly = retainers.reduce((s, i) => s + i.amount, 0);
-    const totalPackage = packages.reduce((s, i) => s + i.amount, 0);
+    const totalMonthly = retainers.reduce((s, i) => s + i.amount, 0) + packages.reduce((s, i) => s + i.amount, 0);
     const totalHourly  = hourly.reduce((s, i) => s + (i.amount * (i.hours || 0)), 0);
 
     return `<!DOCTYPE html>
@@ -197,9 +202,18 @@ function buildContractHtml(data) {
 
 <h2>Client Information</h2>
 <table>
-  <tr><th style="width:35%">Client Name</th><td>${escHtml(name)}</td></tr>
-  <tr><th>Company</th><td>${escHtml(company || '—')}</td></tr>
+  ${isCompany ? `
+  <tr><th style="width:35%">Client Type</th><td>Company / Business</td></tr>
+  <tr><th>Company Name</th><td>${escHtml(company || name || '—')}</td></tr>
+  <tr><th>Authorized Representative</th><td>${escHtml((repFirstName + ' ' + repLastName).trim() || name || '—')}</td></tr>
+  <tr><th>Representative Email</th><td>${escHtml(repEmail || email)}</td></tr>
+  ${repPhone ? `<tr><th>Representative Phone</th><td>${escHtml(repPhone)}</td></tr>` : ''}
+  ` : `
+  <tr><th style="width:35%">Client Type</th><td>Individual</td></tr>
+  <tr><th>Full Name</th><td>${escHtml(name)}</td></tr>
+  ${company ? `<tr><th>Company (if applicable)</th><td>${escHtml(company)}</td></tr>` : ''}
   <tr><th>Email</th><td>${escHtml(email)}</td></tr>
+  `}
   <tr><th>Engagement Start Date</th><td>${escHtml(startDate || '—')}</td></tr>
 </table>
 
@@ -209,12 +223,10 @@ function buildContractHtml(data) {
   <tbody>${scopeRows}</tbody>
 </table>
 
-${(totalMonthly || totalPackage || totalHourly) ? `<div class="totals">
+${(totalMonthly || totalHourly) ? `<div class="totals">
   <strong>Fee Summary:</strong>&nbsp;
-  ${totalMonthly ? '<span>Monthly retainer: <strong>$' + fmtAmount(totalMonthly) + '/mo</strong></span>' : ''}
-  ${totalMonthly && (totalPackage || totalHourly) ? '&nbsp;&nbsp;&middot;&nbsp;&nbsp;' : ''}
-  ${totalPackage ? '<span>Package deposit (50%): <strong>$' + fmtAmount(Math.round(totalPackage / 2)) + '</strong></span>' : ''}
-  ${totalPackage && totalHourly ? '&nbsp;&nbsp;&middot;&nbsp;&nbsp;' : ''}
+  ${totalMonthly ? '<span>Monthly fee: <strong>$' + fmtAmount(totalMonthly) + '/mo</strong></span>' : ''}
+  ${totalMonthly && totalHourly ? '&nbsp;&nbsp;&middot;&nbsp;&nbsp;' : ''}
   ${totalHourly ? '<span>Hourly pre-auth est.: <strong>$' + fmtAmount(totalHourly) + '</strong></span>' : ''}
 </div>` : ''}
 
@@ -228,7 +240,7 @@ ${(totalMonthly || totalPackage || totalHourly) ? `<div class="totals">
 
 <p><strong>1. Retainer Services.</strong> Monthly retainer fees cover the agreed scope of ongoing advisory and execution services. Retainer hours and deliverables do not roll over month to month. The retainer engagement represents a minimum 12-month commitment. Early termination before 12 months requires 60 days written notice and payment of the lesser of (i) the remaining balance through month 12 or (ii) three months of retainer fees.</p>
 
-<p><strong>2. Package Services.</strong> Fixed-fee packages are due 50% upon signing (deposit) and 50% at the project midpoint as defined in the project schedule. Package fees are non-refundable after the deposit invoice is paid and work commences. Provider will deliver a written project schedule within 5 business days of the deposit being received.</p>
+<p><strong>2. Package Services.</strong> Monthly package fees are billed on the same monthly cycle as retainers and cover the package's defined scope of deliverables for that month. Packages are month-to-month and may be canceled by either party with 30 days written notice. Unused deliverables within a given month do not roll over.</p>
 
 <p><strong>3. Hourly Services.</strong> Hourly services are billed against the pre-authorized hour blocks identified above. Provider will invoice within 15 days of completing hourly work. Unused pre-authorized hours expire 12 months from the Effective Date. Additional hours beyond the pre-authorized block require a written amendment.</p>
 
@@ -250,15 +262,17 @@ ${notes ? `<h2>Special Terms / Notes</h2><p>${escHtml(notes)}</p>` : ''}
 
 <div class="sig-block">
 <h2>Signatures</h2>
-<p>By signing below, Client acknowledges that they have read and understood this Agreement and agree to be bound by its terms.</p>
+<p>By signing below, ${isCompany ? 'the authorized Representative below binds the Company named above to this Agreement and' : 'Client'} acknowledges that they have read and understood this Agreement and agree to be bound by its terms.</p>
 <br>
 <table style="border:none">
   <tr>
     <td style="border:none;width:50%;padding:8px 0;vertical-align:top">
-      <p><strong>Client</strong></p>
+      <p><strong>${isCompany ? 'Authorized Representative' : 'Client'}</strong></p>
       <p>Signature:&nbsp; [sig|req|signer1]</p>
       <p>Date:&nbsp; [date|req|signer1]</p>
-      <p style="font-size:11px;color:#555">${escHtml(name)}${company ? ', ' + escHtml(company) : ''}</p>
+      <p style="font-size:11px;color:#555">${isCompany
+          ? escHtml(((repFirstName + ' ' + repLastName).trim() || name)) + (company ? ', on behalf of ' + escHtml(company) : '')
+          : escHtml(name) + (company ? ', ' + escHtml(company) : '')}</p>
     </td>
     <td style="border:none;width:50%;padding:8px 0 8px 24px;vertical-align:top">
       <p><strong>The Business Lab</strong></p>
@@ -278,7 +292,14 @@ ${notes ? `<h2>Special Terms / Notes</h2><p>${escHtml(notes)}</p>` : ''}
 async function sendToDropboxSign(apiKey, data, contractHtml) {
     const boundary = 'BL' + crypto.randomBytes(16).toString('hex');
     const contractBuf = Buffer.from(contractHtml, 'utf8');
-    const firstName = (data.name || '').split(' ')[0] || data.name;
+
+    const isCompany   = data.clientType === 'company';
+    const signerName  = isCompany
+        ? ((data.repFirstName || '') + ' ' + (data.repLastName || '')).trim() || data.name
+        : data.name;
+    const signerEmail = isCompany ? (data.repEmail || data.email) : data.email;
+    const firstName   = (signerName || '').split(' ')[0] || signerName;
+
     const items = data.items || [];
     const retainerCount = items.filter(i => i.category === 'retainer').length;
     const packageCount  = items.filter(i => i.category === 'package').length;
@@ -297,9 +318,9 @@ async function sendToDropboxSign(apiKey, data, contractHtml) {
         ));
     };
 
-    // Signer
-    addField('signers[0][name]', data.name);
-    addField('signers[0][email_address]', data.email);
+    // Signer (representative's name/email for company clients)
+    addField('signers[0][name]', signerName);
+    addField('signers[0][email_address]', signerEmail);
     addField('signers[0][order]', '0');
 
     // Envelope metadata
@@ -319,6 +340,13 @@ async function sendToDropboxSign(apiKey, data, contractHtml) {
     addField('metadata[payment_method]', data.paymentMethod || 'card');
     addField('metadata[start_date]', data.startDate || '');
     addField('metadata[company]', data.company || '');
+    addField('metadata[client_type]', isCompany ? 'company' : 'individual');
+    if (isCompany) {
+        if (data.repFirstName) addField('metadata[rep_first_name]', data.repFirstName);
+        if (data.repLastName)  addField('metadata[rep_last_name]',  data.repLastName);
+        if (data.repEmail)     addField('metadata[rep_email]',      data.repEmail);
+        if (data.repPhone)     addField('metadata[rep_phone]',      data.repPhone);
+    }
     if (data.notes) addField('metadata[notes]', data.notes);
     if (data.customerId) addField('metadata[customer_id]', data.customerId);
 
