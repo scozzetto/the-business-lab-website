@@ -189,6 +189,7 @@
                 <div></div>
                 <div style="display:flex;gap:8px">
                     <button class="btn-danger" onclick="archiveOldTiers(this)" title="Archive Basic/Professional/Enterprise tier products in Stripe" style="font-size:13px;padding:8px 14px"><i class="fas fa-archive"></i> Archive Old Tiers</button>
+                    <button class="btn-danger" onclick="migrateCatalog(this)" title="Archive pre-monthly packages + 7 old hourly services, then seed new catalog" style="font-size:13px;padding:8px 14px"><i class="fas fa-random"></i> Migrate Catalog</button>
                     <button class="btn-outline" onclick="setupServiceCatalog(this)" title="Seed retainer / package / hourly products in Stripe"><i class="fas fa-layer-group"></i> Setup Service Catalog</button>
                     <button class="btn-gold" onclick="openNewProductModal()"><i class="fas fa-plus"></i> New Product</button>
                 </div>
@@ -1699,6 +1700,33 @@
         }).catch(function(err){
             btn.disabled=false;btn.innerHTML='<i class="fas fa-layer-group"></i> Setup Service Catalog';
             toast(err.message||'Error setting up catalog','error');
+        });
+    }
+
+    function migrateCatalog(btn){
+        if(!confirm('Migrate catalog?\n\n1. Archive old one-time packages (Business Launch, Brand & Marketing)\n2. Archive 7 old hourly services (Strategy, Financial, Legal, Marketing, HR, Tech, Bookkeeping)\n3. Seed new Basic/Professional monthly packages + 3 new hourly services\n\nExisting subscriptions are unaffected. Continue?'))return;
+        var orig='<i class="fas fa-random"></i> Migrate Catalog';
+        btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Archiving old...';
+        apiCall({action:'archive-old-catalog'}).then(function(a){
+            if(a.error){btn.disabled=false;btn.innerHTML=orig;toast(a.error,'error');return;}
+            btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Seeding new...';
+            return apiCall({action:'setup-service-catalog'}).then(function(s){
+                btn.disabled=false;btn.innerHTML=orig;
+                if(s.error){toast(s.error,'error');return;}
+                var msg='';
+                if(a.archived&&a.archived.length)msg+='Archived: '+a.archived.join(', ')+'. ';
+                if(s.created&&s.created.length)msg+='Created: '+s.created.join(', ')+'. ';
+                if(s.skipped&&s.skipped.length)msg+='Already existed: '+s.skipped.join(', ')+'.';
+                toast(msg||'Migration complete','success');
+                apiCall({action:'list-products'}).then(function(d){
+                    if(d.products)_prods=d.products;
+                    if(d.prices)_prices=d.prices;
+                    renderProducts();initSignupTab();
+                });
+            });
+        }).catch(function(err){
+            btn.disabled=false;btn.innerHTML=orig;
+            toast(err.message||'Migration error','error');
         });
     }
 

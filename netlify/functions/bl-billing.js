@@ -433,6 +433,41 @@ exports.handler = async (event) => {
                 return respond(200, { success: true, archived, skipped });
             }
 
+            // ─── ARCHIVE OLD CATALOG (pre-monthly packages + 7 old hourly) ───
+            case 'archive-old-catalog': {
+                const OLD_NAMES = [
+                    'Business Launch Package',
+                    'Brand & Marketing Package',
+                    'Strategy & Business Planning',
+                    'Financial Advisory',
+                    'Legal & Compliance Review',
+                    'Marketing Strategy',
+                    'HR & Staffing',
+                    'Technology & Systems',
+                    'Bookkeeping & Accounting',
+                ];
+                const wanted = new Set(OLD_NAMES.map(n => n.toLowerCase()));
+                const all = await stripe.products.list({ limit: 100, active: true });
+                const archived = [], skipped = [];
+                for (const prod of all.data) {
+                    if (!wanted.has((prod.name || '').toLowerCase())) continue;
+                    try {
+                        try { await stripe.products.update(prod.id, { default_price: '' }); } catch (e) { /* ignore */ }
+                        const prices = await stripe.prices.list({ product: prod.id, active: true, limit: 100 });
+                        for (const pr of prices.data) {
+                            try { await stripe.prices.update(pr.id, { active: false }); }
+                            catch (e) { console.warn('price archive failed:', pr.id, e.message); }
+                        }
+                        await stripe.products.update(prod.id, { active: false });
+                        archived.push(prod.name);
+                    } catch (err) {
+                        console.error('archive-old-catalog error for', prod.name, ':', err.message);
+                        skipped.push(prod.name);
+                    }
+                }
+                return respond(200, { success: true, archived, skipped });
+            }
+
             // ─── SETUP SERVICE CATALOG (retainers / packages / hourly) ───
             case 'setup-service-catalog': {
                 const catalog = [
