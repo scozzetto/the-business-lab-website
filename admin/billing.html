@@ -128,10 +128,20 @@
         <!-- Tabs -->
         <div class="tabs">
             <div class="tab" onclick="switchTab('newclient')" style="color:#16a34a;border-bottom-color:transparent"><i class="fas fa-user-plus"></i> New Client</div>
+            <div class="tab" onclick="switchTab('contracts')"><i class="fas fa-file-contract"></i> Contracts</div>
             <div class="tab active" onclick="switchTab('subscriptions')">Subscriptions</div>
             <div class="tab" onclick="switchTab('customers')">Customers</div>
             <div class="tab" onclick="switchTab('invoices')">Invoices</div>
             <div class="tab" onclick="switchTab('products')">Products & Prices</div>
+        </div>
+
+        <!-- Contracts Tab -->
+        <div id="tab-contracts" class="hidden">
+            <div class="toolbar">
+                <div style="font-size:13px;color:#64748b"><i class="fas fa-file-contract" style="margin-right:6px"></i>Service agreements sent via Dropbox Sign</div>
+                <button class="btn-outline" id="contractsRefreshBtn" onclick="loadContracts(this)"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
+            <div id="contractTable"><p style="color:#94a3b8;font-size:13px;padding:20px 0">Click <strong>Refresh</strong> to load contracts.</p></div>
         </div>
 
         <!-- Subscriptions Tab -->
@@ -294,6 +304,8 @@
     var _invs=[];
     var _prods=[];
     var _prices=[];
+    var _contracts=[];
+    var _contractsLoaded=false;
     var _existingClient={id:'',name:'',email:'',company:''};
 
     // ─── Auto-login if remembered ───
@@ -428,16 +440,17 @@
 
     // ─── Tabs ───
     function switchTab(tab){
-        ['newclient','subscriptions','customers','invoices','products'].forEach(function(t){
+        ['newclient','contracts','subscriptions','customers','invoices','products'].forEach(function(t){
             var el=document.getElementById('tab-'+t);
             if(el)el.classList.toggle('hidden',t!==tab);
         });
         document.querySelectorAll('.tab').forEach(function(t,i){
-            var tabs=['newclient','subscriptions','customers','invoices','products'];
+            var tabs=['newclient','contracts','subscriptions','customers','invoices','products'];
             t.classList.toggle('active',tabs[i]===tab);
-            // Keep New Client green when active
-            if(tabs[i]==='newclient')t.style.color=tabs[i]===tab?'#16a34a':'#16a34a';
+            if(tabs[i]==='newclient')t.style.color='#16a34a';
         });
+        // Lazy-load contracts on first visit
+        if(tab==='contracts'&&!_contractsLoaded)loadContracts(document.getElementById('contractsRefreshBtn'));
     }
 
     // ─── Render Subscriptions ───
@@ -1549,7 +1562,8 @@
             msg+='<span style="font-size:12px;color:#64748b">Waiting for '+esc(name)+'\'s signature</span>';
             msg+='</div>';
             if(data.signatureRequestId)msg+='<div style="font-size:11px;color:#94a3b8;margin-bottom:6px">Envelope ID: <code style="user-select:all">'+esc(data.signatureRequestId)+'</code></div>';
-            msg+='<p style="font-size:13px;color:#475569;margin:0">Once signed, the subscription will be created automatically and '+esc(name)+' will receive a link to add their payment method.</p>';
+            msg+='<p style="font-size:13px;color:#475569;margin:0 0 10px">Once signed, the subscription will be created automatically and '+esc(name)+' will receive a link to add their payment method.</p>';
+            msg+='<button class="btn-outline btn-sm" onclick="_contractsLoaded=false;switchTab(\'contracts\')" style="font-size:12px"><i class="fas fa-file-contract"></i> View in Contracts →</button>';
             msg+='</div>';
             var notesPanel=document.getElementById('sc-notes').closest('.detail-panel');
             if(notesPanel)notesPanel.insertAdjacentHTML('afterend',msg);
@@ -1578,6 +1592,135 @@
         }).catch(function(err){
             btn.disabled=false;btn.innerHTML='<i class="fas fa-layer-group"></i> Setup Tier Products';
             toast(err.message||'Error setting up tier products','error');
+        });
+    }
+
+    // ─── Contracts ───
+    function loadContracts(btn){
+        if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Loading...';}
+        signupApiCall({action:'list-envelopes'}).then(function(data){
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-sync-alt"></i> Refresh';}
+            if(data.error){toast(data.error,'error');return;}
+            _contracts=data.envelopes||[];
+            _contractsLoaded=true;
+            renderContracts();
+        }).catch(function(err){
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-sync-alt"></i> Refresh';}
+            toast(err.message||'Error loading contracts','error');
+        });
+    }
+
+    function contractStatusBadge(status){
+        if(status==='signed')   return '<span class="badge badge-active">Signed</span>';
+        if(status==='declined') return '<span class="badge badge-past-due">Declined</span>';
+        if(status==='error')    return '<span class="badge badge-past-due">Error</span>';
+        return '<span class="badge badge-incomplete">Pending</span>';
+    }
+
+    function renderContracts(){
+        var el=document.getElementById('contractTable');
+        if(!el)return;
+        if(_contracts.length===0){
+            el.innerHTML='<p style="color:#94a3b8;font-size:13px;padding:20px 0">No contracts found.</p>';
+            return;
+        }
+        var h='<table><thead><tr><th>Client</th><th>Title</th><th>Status</th><th>Sent</th><th>Signed</th><th>Actions</th></tr></thead><tbody>';
+        _contracts.forEach(function(c){
+            var testBadge=c.testMode?'<span style="background:#f1f5f9;color:#94a3b8;font-size:10px;padding:1px 6px;border-radius:4px;margin-left:4px">TEST</span>':'';
+            h+='<tr style="cursor:pointer" onclick="openContractModal(\''+esc(c.id)+'\')">';
+            h+='<td><strong>'+esc(c.clientName||'—')+'</strong>'+(c.clientEmail?'<div style="font-size:11px;color:#64748b">'+esc(c.clientEmail)+'</div>':'')+'</td>';
+            h+='<td>'+esc(c.title||'—')+testBadge+'</td>';
+            h+='<td>'+contractStatusBadge(c.status)+'</td>';
+            h+='<td style="font-size:12px;color:#64748b">'+fmtDate(c.sentAt)+'</td>';
+            h+='<td style="font-size:12px;color:#64748b">'+(c.signedAt?fmtDate(c.signedAt):'—')+'</td>';
+            h+='<td style="white-space:nowrap" onclick="event.stopPropagation()">';
+            if(c.status==='signed'){
+                h+='<button class="btn-sm btn-outline" onclick="viewContractPdf(\''+esc(c.id)+'\',this)" title="View signed PDF"><i class="fas fa-file-pdf"></i> PDF</button>';
+            }
+            if(c.status==='pending'){
+                h+=' <button class="btn-sm btn-outline" onclick="resendEnvelope(\''+esc(c.id)+'\',\''+esc(c.clientEmail)+'\',this)" title="Resend reminder"><i class="fas fa-paper-plane"></i> Resend</button>';
+            }
+            h+='</td></tr>';
+        });
+        h+='</tbody></table>';
+        el.innerHTML=h;
+    }
+
+    function openContractModal(id){
+        var c=_contracts.find(function(x){return x.id===id});
+        if(!c)return;
+        var tier=c.metadata&&c.metadata.tier?c.metadata.tier:'';
+        var cadence=c.metadata&&c.metadata.cadence?c.metadata.cadence:'';
+        var notes=c.metadata&&c.metadata.notes?c.metadata.notes:'';
+        var addons=[];
+        try{addons=JSON.parse(c.metadata&&c.metadata.addons||'[]')}catch(_){}
+
+        var h='<div class="modal-overlay" onclick="if(event.target===this)this.remove()">';
+        h+='<div class="modal" style="width:620px">';
+        h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">';
+        h+='<h2 style="margin:0;font-size:1.1rem">'+esc(c.title||'Contract')+'</h2>';
+        h+='<button class="btn-outline btn-sm" onclick="this.closest(\'.modal-overlay\').remove()" style="flex-shrink:0">✕ Close</button>';
+        h+='</div>';
+
+        // Status + dates
+        h+='<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px">';
+        h+=contractStatusBadge(c.status);
+        if(c.testMode)h+='<span class="badge badge-canceled">Test Envelope</span>';
+        h+='</div>';
+
+        // Details grid
+        h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">';
+        h+='<div style="background:#f8fafc;border-radius:8px;padding:12px"><div style="font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Client</div><div style="font-size:13px;font-weight:600">'+esc(c.clientName||'—')+'</div><div style="font-size:12px;color:#64748b">'+esc(c.clientEmail||'')+'</div></div>';
+        h+='<div style="background:#f8fafc;border-radius:8px;padding:12px"><div style="font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Timeline</div><div style="font-size:12px">Sent: <strong>'+fmtDate(c.sentAt)+'</strong></div><div style="font-size:12px">Signed: <strong>'+(c.signedAt?fmtDate(c.signedAt):'—')+'</strong></div></div>';
+        if(tier)h+='<div style="background:#f8fafc;border-radius:8px;padding:12px"><div style="font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Tier</div><div style="font-size:13px;font-weight:600;text-transform:capitalize">'+esc(tier)+(cadence?' — '+esc(cadence):'')+'</div></div>';
+        if(addons.length)h+='<div style="background:#f8fafc;border-radius:8px;padding:12px"><div style="font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Add-Ons</div><div style="font-size:12px">'+addons.map(function(a){return esc(a.name||a.priceId)}).join(', ')+'</div></div>';
+        h+='</div>';
+
+        if(notes){
+            h+='<div style="background:#fefce8;border:1px solid #fde047;border-radius:8px;padding:12px;margin-bottom:18px;font-size:13px"><strong>Notes:</strong> '+esc(notes)+'</div>';
+        }
+
+        // Envelope ID
+        h+='<div style="font-size:11px;color:#94a3b8;margin-bottom:18px">Envelope ID: <code style="user-select:all">'+esc(c.id)+'</code></div>';
+
+        // Actions
+        h+='<div style="display:flex;gap:10px;flex-wrap:wrap">';
+        if(c.status==='signed'){
+            h+='<button class="btn-gold" id="pdfBtn-'+esc(c.id)+'" onclick="viewContractPdf(\''+esc(c.id)+'\',this)"><i class="fas fa-file-pdf"></i> View Signed PDF</button>';
+        }
+        if(c.status==='pending'){
+            h+='<button class="btn-outline" onclick="resendEnvelope(\''+esc(c.id)+'\',\''+esc(c.clientEmail)+'\',this)"><i class="fas fa-paper-plane"></i> Resend to Signer</button>';
+        }
+        h+='<button class="btn-outline" onclick="this.closest(\'.modal-overlay\').remove()">Close</button>';
+        h+='</div>';
+
+        h+='</div></div>';
+        document.body.insertAdjacentHTML('beforeend',h);
+    }
+
+    function viewContractPdf(id,btn){
+        if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Getting URL...';}
+        signupApiCall({action:'get-envelope-pdf',signatureRequestId:id}).then(function(data){
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-file-pdf"></i> '+(btn.id?'View Signed PDF':'PDF');}
+            if(data.error){toast(data.error,'error');return;}
+            if(!data.fileUrl){toast('No PDF available yet','error');return;}
+            window.open(data.fileUrl,'_blank');
+        }).catch(function(err){
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-file-pdf"></i> PDF';}
+            toast(err.message||'Error fetching PDF','error');
+        });
+    }
+
+    function resendEnvelope(id,email,btn){
+        if(!confirm('Resend signing reminder to '+email+'?'))return;
+        if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';}
+        signupApiCall({action:'resend-envelope',signatureRequestId:id,email:email}).then(function(data){
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Resend';}
+            if(data.error){toast(data.error,'error');return;}
+            toast('Reminder sent to '+email,'success');
+        }).catch(function(err){
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Resend';}
+            toast(err.message||'Error sending reminder','error');
         });
     }
 

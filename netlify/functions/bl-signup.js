@@ -51,6 +51,49 @@ exports.handler = async (event) => {
                 });
             }
 
+            // ─── LIST ENVELOPES ───
+            case 'list-envelopes': {
+                const page     = parseInt(body.page || 1);
+                const pageSize = parseInt(body.pageSize || 50);
+                const raw      = await dsGet(hsKey, `/v3/signature_request/list?page=${page}&page_size=${pageSize}`);
+                const envelopes = (raw.signature_requests || []).map(sr => {
+                    const signer  = (sr.signatures || [])[0] || {};
+                    const status  = sr.is_complete ? 'signed'
+                        : sr.is_declined          ? 'declined'
+                        : sr.has_error            ? 'error'
+                        : 'pending';
+                    return {
+                        id:          sr.signature_request_id,
+                        title:       sr.title || sr.original_title || '',
+                        clientName:  signer.signer_name           || '',
+                        clientEmail: signer.signer_email_address  || '',
+                        signerStatus: signer.status_code          || '',
+                        status,
+                        sentAt:      sr.created_at  || null,
+                        signedAt:    signer.signed_at || null,
+                        testMode:    sr.test_mode    || false,
+                        metadata:    sr.metadata     || {}
+                    };
+                });
+                const info = raw.list_info || {};
+                return respond(200, { success: true, envelopes, listInfo: info });
+            }
+
+            // ─── GET ENVELOPE PDF URL ───
+            case 'get-envelope-pdf': {
+                if (!body.signatureRequestId) return respond(400, { error: 'signatureRequestId required' });
+                const raw = await dsGet(hsKey, `/v3/signature_request/files/${body.signatureRequestId}?file_type=pdf&get_url=1`);
+                return respond(200, { success: true, fileUrl: raw.file_url, expiresAt: raw.expires_at });
+            }
+
+            // ─── RESEND ENVELOPE ───
+            case 'resend-envelope': {
+                if (!body.signatureRequestId) return respond(400, { error: 'signatureRequestId required' });
+                if (!body.email)              return respond(400, { error: 'email required' });
+                await dsPost(hsKey, `/v3/signature_request/remind/${body.signatureRequestId}`, { email_address: body.email });
+                return respond(200, { success: true });
+            }
+
             default:
                 return respond(400, { error: 'Unknown action: ' + action });
         }
@@ -266,4 +309,53 @@ function respond(code, data) {
         headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
     };
+}
+
+// ─── Generic Dropbox Sign helpers ─────────────────────────────────────────────
+
+function dsRequest(apiKey, method, path, body) {
+    const authHeader = 'Basic ' + Buffer.from(apiKey + ':').toString('base64');
+    const bodyBuf    = body ? Buffer.from(body, 'utf8') : null;
+    const headers    = { 'Authorization': authHeader };
+    if (bodyBuf) {
+        headers['Content-Type']   = 'application/x-www-form-urlencoded';
+        headers['Content-Length'] = bodyBuf.length;
+    }
+    return new Promise((resolve, reject) => {
+        const req = https.request(
+            { hostname: 'api.hellosign.com', path, method, headers },
+            (res) => {
+                let raw = '';
+                res.on('data', c => raw += c);
+                res.on('end', () => {
+                    if (res.statusCode === 200 && raw === '') { resolve({}); return; }
+                    try {
+                        const parsed = JSON.parse(raw);
+                        if (res.statusCode >= 400) {
+                            const msg = (parsed.error && parsed.error.error_msg) || `Dropbox Sign ${res.statusCode}`;
+                            reject(new Error(msg));
+                        } else {
+                            resolve(parsed);
+                        }
+                    } catch (e) {
+                        reject(new Error('Invalid DS response: ' + raw.slice(0, 200)));
+                    }
+                });
+            }
+        );
+        req.on('error', reject);
+        if (bodyBuf) req.write(bodyBuf);
+        req.end();
+    });
+}
+
+function dsGet(apiKey, path) {
+    return dsRequest(apiKey, 'GET', path, null);
+}
+
+function dsPost(apiKey, path, params) {
+    const body = Object.entries(params || {})
+        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+        .join('&');
+    return dsRequest(apiKey, 'POST', path, body);
 }
