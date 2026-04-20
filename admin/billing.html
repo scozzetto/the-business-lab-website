@@ -1635,11 +1635,12 @@
             h+='<td style="font-size:12px;color:#64748b">'+(c.signedAt?fmtDate(c.signedAt):'—')+'</td>';
             h+='<td style="white-space:nowrap" onclick="event.stopPropagation()">';
             if(c.status==='signed'){
-                h+='<button class="btn-sm btn-outline" onclick="viewContractPdf(\''+esc(c.id)+'\',this)" title="View signed PDF"><i class="fas fa-file-pdf"></i> PDF</button>';
+                h+='<button class="btn-sm btn-outline" onclick="viewContractPdf(\''+esc(c.id)+'\',this)" title="View signed PDF"><i class="fas fa-file-pdf"></i> PDF</button> ';
             }
             if(c.status==='pending'){
-                h+=' <button class="btn-sm btn-outline" onclick="resendEnvelope(\''+esc(c.id)+'\',\''+esc(c.clientEmail)+'\',this)" title="Resend reminder"><i class="fas fa-paper-plane"></i> Resend</button>';
+                h+='<button class="btn-sm btn-outline" onclick="resendEnvelope(\''+esc(c.id)+'\',\''+esc(c.clientEmail)+'\',this)" title="Resend reminder"><i class="fas fa-paper-plane"></i> Resend</button> ';
             }
+            h+='<button class="btn-danger btn-sm" onclick="removeEnvelope(\''+esc(c.id)+'\',\''+esc(c.clientName||c.clientEmail)+'\',this)" title="Remove from list"><i class="fas fa-trash"></i></button>';
             h+='</td></tr>';
         });
         h+='</tbody></table>';
@@ -1692,6 +1693,7 @@
             h+='<button class="btn-outline" onclick="resendEnvelope(\''+esc(c.id)+'\',\''+esc(c.clientEmail)+'\',this)"><i class="fas fa-paper-plane"></i> Resend to Signer</button>';
         }
         h+='<button class="btn-outline" onclick="this.closest(\'.modal-overlay\').remove()">Close</button>';
+        h+='<button class="btn-danger btn-sm" style="margin-left:auto" onclick="removeEnvelope(\''+esc(c.id)+'\',\''+esc(c.clientName||c.clientEmail)+'\',this)"><i class="fas fa-trash"></i> Remove from list</button>';
         h+='</div>';
 
         h+='</div></div>';
@@ -1721,6 +1723,26 @@
         }).catch(function(err){
             if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Resend';}
             toast(err.message||'Error sending reminder','error');
+        });
+    }
+
+    function removeEnvelope(id,label,btn){
+        if(!confirm('Remove "'+label+'" from your list?\n\nThis hides the envelope from your list and from Dropbox Sign\'s inbox. The signed PDF remains in Dropbox Sign\'s legal record and cannot be permanently deleted.'))return;
+        if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i>';}
+        signupApiCall({action:'remove-envelope',signatureRequestId:id}).then(function(data){
+            if(data.error){
+                if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-trash"></i>';}
+                toast(data.error,'error');return;
+            }
+            // Remove from local array and re-render; close modal if open
+            _contracts=_contracts.filter(function(c){return c.id!==id;});
+            renderContracts();
+            var overlay=document.querySelector('.modal-overlay');
+            if(overlay)overlay.remove();
+            toast('Envelope removed from list','success');
+        }).catch(function(err){
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-trash"></i>';}
+            toast(err.message||'Error removing envelope','error');
         });
     }
 

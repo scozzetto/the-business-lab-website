@@ -56,25 +56,27 @@ exports.handler = async (event) => {
                 const page     = parseInt(body.page || 1);
                 const pageSize = parseInt(body.pageSize || 50);
                 const raw      = await dsGet(hsKey, `/v3/signature_request/list?page=${page}&page_size=${pageSize}`);
-                const envelopes = (raw.signature_requests || []).map(sr => {
-                    const signer  = (sr.signatures || [])[0] || {};
-                    const status  = sr.is_complete ? 'signed'
-                        : sr.is_declined          ? 'declined'
-                        : sr.has_error            ? 'error'
-                        : 'pending';
-                    return {
-                        id:          sr.signature_request_id,
-                        title:       sr.title || sr.original_title || '',
-                        clientName:  signer.signer_name           || '',
-                        clientEmail: signer.signer_email_address  || '',
-                        signerStatus: signer.status_code          || '',
-                        status,
-                        sentAt:      sr.created_at  || null,
-                        signedAt:    signer.signed_at || null,
-                        testMode:    sr.test_mode    || false,
-                        metadata:    sr.metadata     || {}
-                    };
-                });
+                const envelopes = (raw.signature_requests || [])
+                    .filter(sr => (sr.metadata || {}).source === 'business-lab-admin')
+                    .map(sr => {
+                        const signer  = (sr.signatures || [])[0] || {};
+                        const status  = sr.is_complete ? 'signed'
+                            : sr.is_declined          ? 'declined'
+                            : sr.has_error            ? 'error'
+                            : 'pending';
+                        return {
+                            id:           sr.signature_request_id,
+                            title:        sr.title || sr.original_title || '',
+                            clientName:   signer.signer_name           || '',
+                            clientEmail:  signer.signer_email_address  || '',
+                            signerStatus: signer.status_code           || '',
+                            status,
+                            sentAt:    sr.created_at    || null,
+                            signedAt:  signer.signed_at || null,
+                            testMode:  sr.test_mode     || false,
+                            metadata:  sr.metadata      || {}
+                        };
+                    });
                 const info = raw.list_info || {};
                 return respond(200, { success: true, envelopes, listInfo: info });
             }
@@ -91,6 +93,13 @@ exports.handler = async (event) => {
                 if (!body.signatureRequestId) return respond(400, { error: 'signatureRequestId required' });
                 if (!body.email)              return respond(400, { error: 'email required' });
                 await dsPost(hsKey, `/v3/signature_request/remind/${body.signatureRequestId}`, { email_address: body.email });
+                return respond(200, { success: true });
+            }
+
+            // ─── REMOVE ENVELOPE ───
+            case 'remove-envelope': {
+                if (!body.signatureRequestId) return respond(400, { error: 'signatureRequestId required' });
+                await dsPost(hsKey, `/v3/signature_request/remove/${body.signatureRequestId}`, {});
                 return respond(200, { success: true });
             }
 
@@ -222,6 +231,7 @@ async function sendToDropboxSign(apiKey, data, contractHtml) {
     addField('test_mode', '1');
 
     // Custom metadata (passed to webhook)
+    addField('metadata[source]', 'business-lab-admin');
     addField('metadata[tier]', data.tier);
     addField('metadata[cadence]', data.cadence || 'annual');
     addField('metadata[stripe_price_id]', data.stripePriceId || '');
