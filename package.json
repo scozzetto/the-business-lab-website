@@ -1,0 +1,9 @@
+{
+  "name": "the-business-lab-website",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "nodemailer": "^6.9.0",
+    "stripe": "^14.0.0"
+  }
+}

@@ -57,6 +57,8 @@
         .badge-past-due{background:#fef2f2;color:#dc2626}
         .badge-trialing{background:#dbeafe;color:#2563eb}
         .badge-canceled{background:#f1f5f9;color:#64748b}
+        .badge-incomplete{background:#fef9c3;color:#854d0e}
+        .badge-incomplete-expired{background:#f1f5f9;color:#64748b}
 
         /* Buttons */
         .btn-gold{background:#d4af37;color:#0f172a;border:none;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif}
@@ -499,13 +501,23 @@
         var filtered=_custs.filter(function(c){
             return ((c.name||'')+(c.email||'')+JSON.stringify(c.metadata||{})).toLowerCase().indexOf(q)!==-1;
         });
-        var h='<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Subscriptions</th><th>Metadata</th><th>Created</th><th>Actions</th></tr></thead><tbody>';
+        var h='<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Subscription</th><th>Metadata</th><th>Created</th><th>Actions</th></tr></thead><tbody>';
         if(filtered.length===0){
             h+='<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px">No customers found</td></tr>';
         }
         filtered.forEach(function(c){
-            var subCount=0;
-            if(c.subscriptions&&c.subscriptions.data)subCount=c.subscriptions.data.length;
+            var subs=(c.subscriptions&&c.subscriptions.data)||[];
+            var subCount=subs.length;
+            // Build subscription status badges
+            var subBadges='<span style="color:#94a3b8;font-size:12px">—</span>';
+            if(subCount>0){
+                subBadges=subs.map(function(s){
+                    var statusClass='badge-'+s.status.replace(/_/g,'-');
+                    var label=s.status.replace(/_/g,' ');
+                    var tier=(s.metadata&&s.metadata.tier)||'';
+                    return '<span class="badge '+statusClass+'" style="font-size:11px;margin:1px">'+(tier?esc(tier)+' — ':'')+label+'</span>';
+                }).join(' ');
+            }
             var metaStr='—';
             if(c.metadata&&Object.keys(c.metadata).length>0){
                 metaStr='<div style="font-size:11px;line-height:1.6">';
@@ -516,7 +528,7 @@
             h+='<td><strong>'+esc(c.name||'—')+'</strong></td>';
             h+='<td>'+esc(c.email||'—')+'</td>';
             h+='<td>'+esc(c.phone||'—')+'</td>';
-            h+='<td style="text-align:center">'+subCount+'</td>';
+            h+='<td>'+subBadges+'</td>';
             h+='<td>'+metaStr+'</td>';
             h+='<td style="font-size:12px;color:#64748b">'+fmtDate(c.created)+'</td>';
             h+='<td style="white-space:nowrap"><button class="btn-sm btn-outline" onclick="editCustomer(\''+c.id+'\')"><i class="fas fa-pen"></i> Edit</button> <button class="btn-sm btn-outline" onclick="sendPaymentLink(\''+c.id+'\')" title="Send payment link to client"><i class="fas fa-link"></i> Pay Link</button>';
@@ -1531,9 +1543,13 @@
             document.getElementById('sc-summary').style.display='none';
             // Show result
             var msg='<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:20px;margin-top:16px">';
-            msg+='<div style="font-weight:700;color:#16a34a;margin-bottom:8px"><i class="fas fa-check-circle"></i> Contract sent successfully!</div>';
-            if(data.signatureRequestId)msg+='<div style="font-size:12px;color:#64748b">Signature Request ID: <code>'+esc(data.signatureRequestId)+'</code></div>';
-            msg+='<p style="font-size:13px;color:#475569;margin-top:8px">'+esc(name)+' will receive an email with a link to review and sign the agreement.</p>';
+            msg+='<div style="font-weight:700;color:#16a34a;margin-bottom:10px"><i class="fas fa-check-circle"></i> Contract sent successfully!</div>';
+            msg+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">';
+            msg+='<span style="background:#fef9c3;color:#854d0e;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid #fde047"><i class="fas fa-clock"></i> PENDING SIGNATURE</span>';
+            msg+='<span style="font-size:12px;color:#64748b">Waiting for '+esc(name)+'\'s signature</span>';
+            msg+='</div>';
+            if(data.signatureRequestId)msg+='<div style="font-size:11px;color:#94a3b8;margin-bottom:6px">Envelope ID: <code style="user-select:all">'+esc(data.signatureRequestId)+'</code></div>';
+            msg+='<p style="font-size:13px;color:#475569;margin:0">Once signed, the subscription will be created automatically and '+esc(name)+' will receive a link to add their payment method.</p>';
             msg+='</div>';
             var notesPanel=document.getElementById('sc-notes').closest('.detail-panel');
             if(notesPanel)notesPanel.insertAdjacentHTML('afterend',msg);
