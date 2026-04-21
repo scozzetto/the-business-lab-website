@@ -225,18 +225,10 @@ async function createAndSendDocument(apiKey, templateUuid, data) {
             }
         ],
         tokens,
-        // Pricing table — data_merge is ENABLED on the "Quote 1" table in the template
-        ...(pricingRows.length ? {
-            pricing_tables: [{
-                name:       'Quote 1',
-                data_merge: true,
-                sections: [{
-                    title:   'Scope of Engagement',
-                    default: true,
-                    rows:    pricingRows
-                }]
-            }]
-        } : {}),
+        // NOTE: pricing_tables injection disabled — PandaDoc sandbox blocks data_merge via API
+        // even when enabled in the template UI. The contract shows pricing via text variables
+        // ([monthly_total], [payment_description]). Re-enable with a live PandaDoc API key:
+        //   pricing_tables: [{ name: 'Quote 1', data_merge: true, sections: [{ title: 'Scope of Engagement', default: true, rows: pricingRows }] }]
         metadata: (() => {
             // PandaDoc metadata values max 100 chars each — use compact per-item keys
             const m = {
