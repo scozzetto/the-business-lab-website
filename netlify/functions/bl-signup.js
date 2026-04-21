@@ -235,7 +235,7 @@ async function createAndSendDocument(apiKey, templateUuid, data) {
         tokens,
         pricing_tables: pricingRows.length ? [
             {
-                name:       'Services',
+                name:       'Quote 1',
                 data_merge: true,
                 options:    { currency: 'USD' },
                 sections:   [{ title: 'Scope of Engagement', default: true, rows: pricingRows }]
