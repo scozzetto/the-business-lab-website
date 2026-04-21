@@ -128,11 +128,36 @@
         <!-- Tabs -->
         <div class="tabs">
             <div class="tab" onclick="switchTab('newclient')" style="color:#16a34a;border-bottom-color:transparent"><i class="fas fa-user-plus"></i> New Client</div>
+            <div class="tab" onclick="switchTab('leads')"><i class="fas fa-magnet"></i> Leads <span id="leadsBadge" class="hidden" style="background:#d4af37;color:#0f172a;border-radius:10px;padding:1px 8px;font-size:11px;margin-left:4px"></span></div>
             <div class="tab" onclick="switchTab('contracts')"><i class="fas fa-file-contract"></i> Contracts</div>
             <div class="tab active" onclick="switchTab('subscriptions')">Subscriptions</div>
             <div class="tab" onclick="switchTab('customers')">Customers</div>
             <div class="tab" onclick="switchTab('invoices')">Invoices</div>
             <div class="tab" onclick="switchTab('products')">Products & Prices</div>
+        </div>
+
+        <!-- Leads Tab -->
+        <div id="tab-leads" class="hidden">
+            <div class="toolbar">
+                <div>
+                    <input class="search" id="leadSearch" placeholder="Search leads..." oninput="renderLeads()">
+                    <select id="leadStatusFilter" onchange="renderLeads()" style="padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;margin-left:8px">
+                        <option value="active">Active (exclude converted/lost)</option>
+                        <option value="all">All statuses</option>
+                        <option value="new">New</option>
+                        <option value="contacted">Contacted</option>
+                        <option value="qualified">Qualified</option>
+                        <option value="proposal">Proposal Sent</option>
+                        <option value="converted">Converted</option>
+                        <option value="lost">Lost</option>
+                    </select>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                    <span style="font-size:12px;color:#64748b">Public form: <a href="/get-started" target="_blank" style="color:#2563eb;text-decoration:none">/get-started</a></span>
+                    <button class="btn-outline" id="leadsRefreshBtn" onclick="loadLeads(this)"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+            </div>
+            <div id="leadTable"><p style="color:#94a3b8;font-size:13px;padding:20px 0">Click <strong>Refresh</strong> to load leads.</p></div>
         </div>
 
         <!-- Contracts Tab -->
@@ -349,6 +374,7 @@
     <script>
     var API='/.netlify/functions/bl-billing';
     var SIGNUP_API='/.netlify/functions/bl-signup';
+    var LEADS_API='/.netlify/functions/bl-leads';
     var ADMIN_KEY='';
     var _subs=[];
     var _custs=[];
@@ -357,6 +383,8 @@
     var _prices=[];
     var _contracts=[];
     var _contractsLoaded=false;
+    var _leads=[];
+    var _leadsLoaded=false;
     var _existingClient={id:'',name:'',email:'',company:''};
 
     // ─── Auto-login if remembered ───
@@ -403,6 +431,10 @@
             _prods=data.products||[];
             _prices=data.prices||[];
             loadAll();
+            // Preload leads quietly so the "new" badge shows on tab header
+            leadsApiCall({action:'list-leads',includeConverted:false}).then(function(d){
+                if(d&&d.leads){_leads=d.leads;_leadsLoaded=true;updateLeadsBadge();}
+            }).catch(function(){});
         }).catch(function(err){
             var errEl=document.getElementById('authError');
             errEl.textContent=err.message||'Authentication failed';
@@ -491,17 +523,19 @@
 
     // ─── Tabs ───
     function switchTab(tab){
-        ['newclient','contracts','subscriptions','customers','invoices','products'].forEach(function(t){
+        var tabs=['newclient','leads','contracts','subscriptions','customers','invoices','products'];
+        tabs.forEach(function(t){
             var el=document.getElementById('tab-'+t);
             if(el)el.classList.toggle('hidden',t!==tab);
         });
         document.querySelectorAll('.tab').forEach(function(t,i){
-            var tabs=['newclient','contracts','subscriptions','customers','invoices','products'];
             t.classList.toggle('active',tabs[i]===tab);
             if(tabs[i]==='newclient')t.style.color='#16a34a';
         });
         // Lazy-load contracts on first visit
         if(tab==='contracts'&&!_contractsLoaded)loadContracts(document.getElementById('contractsRefreshBtn'));
+        // Lazy-load leads on first visit
+        if(tab==='leads'&&!_leadsLoaded)loadLeads(document.getElementById('leadsRefreshBtn'));
     }
 
     // ─── Render Subscriptions ───
@@ -1765,6 +1799,183 @@
                 renderProducts();initSignupTab();
             });
         }).catch(function(err){btn.disabled=false;btn.textContent='Setup Tier Products';toast(err.message||'Error','error');});
+    }
+
+    // ─── Leads ───
+    function leadsApiCall(payload){
+        return fetch(LEADS_API,{
+            method:'POST',
+            headers:{'Content-Type':'application/json','X-Admin-Key':ADMIN_KEY},
+            body:JSON.stringify(payload)
+        }).then(function(r){return r.json();});
+    }
+
+    function loadLeads(btn){
+        if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Loading...';}
+        leadsApiCall({action:'list-leads',includeConverted:true}).then(function(data){
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-sync-alt"></i> Refresh';}
+            if(data.error){toast(data.error,'error');return;}
+            _leads=data.leads||[];
+            _leadsLoaded=true;
+            renderLeads();
+            updateLeadsBadge();
+        }).catch(function(err){
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-sync-alt"></i> Refresh';}
+            toast(err.message||'Error loading leads','error');
+        });
+    }
+
+    function updateLeadsBadge(){
+        var newCount=_leads.filter(function(l){return l.status==='new';}).length;
+        var badge=document.getElementById('leadsBadge');
+        if(!badge)return;
+        if(newCount>0){badge.textContent=newCount;badge.classList.remove('hidden');}
+        else badge.classList.add('hidden');
+    }
+
+    function renderLeads(){
+        var q=((document.getElementById('leadSearch')||{}).value||'').toLowerCase();
+        var statusFilter=((document.getElementById('leadStatusFilter')||{}).value||'active');
+        var filtered=_leads.filter(function(l){
+            if(statusFilter==='active'){if(l.status==='converted'||l.status==='lost')return false;}
+            else if(statusFilter!=='all'){if(l.status!==statusFilter)return false;}
+            if(!q)return true;
+            var hay=(l.name+' '+l.email+' '+l.company+' '+l.service+' '+l.notes).toLowerCase();
+            return hay.indexOf(q)!==-1;
+        });
+        var h='<table><thead><tr><th>Lead</th><th>Contact</th><th>Interest</th><th>Budget</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead><tbody>';
+        if(filtered.length===0){
+            h+='<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px">No leads match those filters. Share <a href="/get-started" target="_blank" style="color:#2563eb">/get-started</a> to start capturing them.</td></tr>';
+        }
+        filtered.forEach(function(l){
+            var statusClass='badge-incomplete';
+            if(l.status==='new')statusClass='badge-trialing';
+            else if(l.status==='qualified'||l.status==='proposal')statusClass='badge-active';
+            else if(l.status==='converted')statusClass='badge-active';
+            else if(l.status==='lost')statusClass='badge-canceled';
+            var created=l.created?new Date(l.created).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'—';
+            var name=esc(l.name||'—')+(l.company?'<br><span style="font-size:12px;color:#64748b">'+esc(l.company)+'</span>':'');
+            var contact='<a href="mailto:'+esc(l.email||'')+'" style="color:#2563eb;text-decoration:none">'+esc(l.email||'—')+'</a>';
+            if(l.phone)contact+='<br><span style="font-size:12px;color:#64748b">'+esc(l.phone)+'</span>';
+            var interest=l.service?prettyService(l.service):'<span style="color:#94a3b8">—</span>';
+            var budget=l.budget?prettyBudget(l.budget):'<span style="color:#94a3b8">—</span>';
+            var statusSel='<select onchange="updateLeadStatus(\''+l.id+'\',this.value)" style="padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px">';
+            ['new','contacted','qualified','proposal','converted','lost'].forEach(function(s){
+                statusSel+='<option value="'+s+'"'+(l.status===s?' selected':'')+'>'+s+'</option>';
+            });
+            statusSel+='</select>';
+            var actions='';
+            if(l.status!=='converted'){
+                actions+='<button class="btn-gold btn-sm" onclick="convertLeadToClient(\''+l.id+'\')" title="Pre-fill New Client form"><i class="fas fa-arrow-right"></i> Convert</button> ';
+            }
+            actions+='<button class="btn-outline btn-sm" onclick="viewLeadNotes(\''+l.id+'\')" title="View notes"><i class="fas fa-sticky-note"></i></button> ';
+            actions+='<button class="btn-danger" style="padding:5px 10px" onclick="deleteLead(\''+l.id+'\')" title="Delete"><i class="fas fa-trash"></i></button>';
+            h+='<tr><td>'+name+'</td><td>'+contact+'</td><td>'+interest+'</td><td>'+budget+'</td><td><span class="badge '+statusClass+'" style="margin-right:6px">'+esc(l.status)+'</span>'+statusSel+'</td><td>'+created+'</td><td>'+actions+'</td></tr>';
+        });
+        h+='</tbody></table>';
+        document.getElementById('leadTable').innerHTML=h;
+    }
+
+    function prettyService(s){
+        var map={retainer:'Retainer / advisory',package:'Monthly package',website:'Website dev',crm:'CRM add-ons',brainstorm:'Brainstorm meeting',other:'Other / unsure'};
+        return esc(map[s]||s);
+    }
+    function prettyBudget(b){
+        var map={'under-500':'<$500/mo','500-1500':'$500–1.5K/mo','1500-5000':'$1.5K–5K/mo','5000-plus':'$5K+/mo',project:'One-time project','not-sure':'Not sure'};
+        return esc(map[b]||b);
+    }
+
+    function updateLeadStatus(leadId,status){
+        leadsApiCall({action:'update-lead-status',leadId:leadId,status:status}).then(function(d){
+            if(d.error){toast(d.error,'error');return;}
+            var l=_leads.find(function(x){return x.id===leadId;});
+            if(l)l.status=status;
+            toast('Status → '+status,'success');
+            updateLeadsBadge();
+            renderLeads();
+        }).catch(function(err){toast(err.message||'Error','error');});
+    }
+
+    function viewLeadNotes(leadId){
+        var l=_leads.find(function(x){return x.id===leadId;});
+        if(!l)return;
+        var h='<div class="modal-overlay" onclick="if(event.target===this)this.remove()">';
+        h+='<div class="modal" style="width:480px">';
+        h+='<h2>'+esc(l.name)+'</h2>';
+        h+='<p style="color:#64748b;font-size:13px;margin-bottom:16px">'+esc(l.email)+(l.phone?' · '+esc(l.phone):'')+'</p>';
+        h+='<label>Company</label><div style="padding:8px 0">'+esc(l.company||'—')+'</div>';
+        h+='<label>Interest</label><div style="padding:8px 0">'+prettyService(l.service||'')+'</div>';
+        h+='<label>Budget</label><div style="padding:8px 0">'+prettyBudget(l.budget||'')+'</div>';
+        h+='<label>Notes from form</label><div style="padding:10px 14px;background:#f8fafc;border-radius:8px;font-size:14px;white-space:pre-wrap;min-height:40px">'+esc(l.notes||'(none)')+'</div>';
+        h+='<div class="actions"><button class="btn-outline" onclick="this.closest(\'.modal-overlay\').remove()">Close</button></div>';
+        h+='</div></div>';
+        document.body.insertAdjacentHTML('beforeend',h);
+    }
+
+    function convertLeadToClient(leadId){
+        var l=_leads.find(function(x){return x.id===leadId;});
+        if(!l)return;
+        if(!confirm('Convert "'+l.name+'" to a client?\n\nThis clears the lead flag and pre-fills the New Client form. You still need to click Send MSA to actually send the contract.'))return;
+        leadsApiCall({action:'convert-lead',leadId:leadId}).then(function(d){
+            if(d.error){toast(d.error,'error');return;}
+            // Pre-fill the New Client form
+            prefillNewClientFromLead(l);
+            // Mark local state and switch tab
+            l.status='converted';
+            updateLeadsBadge();
+            switchTab('newclient');
+            toast('Lead converted — form pre-filled. Review and click Send MSA.','success');
+        }).catch(function(err){toast(err.message||'Error','error');});
+    }
+
+    function prefillNewClientFromLead(l){
+        try {
+            // Make sure we're in "new client" mode
+            var modeRadios=document.getElementsByName('sc-client-type');
+            for(var i=0;i<modeRadios.length;i++){if(modeRadios[i].value==='new')modeRadios[i].checked=true;}
+            if(typeof switchClientMode==='function')switchClientMode('new');
+            // Decide entity type — company if they entered a company on the form
+            var isCompany=!!l.company;
+            var entRadios=document.getElementsByName('sc-client-entity');
+            for(var j=0;j<entRadios.length;j++){entRadios[j].checked=entRadios[j].value===(isCompany?'company':'individual');}
+            if(typeof switchClientEntity==='function')switchClientEntity();
+            if(isCompany){
+                setVal('sc-co-name',l.company||'');
+                // Split name "First Last" → rep first/last
+                var parts=(l.name||'').trim().split(/\s+/);
+                setVal('sc-rep-first',parts[0]||'');
+                setVal('sc-rep-last',parts.slice(1).join(' ')||'');
+                setVal('sc-rep-email',l.email||'');
+                setVal('sc-rep-phone',l.phone||'');
+            } else {
+                setVal('sc-name',l.name||'');
+                setVal('sc-email',l.email||'');
+                setVal('sc-company',l.company||'');
+            }
+            // Append the form notes into the signup notes textarea so they're preserved
+            if(l.notes){
+                var notesEl=document.getElementById('sc-notes');
+                if(notesEl){
+                    var existing=notesEl.value.trim();
+                    notesEl.value=(existing?existing+'\n\n':'')+'From lead form: '+l.notes;
+                }
+            }
+            if(typeof updateSignupSummary==='function')updateSignupSummary();
+        } catch(e){ console.warn('prefill error:',e); }
+    }
+    function setVal(id,v){var el=document.getElementById(id);if(el)el.value=v;}
+
+    function deleteLead(leadId){
+        var l=_leads.find(function(x){return x.id===leadId;});
+        if(!l)return;
+        if(!confirm('Permanently delete "'+l.name+'"?\n\nThis removes the Stripe customer record entirely. Cannot be undone.'))return;
+        leadsApiCall({action:'delete-lead',leadId:leadId}).then(function(d){
+            if(d.error){toast(d.error,'error');return;}
+            _leads=_leads.filter(function(x){return x.id!==leadId;});
+            toast('Lead deleted','success');
+            updateLeadsBadge();
+            renderLeads();
+        }).catch(function(err){toast(err.message||'Error','error');});
     }
 
     // ─── Contracts ───
