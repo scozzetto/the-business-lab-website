@@ -151,22 +151,18 @@ async function createAndSendDocument(apiKey, templateUuid, data) {
         ? new Date(data.startDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
         : new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
-    // ── Tokens (text substitutions in the template) ───────────────────────────
+    // ── Tokens (custom template variables) ───────────────────────────────────
+    // Client.FirstName/LastName/Company/Email/Phone are populated from the recipient object below.
+    // Only custom variables that PandaDoc can't auto-fill need tokens.
     const tokens = [
-        { name: 'effective_date',        value: startDateFmt },
-        { name: 'client_type',           value: isCompany ? 'Company / Business' : 'Individual' },
-        { name: 'client_name',           value: isCompany ? (data.company || data.name || '') : (data.name || '') },
-        { name: 'contact_name',          value: signerName },
-        { name: 'contact_email',         value: signerEmail },
-        { name: 'contact_phone',         value: (isCompany ? data.repPhone : data.phone) || '' },
-        { name: 'company_name',          value: data.company || '' },
-        { name: 'start_date',            value: startDateFmt },
-        { name: 'monthly_total',         value: totalMonthly ? '$' + (totalMonthly / 100).toFixed(2) + '/mo' : '' },
-        { name: 'payment_description',   value: isAutopay
+        { name: 'effective_date',      value: startDateFmt },
+        { name: 'Primary_Contact',     value: signerName },
+        { name: 'monthly_total',       value: totalMonthly ? '$' + (totalMonthly / 100).toFixed(2) + '/mo' : '' },
+        { name: 'payment_description', value: isAutopay
             ? 'Autopay — ' + (isACH ? 'ACH bank transfer' : 'credit/debit card') + ' charged automatically on billing date. Client authorizes The Business Lab to charge the payment method on file.'
             : 'Invoice — Net-15 invoices sent at each billing event. Payment is due within 15 days of each invoice date.'
         },
-        { name: 'notes',                 value: data.notes || '' },
+        { name: 'notes',               value: data.notes || '' },
     ];
 
     // ── Pricing table rows ────────────────────────────────────────────────────
@@ -222,7 +218,10 @@ async function createAndSendDocument(apiKey, templateUuid, data) {
                 first_name:    signerNameParts[0] || signerName,
                 last_name:     signerNameParts.slice(1).join(' ') || '',
                 role:          'Client',
-                signing_order: 1
+                signing_order: 1,
+                // These populate [Client.Company] and [Client.Phone] in the template
+                phone:         (isCompany ? data.repPhone : data.phone) || '',
+                company:       isCompany ? (data.company || '') : ''
             }
         ],
         tokens,
