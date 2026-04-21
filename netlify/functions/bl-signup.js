@@ -67,7 +67,8 @@ exports.handler = async (event) => {
             // ─── LIST ENVELOPES ───
             case 'list-envelopes': {
                 // PandaDoc API does not support comma-separated multi-status — fetch all and filter client-side
-                const raw = await pdGet(pdKey, `/public/v1/documents?count=50&order_by=date_created&order=desc`);
+                // PandaDoc ordering uses 'ordering' param with '-' prefix for descending
+                const raw = await pdGet(pdKey, `/public/v1/documents?count=50&ordering=-date_created`);
                 const HIDDEN_STATUSES = new Set(['document.voided', 'document.deleted']);
                 const envelopes = (raw.results || []).filter(d => !HIDDEN_STATUSES.has(d.status)).map(d => {
                     const recipient = (d.recipients || []).find(r => r.role === 'Client') || (d.recipients || [])[0] || {};
