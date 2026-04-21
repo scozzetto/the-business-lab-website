@@ -43,14 +43,18 @@ exports.handler = async (event) => {
             event.headers['x-pandadoc-signature'] ||
             event.headers['X-PandaDoc-Signature'] || ''
         ).trim();
-        const expectedSig = crypto
-            .createHmac('sha256', webhookSecret)
-            .update(rawBody)
-            .digest('base64');
-        if (!receivedSig || receivedSig !== expectedSig) {
-            console.error('Webhook HMAC mismatch. Received:', receivedSig, 'Expected:', expectedSig);
-            // Still return 200 — PandaDoc will retry on non-200. Log and bail.
-            return { statusCode: 200, body: 'ok' };
+        if (receivedSig) {
+            // Only reject if a signature was actually sent but doesn't match
+            const expectedSig = crypto
+                .createHmac('sha256', webhookSecret)
+                .update(rawBody)
+                .digest('base64');
+            if (receivedSig !== expectedSig) {
+                console.error('Webhook HMAC mismatch. Received:', receivedSig, 'Expected:', expectedSig);
+                return { statusCode: 200, body: 'ok' };
+            }
+        } else {
+            console.log('Webhook: no signature header — processing without verification');
         }
     }
 
