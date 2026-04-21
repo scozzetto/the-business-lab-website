@@ -233,30 +233,33 @@ async function createAndSendDocument(apiKey, templateUuid, data) {
             }
         ],
         tokens,
-        pricing_tables: pricingRows.length ? [
-            {
-                name:       'Quote 1',
-                data_merge: true,
-                options:    { currency: 'USD' },
-                sections:   [{ title: 'Scope of Engagement', default: true, rows: pricingRows }]
+        // pricing_tables omitted — data_merge must be enabled in PandaDoc template first
+        metadata: (() => {
+            // PandaDoc metadata values max 100 chars each — use compact per-item keys
+            const m = {
+                source:            'business-lab-admin',
+                collection_method: (data.collectionMethod || 'charge_automatically').slice(0, 50),
+                payment_method:    (data.paymentMethod    || 'card').slice(0, 20),
+                start_date:        (data.startDate        || '').slice(0, 20),
+                company:           (data.company          || '').slice(0, 100),
+                client_type:       isCompany ? 'company' : 'individual',
+                notes:             (data.notes            || '').slice(0, 100),
+            };
+            // Rep fields individually (avoid long JSON blob)
+            if (isCompany) {
+                m.rep_first = (data.repFirstName || '').slice(0, 50);
+                m.rep_last  = (data.repLastName  || '').slice(0, 50);
+                m.rep_email = (data.repEmail     || '').slice(0, 100);
+                m.rep_phone = (data.repPhone     || '').slice(0, 20);
             }
-        ] : [],
-        metadata: {
-            source:            'business-lab-admin',
-            items:             JSON.stringify(items),
-            collection_method: data.collectionMethod || 'charge_automatically',
-            payment_method:    data.paymentMethod    || 'card',
-            start_date:        data.startDate        || '',
-            company:           data.company          || '',
-            client_type:       isCompany ? 'company' : 'individual',
-            rep:               isCompany ? JSON.stringify({
-                                   first: data.repFirstName || '',
-                                   last:  data.repLastName  || '',
-                                   email: data.repEmail     || '',
-                                   phone: data.repPhone     || ''
-                               }) : '',
-            notes:             (data.notes || '').slice(0, 500)
-        },
+            // Items: compact "priceId:category[:hours]" per key
+            items.forEach((item, i) => {
+                const parts = [item.priceId || '', item.category || 'package'];
+                if (item.category === 'hourly' && item.hours) parts.push(String(item.hours));
+                m['item' + i] = parts.join(':').slice(0, 100);
+            });
+            return m;
+        })(),
         tags: ['msa', 'business-lab']
     };
 

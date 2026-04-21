@@ -116,12 +116,27 @@ async function handleDocumentCompleted(data, stripeKey) {
     const existingCustomerId = meta.customer_id || '';
 
     // ── Parse items ───────────────────────────────────────────────────────────
+    // New compact format: item0 = "priceId:category[:hours]", item1 = ...
     let items = [];
-    try { items = JSON.parse(meta.items || '[]'); } catch (_) { items = []; }
-
-    // Backwards compat with old single-price envelopes
-    if (items.length === 0 && meta.stripe_price_id) {
-        items = [{ priceId: meta.stripe_price_id, category: 'retainer', name: meta.tier || 'Retainer', amount: 0 }];
+    const compactKeys = Object.keys(meta).filter(k => /^item\d+$/.test(k)).sort();
+    if (compactKeys.length > 0) {
+        items = compactKeys.map(k => {
+            const parts = (meta[k] || '').split(':');
+            return {
+                priceId:  parts[0] || '',
+                category: parts[1] || 'package',
+                hours:    parts[2] ? parseInt(parts[2]) : undefined,
+                name:     '',
+                amount:   0
+            };
+        }).filter(i => i.priceId);
+    } else {
+        // Legacy JSON format
+        try { items = JSON.parse(meta.items || '[]'); } catch (_) { items = []; }
+        // Backwards compat with old single-price envelopes
+        if (items.length === 0 && meta.stripe_price_id) {
+            items = [{ priceId: meta.stripe_price_id, category: 'retainer', name: meta.tier || 'Retainer', amount: 0 }];
+        }
     }
 
     const retainers = items.filter(i => i.category === 'retainer');
