@@ -221,7 +221,7 @@ async function createAndSendDocument(apiKey, templateUuid, data) {
     // ── Create document from template ─────────────────────────────────────────
     const signerNameParts = signerName.split(' ');
     const docPayload = {
-        name:          'The Business Lab — MSA — ' + (isCompany ? (data.company || data.name) : data.name),
+        name:          'The Business Lab — MSA — ' + (isCompany ? (data.company || data.name) : data.name) + ' — ' + new Date().toISOString().slice(0,10),
         template_uuid: templateUuid,
         recipients: [
             {
