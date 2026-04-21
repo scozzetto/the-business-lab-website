@@ -280,15 +280,20 @@ async function createAndSendDocument(apiKey, templateUuid, data) {
     console.log('PandaDoc document created:', docId, 'status:', doc.status);
 
     // Poll until document is ready (PandaDoc processes templates async)
-    await waitForDocumentReady(apiKey, docId);
+    const readyDoc = await waitForDocumentReady(apiKey, docId);
+    console.log('PandaDoc document ready, status:', readyDoc.status);
 
-    // Send to the recipient
-    await pdPost(apiKey, `/public/v1/documents/${docId}/send`, {
-        subject: 'Your Business Lab Master Services Agreement — Action Required',
-        message: `Hi ${firstName}, please review and sign your Business Lab Master Services Agreement (${scopeSummary}). Questions? Call 248-775-5058 or reply to this email.`,
-        silent:  false
-    });
-    console.log('PandaDoc document sent:', docId);
+    // If document is still in draft (template workflow did not auto-send), send manually
+    if (readyDoc.status === 'document.draft') {
+        await pdPost(apiKey, `/public/v1/documents/${docId}/send`, {
+            subject: 'Your Business Lab Master Services Agreement — Action Required',
+            message: `Hi ${firstName}, please review and sign your Business Lab Master Services Agreement (${scopeSummary}). Questions? Call 248-775-5058 or reply to this email.`,
+            silent:  false
+        });
+        console.log('PandaDoc document sent manually:', docId);
+    } else {
+        console.log('PandaDoc document auto-sent by template workflow:', docId, 'status:', readyDoc.status);
+    }
 
     return { ...doc, id: docId };
 }
