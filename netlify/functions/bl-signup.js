@@ -66,17 +66,10 @@ exports.handler = async (event) => {
 
             // ─── LIST ENVELOPES ───
             case 'list-envelopes': {
-                const statuses = [
-                    'document.draft',
-                    'document.sent',
-                    'document.viewed',
-                    'document.waiting_for_payment',
-                    'document.waiting_for_signature',
-                    'document.completed',
-                    'document.declined'
-                ].join(',');
-                const raw = await pdGet(pdKey, `/public/v1/documents?count=50&status=${encodeURIComponent(statuses)}&order_by=date_created&order=desc`);
-                const envelopes = (raw.results || []).map(d => {
+                // PandaDoc API does not support comma-separated multi-status — fetch all and filter client-side
+                const raw = await pdGet(pdKey, `/public/v1/documents?count=50&order_by=date_created&order=desc`);
+                const HIDDEN_STATUSES = new Set(['document.voided', 'document.deleted']);
+                const envelopes = (raw.results || []).filter(d => !HIDDEN_STATUSES.has(d.status)).map(d => {
                     const recipient = (d.recipients || []).find(r => r.role === 'Client') || (d.recipients || [])[0] || {};
                     const status = d.status === 'document.completed'               ? 'signed'
                         : d.status === 'document.declined'                         ? 'declined'
@@ -298,15 +291,18 @@ async function createAndSendDocument(apiKey, templateUuid, data) {
     return { ...doc, id: docId };
 }
 
-// Poll until document leaves "document.draft" status (max 15s)
+// Poll until document finishes processing (leaves "document.uploaded" state), max 15s.
+// After processing, the document lands in "document.draft" — the caller handles sending.
 async function waitForDocumentReady(apiKey, docId, maxMs = 15000) {
     const deadline = Date.now() + maxMs;
     while (Date.now() < deadline) {
         const d = await pdGet(apiKey, `/public/v1/documents/${docId}`);
-        if (d.status && d.status !== 'document.draft') return d;
+        // "document.uploaded" means PandaDoc is still processing the template — keep polling
+        if (d.status && d.status !== 'document.uploaded') return d;
         await new Promise(r => setTimeout(r, 1500));
     }
-    throw new Error('PandaDoc document creation timed out after 15s — check the template UUID and try again');
+    // Return current state instead of throwing — caller will still attempt to send
+    return await pdGet(apiKey, `/public/v1/documents/${docId}`);
 }
 
 // ─── PandaDoc API helpers ─────────────────────────────────────────────────────
