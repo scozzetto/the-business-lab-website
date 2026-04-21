@@ -227,7 +227,7 @@
             <div style="max-width:720px">
                 <div class="detail-panel" style="margin-bottom:20px;border-left:3px solid #16a34a">
                     <h3 style="font-size:1rem;color:#16a34a;margin-bottom:4px"><i class="fas fa-file-signature"></i> New Client Signup</h3>
-                    <p style="font-size:13px;color:#64748b;margin:0">Fill out the form below to generate and send a service agreement via Dropbox Sign. The client will receive an email with a link to review and sign.</p>
+                    <p style="font-size:13px;color:#64748b;margin:0">Fill out the form below to generate and send a service agreement via PandaDoc. The client will receive an email with a link to review and sign.</p>
                 </div>
 
                 <!-- Client Type Toggle -->
@@ -362,7 +362,7 @@
                     <textarea id="sc-notes" style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:Inter,sans-serif;min-height:80px;resize:vertical" placeholder="Any special terms, context, or notes to include in the agreement..."></textarea>
                 </div>
 
-                <button class="btn-gold" id="sc-submit" onclick="sendEnvelope()" style="width:100%;padding:14px;font-size:15px"><i class="fas fa-paper-plane"></i> Send MSA via Dropbox Sign</button>
+                <button class="btn-gold" id="sc-submit" onclick="sendEnvelope()" style="width:100%;padding:14px;font-size:15px"><i class="fas fa-paper-plane"></i> Send MSA via PandaDoc</button>
                 <p style="font-size:12px;color:#94a3b8;text-align:center;margin-top:10px">The client receives a Master Services Agreement via email. Once signed, a Stripe subscription is created automatically for the selected monthly services.</p>
             </div>
         </div>
@@ -1688,7 +1688,7 @@
         if(customerId)payload.customerId=customerId;
 
         signupApiCall(payload).then(function(data){
-            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send MSA via Dropbox Sign';}
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send MSA via PandaDoc';}
             if(data.error){toast(data.error,'error');return;}
             toast('MSA sent to '+email+'!','success');
             // Clear fields
@@ -1710,7 +1710,7 @@
             var notesPanel=document.getElementById('sc-notes').closest('.detail-panel');
             if(notesPanel)notesPanel.insertAdjacentHTML('afterend',msg);
         }).catch(function(err){
-            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send MSA via Dropbox Sign';}
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send MSA via PandaDoc';}
             toast(err.message||'Error sending MSA','error');
         });
     }
@@ -2120,7 +2120,7 @@
         var isPending=contract&&contract.status==='pending';
         var confirmMsg='Remove "'+label+'" from your list?';
         if(isPending)confirmMsg+='\n\nThis envelope is still pending. It will be canceled first, then removed.';
-        confirmMsg+='\n\nThis hides the envelope from your list and from Dropbox Sign\'s inbox. The signed PDF remains in Dropbox Sign\'s legal record and cannot be permanently deleted.';
+        confirmMsg+='\n\nThis deletes the envelope from PandaDoc. If the document was already completed, download the signed PDF first.';
         if(!confirm(confirmMsg))return;
         if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i>';}
 
