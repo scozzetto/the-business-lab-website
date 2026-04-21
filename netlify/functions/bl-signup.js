@@ -225,7 +225,18 @@ async function createAndSendDocument(apiKey, templateUuid, data) {
             }
         ],
         tokens,
-        // pricing_tables omitted — data_merge must be enabled in PandaDoc template first
+        // Pricing table — data_merge is ENABLED on the "Quote 1" table in the template
+        ...(pricingRows.length ? {
+            pricing_tables: [{
+                name:       'Quote 1',
+                data_merge: true,
+                sections: [{
+                    title:   'Scope of Engagement',
+                    default: true,
+                    rows:    pricingRows
+                }]
+            }]
+        } : {}),
         metadata: (() => {
             // PandaDoc metadata values max 100 chars each — use compact per-item keys
             const m = {
