@@ -2020,8 +2020,8 @@
             h+='<td><strong>'+esc(c.clientName||'—')+'</strong>'+(c.clientEmail?'<div style="font-size:11px;color:#64748b">'+esc(c.clientEmail)+'</div>':'')+'</td>';
             h+='<td>'+esc(c.title||'—')+blBadge+testBadge+'</td>';
             h+='<td>'+contractStatusBadge(c.status)+'</td>';
-            h+='<td style="font-size:12px;color:#64748b">'+fmtDate(c.sentAt)+'</td>';
-            h+='<td style="font-size:12px;color:#64748b">'+(c.signedAt?fmtDate(c.signedAt):'—')+'</td>';
+            h+='<td style="font-size:12px;color:#64748b">'+fmtDateTime(c.sentAt)+'</td>';
+            h+='<td style="font-size:12px;color:#64748b">'+(c.signedAt?fmtDateTime(c.signedAt):'—')+'</td>';
             h+='<td style="white-space:nowrap" onclick="event.stopPropagation()">';
             if(c.status==='signed'){
                 h+='<button class="btn-sm btn-outline" onclick="viewContractPdf(\''+esc(c.id)+'\',this)" title="View signed PDF"><i class="fas fa-file-pdf"></i> PDF</button> ';
@@ -2061,7 +2061,7 @@
         // Details grid
         h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">';
         h+='<div style="background:#f8fafc;border-radius:8px;padding:12px"><div style="font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Client</div><div style="font-size:13px;font-weight:600">'+esc(c.clientName||'—')+'</div><div style="font-size:12px;color:#64748b">'+esc(c.clientEmail||'')+'</div></div>';
-        h+='<div style="background:#f8fafc;border-radius:8px;padding:12px"><div style="font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Timeline</div><div style="font-size:12px">Sent: <strong>'+fmtDate(c.sentAt)+'</strong></div><div style="font-size:12px">Signed: <strong>'+(c.signedAt?fmtDate(c.signedAt):'—')+'</strong></div></div>';
+        h+='<div style="background:#f8fafc;border-radius:8px;padding:12px"><div style="font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Timeline</div><div style="font-size:12px">Sent: <strong>'+fmtDateTime(c.sentAt)+'</strong></div><div style="font-size:12px">Signed: <strong>'+(c.signedAt?fmtDateTime(c.signedAt):'—')+'</strong></div></div>';
         if(tier)h+='<div style="background:#f8fafc;border-radius:8px;padding:12px"><div style="font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Tier</div><div style="font-size:13px;font-weight:600;text-transform:capitalize">'+esc(tier)+(cadence?' — '+esc(cadence):'')+'</div></div>';
         if(addons.length)h+='<div style="background:#f8fafc;border-radius:8px;padding:12px"><div style="font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Add-Ons</div><div style="font-size:12px">'+addons.map(function(a){return esc(a.name||a.priceId)}).join(', ')+'</div></div>';
         h+='</div>';
