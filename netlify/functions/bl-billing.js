@@ -65,7 +65,7 @@ exports.handler = async (event) => {
                 const params = {
                     limit: body.limit || 100,
                     status: body.status || 'all',
-                    expand: ['data.customer', 'data.items.data.price.product']
+                    expand: ['data.customer', 'data.items.data.price']
                 };
                 if (body.customerId) params.customer = body.customerId;
                 const subs = await stripe.subscriptions.list(params);
