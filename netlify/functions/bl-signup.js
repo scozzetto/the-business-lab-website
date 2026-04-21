@@ -154,10 +154,21 @@ async function createAndSendDocument(apiKey, templateUuid, data) {
     // ── Tokens (custom template variables) ───────────────────────────────────
     // Client.FirstName/LastName/Company/Email/Phone are populated from the recipient object below.
     // Only custom variables that PandaDoc can't auto-fill need tokens.
+
+    // Build itemized service list for [service_list] variable
+    const serviceLines = [
+        ...retainers.map(i => '• ' + (i.name || 'Retainer') + ' — $' + (i.amount / 100).toFixed(2) + '/mo (12-month retainer)'),
+        ...packages.map(i  => '• ' + (i.name || 'Package')  + ' — $' + (i.amount / 100).toFixed(2) + '/mo (month-to-month)'),
+        ...hourly.map(i    => '• ' + (i.name || 'Hourly')   + ' — $' + (i.amount / 100).toFixed(2) + '/hr'
+            + (i.hours ? ' × ' + i.hours + ' hr' + (i.hours !== 1 ? 's' : '') + ' pre-auth (est. $' + ((i.amount / 100) * i.hours).toFixed(2) + ')' : '')),
+    ];
+    const serviceListValue = serviceLines.join('\n');
+
     const tokens = [
         { name: 'effective_date',      value: startDateFmt },
         { name: 'Primary_Contact',     value: signerName },
         { name: 'monthly_total',       value: totalMonthly ? '$' + (totalMonthly / 100).toFixed(2) + '/mo' : '' },
+        { name: 'service_list',        value: serviceListValue },
         { name: 'payment_description', value: isAutopay
             ? 'Autopay — ' + (isACH ? 'ACH bank transfer' : 'credit/debit card') + ' charged automatically on billing date. Client authorizes The Business Lab to charge the payment method on file.'
             : 'Invoice — Net-15 invoices sent at each billing event. Payment is due within 15 days of each invoice date.'
