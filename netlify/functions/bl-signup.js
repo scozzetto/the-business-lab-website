@@ -343,7 +343,10 @@ function pdRequest(apiKey, method, path, body) {
                 try {
                     const parsed = JSON.parse(raw);
                     if (res.statusCode >= 400) {
-                        const msg = parsed.detail || parsed.message || parsed.type || `PandaDoc error ${res.statusCode}`;
+                        // parsed.detail can be an object — stringify it so Error.message is readable
+                        const detail = parsed.detail;
+                        const msg = (detail && typeof detail === 'object' ? JSON.stringify(detail) : detail)
+                            || parsed.message || parsed.type || `PandaDoc error ${res.statusCode}`;
                         console.error(`PandaDoc ${res.statusCode} ${method} ${path}:`, raw.slice(0, 500));
                         reject(new Error(msg));
                     } else {
