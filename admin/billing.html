@@ -266,10 +266,13 @@
                         <!-- Individual fields -->
                         <div id="sc-individual-fields" class="modal" style="box-shadow:none;padding:0">
                             <div class="row">
-                                <div><label>Full Name *</label><input id="sc-name" placeholder="Jane Smith" oninput="updateSignupSummary()"></div>
-                                <div><label>Email *</label><input id="sc-email" type="email" placeholder="jane@acme.com"></div>
+                                <div><label>Full Name *</label><input id="sc-name" placeholder="Jane Smith" autocomplete="name" oninput="updateSignupSummary()"></div>
+                                <div><label>Email *</label><input id="sc-email" type="email" placeholder="jane@acme.com" autocomplete="email"></div>
                             </div>
-                            <label>Company (optional)</label><input id="sc-company" placeholder="Acme Corp" oninput="updateSignupSummary()">
+                            <div class="row">
+                                <div><label>Phone *</label><input id="sc-phone" type="tel" placeholder="248-555-1234" autocomplete="tel"></div>
+                                <div><label>Company (optional)</label><input id="sc-company" placeholder="Acme Corp" autocomplete="organization" oninput="updateSignupSummary()"></div>
+                            </div>
                         </div>
 
                         <!-- Company fields -->
@@ -1676,9 +1679,12 @@
             } else {
                 name=document.getElementById('sc-name').value.trim();
                 email=document.getElementById('sc-email').value.trim();
+                var phone=(document.getElementById('sc-phone')||{}).value||'';
+                phone=phone.trim();
                 company=document.getElementById('sc-company').value.trim();
                 if(!name){toast('Enter client name','error');return;}
-                if(!email){toast('Enter client email','error');return;}
+                if(!email||!email.includes('@')){toast('Enter a valid client email','error');return;}
+                if(!phone){toast('Enter client phone number','error');return;}
             }
         } else {
             if(!_existingClient.id){toast('Select an existing customer','error');return;}
@@ -1712,7 +1718,7 @@
         var btn=document.getElementById('sc-submit');
         if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';}
 
-        var payload={action:'create-envelope',name:name,email:email,company:company,items:items,
+        var payload={action:'create-envelope',name:name,email:email,phone:phone||undefined,company:company,items:items,
             collectionMethod:collectionMethod,paymentMethod:paymentMethod,startDate:startDate,notes:notes,
             clientType:clientType};
         if(clientType==='company'){
@@ -1728,7 +1734,7 @@
             if(data.error){toast(data.error,'error');return;}
             toast('MSA sent to '+email+'!','success');
             // Clear fields
-            if(isNew){['sc-name','sc-email','sc-company','sc-co-name','sc-rep-first','sc-rep-last','sc-rep-email','sc-rep-phone','sc-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});}
+            if(isNew){['sc-name','sc-email','sc-phone','sc-company','sc-co-name','sc-rep-first','sc-rep-last','sc-rep-email','sc-rep-phone','sc-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});}
             else{var n=document.getElementById('sc-notes');if(n)n.value='';}
             document.querySelectorAll('.sc-retainer-cb,.sc-package-cb,.sc-hourly-cb').forEach(function(cb){cb.checked=false;cb.dispatchEvent(new Event('change'));});
             var entCbReset=document.getElementById('sc-enterprise-cb');
