@@ -1715,9 +1715,8 @@
 
         if(items.length===0){toast('Select at least one service','error');return;}
 
-        var btn=document.getElementById('sc-submit');
-        if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';}
-
+        // Build payload
+        var phone = clientType==='company' ? repPhone : (phone||'');
         var payload={action:'create-envelope',name:name,email:email,phone:phone||undefined,company:company,items:items,
             collectionMethod:collectionMethod,paymentMethod:paymentMethod,startDate:startDate,notes:notes,
             clientType:clientType};
@@ -1729,12 +1728,116 @@
         }
         if(customerId)payload.customerId=customerId;
 
+        // Show confirmation modal instead of sending immediately
+        var paymentLabel={'autopay-card':'Autopay — Card','autopay-ach':'Autopay — ACH Bank Transfer','invoice':'Invoice (Net-15)'}[paymentVal]||paymentVal;
+        showSendConfirmModal(payload,{name:name,email:email,phone:phone,company:company,clientType:clientType,items:items,paymentLabel:paymentLabel,startDate:startDate,notes:notes,isNew:isNew});
+    }
+
+    function showSendConfirmModal(payload, info){
+        var existing=document.getElementById('sendConfirmModal');
+        if(existing)existing.remove();
+
+        // Services rows
+        var monthly=info.items.filter(function(i){return i.category!=='hourly';});
+        var addons =info.items.filter(function(i){return i.category==='hourly';});
+        var svcRows='';
+        monthly.forEach(function(i){
+            svcRows+='<tr><td style="padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:13px">'+esc(i.name||'Service')+'</td>'
+                +'<td style="padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:13px;text-align:right;font-weight:600;color:#16a34a">$'+fmt(i.amount)+'/mo</td></tr>';
+        });
+        addons.forEach(function(i){
+            svcRows+='<tr><td style="padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:13px">'+esc(i.name||'Add-On')+'</td>'
+                +'<td style="padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:13px;text-align:right;font-weight:600;color:#7c3aed">$'+fmt(i.amount)+' (one-time)</td></tr>';
+        });
+        var totalMonthly=monthly.reduce(function(s,i){return s+i.amount;},0);
+
+        var h='<div id="sendConfirmModal" class="modal-overlay" onclick="if(event.target===this)this.remove()">';
+        h+='<div class="modal" style="width:520px;max-height:90vh;overflow-y:auto">';
+
+        // Header
+        h+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">';
+        h+='<div style="width:44px;height:44px;background:#fef9ec;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">';
+        h+='<i class="fas fa-clipboard-check" style="color:#d4af37;font-size:18px"></i></div>';
+        h+='<div><h2 style="margin:0;font-size:1.1rem">Verify Before Sending</h2>';
+        h+='<p style="margin:0;font-size:12px;color:#64748b">Review the details below, then confirm to send the MSA.</p></div>';
+        h+='</div>';
+
+        // Client info block
+        h+='<div style="background:#f8fafc;border-radius:10px;padding:14px 16px;margin-bottom:14px">';
+        h+='<div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Client Information</div>';
+        h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+        if(info.clientType==='company'){
+            h+=confirmRow('Company',info.company);
+            h+=confirmRow('Representative',info.name);
+        } else {
+            h+=confirmRow('Name',info.name);
+            if(info.company)h+=confirmRow('Company',info.company);
+        }
+        h+=confirmRow('Email',info.email);
+        if(info.phone)h+=confirmRow('Phone',info.phone);
+        h+='</div></div>';
+
+        // Services block
+        h+='<div style="background:#f8fafc;border-radius:10px;padding:14px 16px;margin-bottom:14px">';
+        h+='<div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Services</div>';
+        h+='<table style="width:100%;border-collapse:collapse">'+svcRows+'</table>';
+        if(totalMonthly>0){
+            h+='<div style="display:flex;justify-content:space-between;padding-top:8px;font-size:14px;font-weight:700">';
+            h+='<span>Monthly Total</span><span style="color:#16a34a">$'+fmt(totalMonthly)+'/mo</span></div>';
+        }
+        h+='</div>';
+
+        // Payment + Date block
+        h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">';
+        h+='<div style="background:#f8fafc;border-radius:10px;padding:12px 14px">';
+        h+='<div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Payment</div>';
+        h+='<div style="font-size:13px;font-weight:600">'+esc(info.paymentLabel)+'</div></div>';
+        h+='<div style="background:#f8fafc;border-radius:10px;padding:12px 14px">';
+        h+='<div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Start Date</div>';
+        h+='<div style="font-size:13px;font-weight:600">'+esc(info.startDate||'—')+'</div></div>';
+        h+='</div>';
+
+        if(info.notes){
+            h+='<div style="background:#fefce8;border:1px solid #fde047;border-radius:8px;padding:10px 14px;margin-bottom:20px;font-size:13px">';
+            h+='<strong>Notes:</strong> '+esc(info.notes)+'</div>';
+        }
+
+        // Action buttons
+        h+='<div style="display:flex;gap:10px;justify-content:flex-end">';
+        h+='<button class="btn-outline" onclick="document.getElementById(\'sendConfirmModal\').remove()"><i class="fas fa-arrow-left"></i> Go Back</button>';
+        h+='<button class="btn-gold" id="confirmSendBtn" style="min-width:160px" onclick="doSendEnvelope()"><i class="fas fa-paper-plane"></i> Confirm & Send MSA</button>';
+        h+='</div>';
+        h+='</div></div>';
+
+        // Store payload for doSendEnvelope
+        window._pendingSendPayload = payload;
+        window._pendingSendInfo    = info;
+
+        document.body.insertAdjacentHTML('beforeend',h);
+    }
+
+    function confirmRow(label, value){
+        return '<div style="min-width:0">'
+            +'<div style="font-size:11px;color:#94a3b8;margin-bottom:2px">'+esc(label)+'</div>'
+            +'<div style="font-size:13px;font-weight:600;word-break:break-all">'+esc(value||'—')+'</div>'
+            +'</div>';
+    }
+
+    function doSendEnvelope(){
+        var payload=window._pendingSendPayload;
+        var info   =window._pendingSendInfo;
+        if(!payload){toast('No pending send — please try again','error');return;}
+
+        var btn=document.getElementById('confirmSendBtn');
+        if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';}
+
         signupApiCall(payload).then(function(data){
-            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send MSA via PandaDoc';}
+            var m=document.getElementById('sendConfirmModal');if(m)m.remove();
+            window._pendingSendPayload=null;window._pendingSendInfo=null;
             if(data.error){toast(data.error,'error');return;}
-            toast('MSA sent to '+email+'!','success');
-            // Clear fields
-            if(isNew){['sc-name','sc-email','sc-phone','sc-company','sc-co-name','sc-rep-first','sc-rep-last','sc-rep-email','sc-rep-phone','sc-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});}
+            toast('MSA sent to '+info.email+'!','success');
+            // Clear form fields
+            if(info.isNew){['sc-name','sc-email','sc-phone','sc-company','sc-co-name','sc-rep-first','sc-rep-last','sc-rep-email','sc-rep-phone','sc-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});}
             else{var n=document.getElementById('sc-notes');if(n)n.value='';}
             document.querySelectorAll('.sc-retainer-cb,.sc-package-cb,.sc-hourly-cb').forEach(function(cb){cb.checked=false;cb.dispatchEvent(new Event('change'));});
             var entCbReset=document.getElementById('sc-enterprise-cb');
@@ -1742,10 +1845,9 @@
             var entPriceReset=document.getElementById('sc-enterprise-price');
             if(entPriceReset)entPriceReset.value='';
             document.getElementById('sc-summary').style.display='none';
-            // Show full-screen success modal
-            showMsaSentModal(name, email, data.signatureRequestId||'');
+            showMsaSentModal(info.name, info.email, data.signatureRequestId||'');
         }).catch(function(err){
-            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send MSA via PandaDoc';}
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Confirm & Send MSA';}
             toast(err.message||'Error sending MSA','error');
         });
     }
