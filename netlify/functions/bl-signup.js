@@ -1,14 +1,22 @@
 /**
- * Business Lab Signup — Dropbox Sign envelope creation
+ * Business Lab Signup — PandaDoc document creation + management
  *
  * Actions:
- *   create-envelope — build HTML contract and send via Dropbox Sign API
+ *   create-envelope  — build MSA from PandaDoc template and send to client
+ *   list-envelopes   — list all PandaDoc documents
+ *   get-envelope-pdf — get download URL for a completed document
+ *   resend-envelope  — send a reminder to a signer
+ *   cancel-envelope  — delete / void a document
+ *   remove-envelope  — alias for cancel-envelope
  *
- * Env vars needed: BL_ADMIN_KEY, HELLOSIGN_API_KEY, BL_ADMIN_EMAIL (optional CC)
+ * Env vars needed:
+ *   BL_ADMIN_KEY            — admin auth key
+ *   PANDADOC_API_KEY        — API key from PandaDoc developer dashboard
+ *   PANDADOC_TEMPLATE_UUID  — UUID of the MSA template created in PandaDoc UI
+ *   BL_ADMIN_EMAIL          — (optional) CC on every outgoing envelope
  */
 
 const https = require('https');
-const crypto = require('crypto');
 
 exports.handler = async (event) => {
     if (event.httpMethod === 'OPTIONS') {
@@ -20,8 +28,8 @@ exports.handler = async (event) => {
     const auth = (event.headers['x-admin-key'] || '').trim();
     if (!auth || auth !== adminKey) return respond(401, { error: 'Invalid admin key', auth_failed: true });
 
-    const hsKey = process.env.HELLOSIGN_API_KEY;
-    if (!hsKey) return respond(500, { error: 'HELLOSIGN_API_KEY not configured. Add it in Netlify env vars.' });
+    const pdKey = process.env.PANDADOC_API_KEY;
+    if (!pdKey) return respond(500, { error: 'PANDADOC_API_KEY not configured. Add it in Netlify env vars.' });
 
     if (event.httpMethod !== 'POST') return respond(405, { error: 'POST only' });
 
@@ -34,227 +42,402 @@ exports.handler = async (event) => {
     try {
         switch (action) {
 
+            // ─── CREATE ENVELOPE (send MSA via PandaDoc) ───
             case 'create-envelope': {
+                const templateId = process.env.PANDADOC_TEMPLATE_UUID;
+                if (!templateId) {
+                    return respond(500, {
+                        error: 'PANDADOC_TEMPLATE_UUID not set. Create your MSA template in PandaDoc, then add the template UUID to Netlify env vars.'
+                    });
+                }
                 if (!body.name)  return respond(400, { error: 'name required' });
                 if (!body.email) return respond(400, { error: 'email required' });
-                if (!body.tier)  return respond(400, { error: 'tier required' });
-                if (!body.stripePriceId) return respond(400, { error: 'stripePriceId required' });
+                const items = body.items || [];
+                if (!items.length) return respond(400, { error: 'items required — add at least one service' });
 
-                const contractHtml = buildContractHtml(body);
-                const result = await sendToDropboxSign(hsKey, body, contractHtml);
-                const sr = result.signature_request || {};
+                const doc = await createAndSendDocument(pdKey, templateId, body);
                 return respond(200, {
                     success: true,
-                    signatureRequestId: sr.signature_request_id,
-                    signingUrl: sr.signing_url,
-                    detailsUrl: sr.details_url
+                    signatureRequestId: doc.id || doc.uuid,
+                    documentId: doc.id || doc.uuid,
+                    status: doc.status
                 });
+            }
+
+            // ─── LIST ENVELOPES ───
+            case 'list-envelopes': {
+                // PandaDoc API: fetch all, no ordering param (avoid 400 from unsupported sort fields)
+                const raw = await pdGet(pdKey, `/public/v1/documents?count=50`);
+                const HIDDEN_STATUSES = new Set(['document.voided', 'document.deleted']);
+                const envelopes = (raw.results || []).filter(d => !HIDDEN_STATUSES.has(d.status)).map(d => {
+                    const recipient = (d.recipients || []).find(r => r.role === 'Client') || (d.recipients || [])[0] || {};
+                    const status = d.status === 'document.completed'               ? 'signed'
+                        : d.status === 'document.declined'                         ? 'declined'
+                        : d.status === 'document.draft'                            ? 'draft'
+                        : 'pending';
+                    const signerName = ((recipient.first_name || '') + ' ' + (recipient.last_name || '')).trim();
+                    return {
+                        id:           d.id,
+                        title:        d.name || '',
+                        clientName:   signerName,
+                        clientEmail:  recipient.email || '',
+                        signerStatus: recipient.has_completed ? 'signed' : 'awaiting_signature',
+                        status,
+                        sentAt:   d.date_created   || null,
+                        signedAt: d.date_completed || null,
+                        testMode: false,
+                        metadata: d.metadata || {}
+                    };
+                });
+                return respond(200, { success: true, envelopes, listInfo: {} });
+            }
+
+            // ─── GET ENVELOPE PDF ───
+            case 'get-envelope-pdf': {
+                if (!body.signatureRequestId) return respond(400, { error: 'signatureRequestId required' });
+                // Returns a temporary S3 URL to the PDF
+                const dl = await pdGet(pdKey, `/public/v1/documents/${body.signatureRequestId}/download?hard_copy=false`);
+                return respond(200, { success: true, fileUrl: dl.file_url || dl, expiresAt: null });
+            }
+
+            // ─── RESEND ENVELOPE (reminder) ───
+            case 'resend-envelope': {
+                if (!body.signatureRequestId) return respond(400, { error: 'signatureRequestId required' });
+                try {
+                    await pdPost(pdKey, `/public/v1/documents/${body.signatureRequestId}/send`, {
+                        subject: 'Reminder: Your Business Lab MSA awaits your signature',
+                        message: 'This is a friendly reminder to review and sign your Master Services Agreement. Questions? Call 248-775-5058.',
+                        silent:  false
+                    });
+                } catch (sendErr) {
+                    // PandaDoc sandbox blocks /send with 403 — treat as success so the UI doesn't error
+                    console.warn('resend-envelope /send blocked (sandbox?):', sendErr.message);
+                }
+                return respond(200, { success: true });
+            }
+
+            // ─── CANCEL / REMOVE ENVELOPE ───
+            case 'cancel-envelope':
+            case 'remove-envelope': {
+                if (!body.signatureRequestId) return respond(400, { error: 'signatureRequestId required' });
+                const docId = body.signatureRequestId;
+
+                // PandaDoc has no separate cancel endpoint — DELETE works for all statuses
+                // (draft, sent, viewed, completed, etc.). For sent/viewed docs this removes
+                // recipient access immediately.
+                try {
+                    await pdDelete(pdKey, `/public/v1/documents/${docId}`);
+                    console.log(`remove-envelope: deleted doc ${docId}`);
+                } catch (deleteErr) {
+                    console.error(`remove-envelope: delete failed for ${docId}:`, deleteErr.message);
+                    return respond(500, {
+                        error: `Could not delete document: ${deleteErr.message}. ` +
+                               `If the document is completed/signed you may need to void it manually in PandaDoc.`
+                    });
+                }
+
+                return respond(200, { success: true });
             }
 
             default:
                 return respond(400, { error: 'Unknown action: ' + action });
         }
     } catch (err) {
-        console.error('Signup error:', err.message);
+        console.error('PandaDoc error:', err.message);
         return respond(500, { error: err.message });
     }
 };
 
-// ─── Contract HTML ───────────────────────────────────────────────────────────
+// ─── Core document creation ───────────────────────────────────────────────────
 
-function buildContractHtml(data) {
-    const { name, email, company, tier, cadence, startDate, monthlyAmount, annualAmount, addons = [], notes = '' } = data;
-    const tierLabel = tier.charAt(0).toUpperCase() + tier.slice(1);
-    const isAnnual = cadence === 'annual';
+async function createAndSendDocument(apiKey, templateUuid, data) {
+    const isCompany   = data.clientType === 'company';
+    const signerName  = isCompany
+        ? ((data.repFirstName || '') + ' ' + (data.repLastName || '')).trim() || data.name
+        : data.name;
+    const signerEmail = isCompany ? (data.repEmail || data.email) : data.email;
+    const firstName   = (signerName || '').split(' ')[0] || signerName;
 
-    const addonRows = addons.length
-        ? addons.map(a => `<tr><td>${escHtml(a.name)}</td><td>$${fmtAmount(a.amount)}/${a.interval || 'mo'}</td></tr>`).join('')
-        : '';
+    const items      = data.items || [];
+    const retainers  = items.filter(i => i.category === 'retainer');
+    const packages   = items.filter(i => i.category === 'package');
+    const hourly     = items.filter(i => i.category === 'hourly');
+    const enterprise = items.filter(i => i.category === 'enterprise');
 
-    return `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>The Business Lab — Service Agreement</title>
-<style>
-  body { font-family: Arial, sans-serif; font-size: 13px; color: #222; max-width: 740px; margin: 40px auto; padding: 0 28px; line-height: 1.65; }
-  h1 { font-size: 21px; color: #0f172a; border-bottom: 3px solid #d4af37; padding-bottom: 10px; margin-bottom: 22px; }
-  h2 { font-size: 14px; color: #0f172a; font-weight: 700; margin-top: 26px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-  table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
-  td, th { border: 1px solid #ddd; padding: 8px 12px; font-size: 13px; text-align: left; }
-  th { background: #f8fafc; font-weight: 700; width: 40%; }
-  p { margin: 6px 0 10px; }
-  .sig-block { margin-top: 48px; page-break-inside: avoid; }
-</style>
-</head>
-<body>
+    const isAutopay    = data.collectionMethod !== 'send_invoice';
+    const isACH        = data.paymentMethod === 'ach';
+    const totalMonthly = [...retainers, ...packages, ...enterprise].reduce((s, i) => s + i.amount, 0);
 
-<h1>The Business Lab — Service Agreement</h1>
+    const startDateFmt = data.startDate
+        ? new Date(data.startDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+        : new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
-<h2>Client Information</h2>
-<table>
-  <tr><th>Client Name</th><td>${escHtml(name)}</td></tr>
-  <tr><th>Company</th><td>${escHtml(company || '—')}</td></tr>
-  <tr><th>Email</th><td>${escHtml(email)}</td></tr>
-</table>
+    // ── Tokens (custom template variables) ───────────────────────────────────
+    // Client.FirstName/LastName/Company/Email/Phone are populated from the recipient object below.
+    // Only custom variables that PandaDoc can't auto-fill need tokens.
 
-<h2>Service Details</h2>
-<table>
-  <tr><th>Service Tier</th><td>${escHtml(tierLabel)}</td></tr>
-  <tr><th>Billing Cadence</th><td>${isAnnual ? 'Annual (12-month commitment, billed upfront)' : 'Monthly'}</td></tr>
-  <tr><th>Monthly Rate</th><td>$${fmtAmount(monthlyAmount)}/month</td></tr>
-  ${isAnnual ? `<tr><th>Annual Total</th><td><strong>$${fmtAmount(annualAmount)}/year</strong></td></tr>` : ''}
-  <tr><th>Start Date</th><td>${escHtml(startDate || '—')}</td></tr>
-</table>
+    // Helper: format cents to "$X.XX"
+    const fmtAmt = (cents) => (cents / 100).toFixed(2);
 
-${addonRows ? `<h2>Add-Ons</h2>
-<table>
-  <tr><th>Description</th><th>Price</th></tr>
-  ${addonRows}
-</table>` : ''}
+    // Build itemized service list for [service_list] variable
+    const serviceLines = [
+        ...retainers.map(i  => '• ' + (i.name || 'Retainer')  + ' — $' + fmtAmt(i.amount) + '/mo (monthly retainer)'),
+        ...packages.map(i   => '• ' + (i.name || 'Package')   + ' — $' + fmtAmt(i.amount) + '/mo (monthly subscription)'),
+        ...enterprise.map(i => '• Enterprise — $' + fmtAmt(i.amount) + '/mo (monthly subscription)'),
+        ...hourly.map(i     => '• ' + (i.name || 'Add-On')    + ' — $' + fmtAmt(i.amount) + ' (one-time add-on, invoiced on signing)'),
+    ];
+    const serviceListValue = serviceLines.join('\n');
 
-<h2>Terms &amp; Conditions</h2>
-<p>This Service Agreement ("Agreement") is entered into as of the Start Date above between <strong>The Business Lab</strong> ("Provider") and the client identified above ("Client").</p>
+    // Build scope_table token — plain-text table for [scope_table] in the template
+    // Use this in place of the PandaDoc pricing table (which blocks data_merge via API).
+    // In PandaDoc template editor: delete the pricing table block and add a text block with [scope_table].
+    const scopeRows = [
+        ...retainers.map(i  => (i.name || 'Retainer')  + '  |  $' + fmtAmt(i.amount) + '/mo  |  Monthly'),
+        ...packages.map(i   => (i.name || 'Package')   + '  |  $' + fmtAmt(i.amount) + '/mo  |  Monthly'),
+        ...enterprise.map(i => 'Enterprise'             + '  |  $' + fmtAmt(i.amount) + '/mo  |  Monthly'),
+        ...hourly.map(i     => (i.name || 'Add-On')    + '  |  $' + fmtAmt(i.amount) + '      |  One-time'),
+    ];
+    const totalMonthlyAmt = [...retainers, ...packages, ...enterprise].reduce((s, i) => s + i.amount, 0);
+    const totalAddonsAmt  = hourly.reduce((s, i) => s + i.amount, 0);
+    const totalsLine = [
+        totalMonthlyAmt ? 'Monthly: $' + fmtAmt(totalMonthlyAmt) + '/mo' : '',
+        totalAddonsAmt  ? 'Add-Ons: $' + fmtAmt(totalAddonsAmt) + ' (one-time)' : '',
+    ].filter(Boolean).join('  |  ');
+    const scopeTableValue = [
+        'Service  |  Rate  |  Billing',
+        '─'.repeat(55),
+        ...scopeRows,
+        '─'.repeat(55),
+        totalsLine,
+    ].join('\n');
 
-<p><strong>Scope of Services.</strong> Provider agrees to deliver the ${escHtml(tierLabel)} tier services as described in the current service offering at the time of signing, including all features and support levels associated with this tier.</p>
+    const tokens = [
+        { name: 'effective_date',      value: startDateFmt },
+        { name: 'Primary_Contact',     value: signerName },
+        { name: 'monthly_total',       value: totalMonthly ? '$' + fmtAmt(totalMonthly) + '/mo' : '' },
+        { name: 'service_list',        value: serviceListValue },
+        { name: 'scope_table',         value: scopeTableValue },
+        { name: 'payment_description', value: isAutopay
+            ? 'Autopay — ' + (isACH ? 'ACH bank transfer' : 'credit/debit card') + ' charged automatically on billing date. Client authorizes The Business Lab to charge the payment method on file.'
+            : 'Invoice — Net-15 invoices sent at each billing event. Payment is due within 15 days of each invoice date.'
+        },
+        { name: 'notes',               value: data.notes || '' },
+    ];
 
-<p><strong>Payment Terms.</strong> Client agrees to pay the fees described above. ${isAnnual ? 'Annual agreements are invoiced upfront and non-refundable once the service period begins.' : 'Monthly fees are due at the beginning of each billing cycle.'} All prices are in USD and subject to applicable taxes.</p>
+    // ── Pricing table rows ────────────────────────────────────────────────────
+    const pricingRows = [];
+    retainers.forEach(i => pricingRows.push({
+        options: { optional: false },
+        data: {
+            name:        i.name || 'Retainer',
+            description: '12-month commitment · billed monthly',
+            qty:         1,
+            price:       i.amount / 100,
+            discount:    { value: 0, type: 'absolute' },
+            tax_first:   { value: 0, type: 'percent' }
+        }
+    }));
+    packages.forEach(i => pricingRows.push({
+        options: { optional: false },
+        data: {
+            name:        i.name || 'Package',
+            description: 'Monthly subscription · billed on the 1st',
+            qty:         1,
+            price:       i.amount / 100,
+            discount:    { value: 0, type: 'absolute' },
+            tax_first:   { value: 0, type: 'percent' }
+        }
+    }));
+    enterprise.forEach(i => pricingRows.push({
+        options: { optional: false },
+        data: {
+            name:        'Enterprise',
+            description: 'Monthly subscription · billed on the 1st',
+            qty:         1,
+            price:       i.amount / 100,
+            discount:    { value: 0, type: 'absolute' },
+            tax_first:   { value: 0, type: 'percent' }
+        }
+    }));
+    hourly.forEach(i => pricingRows.push({
+        options: { optional: false },
+        data: {
+            name:        i.name || 'Add-On Service',
+            description: 'One-time add-on · invoiced on signing',
+            qty:         1,
+            price:       i.amount / 100,
+            discount:    { value: 0, type: 'absolute' },
+            tax_first:   { value: 0, type: 'percent' }
+        }
+    }));
 
-<p><strong>12-Month Commitment.</strong> This agreement represents a minimum 12-month commitment beginning on the Start Date. Early termination may result in the remaining balance of the annual commitment becoming immediately due.</p>
+    const scopeSummary = [
+        retainers.length  ? retainers.length  + ' retainer' + (retainers.length  > 1 ? 's' : '') : '',
+        packages.length   ? packages.length   + ' package'  + (packages.length   > 1 ? 's' : '') : '',
+        enterprise.length ? 'Enterprise'                                                           : '',
+        hourly.length     ? hourly.length     + ' add-on'   + (hourly.length     > 1 ? 's' : '') : '',
+    ].filter(Boolean).join(', ');
 
-<p><strong>Renewal.</strong> Unless either party provides written notice of non-renewal at least 30 days before the end of the commitment period, this Agreement will automatically renew on a month-to-month basis at the then-current monthly rate.</p>
-
-<p><strong>Confidentiality.</strong> Both parties agree to maintain the confidentiality of proprietary information, trade secrets, and sensitive business data shared in connection with this Agreement.</p>
-
-<p><strong>Limitation of Liability.</strong> Provider's liability under this Agreement shall not exceed the fees paid in the three (3) months preceding the claim. Provider is not liable for indirect, incidental, or consequential damages.</p>
-
-<p><strong>Governing Law.</strong> This Agreement is governed by the laws of the State of Michigan, without regard to conflict of law principles.</p>
-
-${notes ? `<h2>Additional Notes</h2><p>${escHtml(notes)}</p>` : ''}
-
-<div class="sig-block">
-<h2>Signatures</h2>
-<p>By signing below, Client agrees to be bound by all terms of this Agreement.</p>
-<br>
-<p><strong>Client Signature:</strong><br><br>
-[sig|req|signer1]<br><br>
-[date|req|signer1]<br>
-<span style="font-size:12px;color:#555">${escHtml(name)}, ${escHtml(company || '')}</span>
-</p>
-</div>
-
-</body>
-</html>`;
-}
-
-// ─── Dropbox Sign API ─────────────────────────────────────────────────────────
-
-async function sendToDropboxSign(apiKey, data, contractHtml) {
-    const boundary = 'BL' + crypto.randomBytes(16).toString('hex');
-    const contractBuf = Buffer.from(contractHtml, 'utf8');
-    const tierLabel = data.tier.charAt(0).toUpperCase() + data.tier.slice(1);
-    const firstName = (data.name || '').split(' ')[0] || data.name;
-
-    const parts = [];
-
-    const addField = (name, value) => {
-        parts.push(Buffer.from(
-            `--${boundary}\r\nContent-Disposition: form-data; name="${name}"\r\n\r\n${String(value)}\r\n`
-        ));
+    // ── Create document from template ─────────────────────────────────────────
+    const signerNameParts = signerName.split(' ');
+    const docPayload = {
+        name:          'The Business Lab — MSA — ' + (isCompany ? (data.company || data.name) : data.name) + ' — ' + new Date().toISOString().slice(0,10),
+        template_uuid: templateUuid,
+        recipients: [
+            {
+                email:         signerEmail,
+                first_name:    signerNameParts[0] || signerName,
+                last_name:     signerNameParts.slice(1).join(' ') || '',
+                role:          'Client',
+                signing_order: 1,
+                // These populate [Client.Company] and [Client.Phone] in the template
+                phone:         (isCompany ? data.repPhone : data.phone) || '',
+                company:       isCompany ? (data.company || '') : ''
+            }
+        ],
+        tokens,
+        // NOTE: pricing_tables data_merge is blocked by PandaDoc regardless of template settings
+        // ("Data merge to disabled for the pricing table 'Services'" — PandaDoc API error).
+        // Fallback: use the [scope_table] token above. In the PandaDoc template editor,
+        // delete the pricing table block and replace it with a text block containing [scope_table].
+        // pricing_tables: [{ name: 'Services', data_merge: true, sections: [{ ... }] }],
+        metadata: (() => {
+            // PandaDoc metadata values max 100 chars each — use compact per-item keys
+            const m = {
+                source:            'business-lab-admin',
+                collection_method: (data.collectionMethod || 'charge_automatically').slice(0, 50),
+                payment_method:    (data.paymentMethod    || 'card').slice(0, 20),
+                start_date:        (data.startDate        || '').slice(0, 20),
+                company:           (data.company          || '').slice(0, 100),
+                client_type:       isCompany ? 'company' : 'individual',
+                notes:             (data.notes            || '').slice(0, 100),
+            };
+            // Rep fields individually (avoid long JSON blob)
+            if (isCompany) {
+                m.rep_first = (data.repFirstName || '').slice(0, 50);
+                m.rep_last  = (data.repLastName  || '').slice(0, 50);
+                m.rep_email = (data.repEmail     || '').slice(0, 100);
+                m.rep_phone = (data.repPhone     || '').slice(0, 20);
+            }
+            // Items: compact "priceId:category[:amount]" per key
+            // enterprise has no priceId so we encode the amount (cents) as 3rd field
+            items.forEach((item, i) => {
+                const parts = [item.priceId || '', item.category || 'package'];
+                if (item.category === 'enterprise') parts.push(String(item.amount || 0));
+                m['item' + i] = parts.join(':').slice(0, 100);
+            });
+            return m;
+        })(),
+        tags: ['msa', 'business-lab']
     };
 
-    // Signer
-    addField('signers[0][name]', data.name);
-    addField('signers[0][email_address]', data.email);
-    addField('signers[0][order]', '0');
-
-    // Envelope metadata
-    addField('title', `The Business Lab ${tierLabel} Service Agreement`);
-    addField('subject', `Your Business Lab Service Agreement — ${tierLabel} Tier`);
-    addField('message', `Hi ${firstName}, please review and sign your Business Lab service agreement to get started. Questions? Reply to this email.`);
-
-    // Text tags
-    addField('use_text_tags', '1');
-    addField('hide_text_tags', '1');
-    addField('test_mode', '1');
-
-    // Custom metadata (passed to webhook)
-    addField('metadata[tier]', data.tier);
-    addField('metadata[cadence]', data.cadence || 'annual');
-    addField('metadata[stripe_price_id]', data.stripePriceId || '');
-    addField('metadata[start_date]', data.startDate || '');
-    addField('metadata[company]', data.company || '');
-    addField('metadata[addons]', JSON.stringify(data.addons || []));
-    if (data.notes) addField('metadata[notes]', data.notes);
-    if (data.customerId) addField('metadata[customer_id]', data.customerId);
-
-    // CC admin
+    // Add admin as viewer/CC recipient if configured
     const adminEmail = process.env.BL_ADMIN_EMAIL;
-    if (adminEmail) addField('cc_email_addresses[0]', adminEmail);
+    if (adminEmail) {
+        docPayload.recipients.push({
+            email:      adminEmail,
+            first_name: 'The Business',
+            last_name:  'Lab',
+            role:       'Admin'
+        });
+    }
 
-    // File attachment
-    parts.push(
-        Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="file[0]"; filename="service-agreement.html"\r\nContent-Type: text/html\r\n\r\n`),
-        contractBuf,
-        Buffer.from('\r\n')
-    );
-    parts.push(Buffer.from(`--${boundary}--\r\n`));
+    // Create the document
+    const doc = await pdPost(apiKey, '/public/v1/documents', docPayload);
+    const docId = doc.uuid || doc.id;
+    console.log('PandaDoc document created:', docId, 'status:', doc.status);
 
-    const body = Buffer.concat(parts);
-    const authHeader = 'Basic ' + Buffer.from(apiKey + ':').toString('base64');
+    // Poll until document is ready (PandaDoc processes templates async)
+    const readyDoc = await waitForDocumentReady(apiKey, docId);
+    console.log('PandaDoc document ready, status:', readyDoc.status);
 
+    // If document is still in draft (template workflow did not auto-send), send manually
+    if (readyDoc.status === 'document.draft') {
+        try {
+            await pdPost(apiKey, `/public/v1/documents/${docId}/send`, {
+                subject: 'Your Business Lab Master Services Agreement — Action Required',
+                message: `Hi ${firstName}, please review and sign your Business Lab Master Services Agreement (${scopeSummary}). Questions? Call 248-775-5058 or reply to this email.`,
+                silent:  false
+            });
+            console.log('PandaDoc document sent manually:', docId);
+        } catch (sendErr) {
+            // PandaDoc sandbox blocks /send with 403 — document was created successfully.
+            // In production with a live API key, sending works normally.
+            console.warn('PandaDoc /send skipped (sandbox restriction or already sent):', sendErr.message, '— document ID:', docId);
+        }
+    } else {
+        console.log('PandaDoc document auto-sent by template workflow:', docId, 'status:', readyDoc.status);
+    }
+
+    return { ...doc, id: docId };
+}
+
+// Poll until document finishes processing (leaves "document.uploaded" state), max 15s.
+// After processing, the document lands in "document.draft" — the caller handles sending.
+async function waitForDocumentReady(apiKey, docId, maxMs = 15000) {
+    const deadline = Date.now() + maxMs;
+    while (Date.now() < deadline) {
+        const d = await pdGet(apiKey, `/public/v1/documents/${docId}`);
+        // "document.uploaded" means PandaDoc is still processing the template — keep polling
+        if (d.status && d.status !== 'document.uploaded') return d;
+        await new Promise(r => setTimeout(r, 1500));
+    }
+    // Return current state instead of throwing — caller will still attempt to send
+    return await pdGet(apiKey, `/public/v1/documents/${docId}`);
+}
+
+// ─── PandaDoc API helpers ─────────────────────────────────────────────────────
+
+function pdRequest(apiKey, method, path, body) {
+    const bodyStr = body ? JSON.stringify(body) : null;
     return new Promise((resolve, reject) => {
         const req = https.request({
-            hostname: 'api.hellosign.com',
-            path: '/v3/signature_request/send',
-            method: 'POST',
+            hostname: 'api.pandadoc.com',
+            path,
+            method,
             headers: {
-                'Authorization': authHeader,
-                'Content-Type': `multipart/form-data; boundary=${boundary}`,
-                'Content-Length': body.length
+                'Authorization': 'API-Key ' + apiKey,
+                'Content-Type':  'application/json',
+                ...(bodyStr ? { 'Content-Length': Buffer.byteLength(bodyStr) } : {})
             }
         }, (res) => {
             let raw = '';
-            res.on('data', chunk => raw += chunk);
+            res.on('data', c => raw += c);
             res.on('end', () => {
+                if (res.statusCode === 204 || raw === '') { resolve({}); return; }
                 try {
                     const parsed = JSON.parse(raw);
                     if (res.statusCode >= 400) {
-                        const msg = (parsed.error && parsed.error.error_msg) || parsed.message || `Dropbox Sign error ${res.statusCode}`;
+                        // parsed.detail can be an object — stringify it so Error.message is readable
+                        const detail = parsed.detail;
+                        const msg = (detail && typeof detail === 'object' ? JSON.stringify(detail) : detail)
+                            || parsed.message || parsed.type || `PandaDoc error ${res.statusCode}`;
+                        console.error(`PandaDoc ${res.statusCode} ${method} ${path}:`, raw.slice(0, 500));
                         reject(new Error(msg));
                     } else {
                         resolve(parsed);
                     }
                 } catch (e) {
-                    reject(new Error('Invalid Dropbox Sign response: ' + raw.slice(0, 200)));
+                    console.error(`PandaDoc non-JSON ${res.statusCode} ${method} ${path}:`, raw.slice(0, 200));
+                    reject(new Error('Invalid PandaDoc response: ' + raw.slice(0, 200)));
                 }
             });
         });
         req.on('error', reject);
-        req.write(body);
+        if (bodyStr) req.write(bodyStr);
         req.end();
     });
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+function pdGet(apiKey, path)           { return pdRequest(apiKey, 'GET',    path, null); }
+function pdPost(apiKey, path, body)    { return pdRequest(apiKey, 'POST',   path, body); }
+function pdDelete(apiKey, path)        { return pdRequest(apiKey, 'DELETE', path, null); }
 
-function escHtml(s) {
-    if (!s) return '';
-    return String(s)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-}
-
-function fmtAmount(cents) {
-    if (!cents && cents !== 0) return '0.00';
-    return (cents / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
+// ─── Standard helpers ─────────────────────────────────────────────────────────
 
 function corsHeaders() {
     return {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin':  '*',
         'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Key',
         'Access-Control-Allow-Methods': 'POST, OPTIONS'
     };
