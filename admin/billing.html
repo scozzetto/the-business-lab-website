@@ -57,6 +57,8 @@
         .badge-past-due{background:#fef2f2;color:#dc2626}
         .badge-trialing{background:#dbeafe;color:#2563eb}
         .badge-canceled{background:#f1f5f9;color:#64748b}
+        .badge-incomplete{background:#fef9c3;color:#854d0e}
+        .badge-incomplete-expired{background:#f1f5f9;color:#64748b}
 
         /* Buttons */
         .btn-gold{background:#d4af37;color:#0f172a;border:none;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif}
@@ -126,10 +128,48 @@
         <!-- Tabs -->
         <div class="tabs">
             <div class="tab" onclick="switchTab('newclient')" style="color:#16a34a;border-bottom-color:transparent"><i class="fas fa-user-plus"></i> New Client</div>
+            <div class="tab" onclick="switchTab('leads')"><i class="fas fa-magnet"></i> Leads <span id="leadsBadge" class="hidden" style="background:#d4af37;color:#0f172a;border-radius:10px;padding:1px 8px;font-size:11px;margin-left:4px"></span></div>
+            <div class="tab" onclick="switchTab('contracts')"><i class="fas fa-file-contract"></i> Contracts</div>
             <div class="tab active" onclick="switchTab('subscriptions')">Subscriptions</div>
             <div class="tab" onclick="switchTab('customers')">Customers</div>
             <div class="tab" onclick="switchTab('invoices')">Invoices</div>
             <div class="tab" onclick="switchTab('products')">Products & Prices</div>
+        </div>
+
+        <!-- Leads Tab -->
+        <div id="tab-leads" class="hidden">
+            <div class="toolbar">
+                <div>
+                    <input class="search" id="leadSearch" placeholder="Search leads..." oninput="renderLeads()">
+                    <select id="leadStatusFilter" onchange="renderLeads()" style="padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;margin-left:8px">
+                        <option value="active">Active (exclude converted/lost)</option>
+                        <option value="all">All statuses</option>
+                        <option value="new">New</option>
+                        <option value="contacted">Contacted</option>
+                        <option value="qualified">Qualified</option>
+                        <option value="proposal">Proposal Sent</option>
+                        <option value="converted">Converted</option>
+                        <option value="lost">Lost</option>
+                    </select>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                    <span style="font-size:12px;color:#64748b">Public form: <a href="/get-started" target="_blank" style="color:#2563eb;text-decoration:none">/get-started</a></span>
+                    <button class="btn-outline" id="leadsRefreshBtn" onclick="loadLeads(this)"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+            </div>
+            <div id="leadTable"><p style="color:#94a3b8;font-size:13px;padding:20px 0">Click <strong>Refresh</strong> to load leads.</p></div>
+        </div>
+
+        <!-- Contracts Tab -->
+        <div id="tab-contracts" class="hidden">
+            <div class="toolbar">
+                <select id="contractFilter" onchange="renderContracts()" style="padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;color:#334155">
+                    <option value="all">All contracts</option>
+                    <option value="bl">Business Lab only</option>
+                </select>
+                <button class="btn-outline" id="contractsRefreshBtn" onclick="loadContracts(this)"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
+            <div id="contractTable"><p style="color:#94a3b8;font-size:13px;padding:20px 0">Click <strong>Refresh</strong> to load contracts.</p></div>
         </div>
 
         <!-- Subscriptions Tab -->
@@ -173,7 +213,10 @@
             <div class="toolbar">
                 <div></div>
                 <div style="display:flex;gap:8px">
-                    <button class="btn-outline" onclick="seedTierProducts(this)" title="Create Basic/Professional/Enterprise tier products in Stripe if not already present"><i class="fas fa-layer-group"></i> Setup Tier Products</button>
+                    <button class="btn-danger" onclick="archiveOldTiers(this)" title="Archive Basic/Professional/Enterprise tier products in Stripe" style="font-size:13px;padding:8px 14px"><i class="fas fa-archive"></i> Archive Old Tiers</button>
+                    <button class="btn-danger" onclick="migrateCatalog(this)" title="Archive pre-monthly packages + 7 old hourly services, then seed new catalog" style="font-size:13px;padding:8px 14px"><i class="fas fa-random"></i> Migrate Catalog</button>
+                    <button class="btn-outline" onclick="setupAnnualPrices(this)" title="Add 10%-off annual prices to all monthly retainer & package products" style="font-size:13px;padding:8px 14px"><i class="fas fa-calendar-check"></i> Setup Annual Prices</button>
+                    <button class="btn-outline" onclick="setupServiceCatalog(this)" title="Seed retainer / package / hourly products in Stripe"><i class="fas fa-layer-group"></i> Setup Service Catalog</button>
                     <button class="btn-gold" onclick="openNewProductModal()"><i class="fas fa-plus"></i> New Product</button>
                 </div>
             </div>
@@ -185,7 +228,7 @@
             <div style="max-width:720px">
                 <div class="detail-panel" style="margin-bottom:20px;border-left:3px solid #16a34a">
                     <h3 style="font-size:1rem;color:#16a34a;margin-bottom:4px"><i class="fas fa-file-signature"></i> New Client Signup</h3>
-                    <p style="font-size:13px;color:#64748b;margin:0">Fill out the form below to generate and send a service agreement via Dropbox Sign. The client will receive an email with a link to review and sign.</p>
+                    <p style="font-size:13px;color:#64748b;margin:0">Fill out the form below to generate and send a service agreement via PandaDoc. The client will receive an email with a link to review and sign.</p>
                 </div>
 
                 <!-- Client Type Toggle -->
@@ -208,12 +251,39 @@
 
                     <!-- New client fields -->
                     <div id="sc-new-client-fields">
-                        <div class="modal" style="box-shadow:none;padding:0">
+                        <!-- Client type toggle -->
+                        <div style="display:flex;gap:10px;margin-bottom:14px">
+                            <label style="flex:1;display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:400;padding:10px 14px;border:2px solid #16a34a;border-radius:10px;background:#f0fdf4" id="sc-ct-individual-lbl">
+                                <input type="radio" name="sc-client-entity" value="individual" checked onchange="switchClientEntity()" style="width:auto;accent-color:#16a34a">
+                                <span><strong>Individual</strong></span>
+                            </label>
+                            <label style="flex:1;display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:400;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px" id="sc-ct-company-lbl">
+                                <input type="radio" name="sc-client-entity" value="company" onchange="switchClientEntity()" style="width:auto;accent-color:#16a34a">
+                                <span><strong>Company / Business</strong></span>
+                            </label>
+                        </div>
+
+                        <!-- Individual fields -->
+                        <div id="sc-individual-fields" class="modal" style="box-shadow:none;padding:0">
                             <div class="row">
                                 <div><label>Full Name *</label><input id="sc-name" placeholder="Jane Smith" oninput="updateSignupSummary()"></div>
                                 <div><label>Email *</label><input id="sc-email" type="email" placeholder="jane@acme.com"></div>
                             </div>
-                            <label>Company / Business Name</label><input id="sc-company" placeholder="Acme Corp" oninput="updateSignupSummary()">
+                            <label>Company (optional)</label><input id="sc-company" placeholder="Acme Corp" oninput="updateSignupSummary()">
+                        </div>
+
+                        <!-- Company fields -->
+                        <div id="sc-company-fields" class="modal hidden" style="box-shadow:none;padding:0">
+                            <label>Company / Business Name *</label><input id="sc-co-name" placeholder="Acme Corp" oninput="updateSignupSummary()">
+                            <p style="font-size:12px;color:#64748b;margin:14px 0 8px">Authorized Representative (the person signing the agreement on behalf of the company):</p>
+                            <div class="row">
+                                <div><label>Rep First Name *</label><input id="sc-rep-first" placeholder="Jane" oninput="updateSignupSummary()"></div>
+                                <div><label>Rep Last Name *</label><input id="sc-rep-last" placeholder="Smith" oninput="updateSignupSummary()"></div>
+                            </div>
+                            <div class="row">
+                                <div><label>Rep Email *</label><input id="sc-rep-email" type="email" placeholder="jane@acme.com"></div>
+                                <div><label>Rep Phone *</label><input id="sc-rep-phone" type="tel" placeholder="248-555-1234"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -227,44 +297,73 @@
                     </div>
                 </div>
 
-                <!-- Tier Selection -->
+                <!-- Engagement Builder: Retainers -->
                 <div class="detail-panel" style="margin-bottom:16px">
-                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px">Service Tier</h3>
-                    <div id="sc-tier-options">
-                        <p style="color:#94a3b8;font-size:13px"><i class="fas fa-exclamation-circle"></i> No tier products found. Click <strong>Setup Tier Products</strong> in the Products tab first.</p>
+                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Monthly Retainers</h3>
+                    <p style="font-size:12px;color:#94a3b8;margin:0 0 12px">Ongoing advisory — 12-month commitment, billed monthly</p>
+                    <div id="sc-retainer-options">
+                        <p style="color:#94a3b8;font-size:13px"><i class="fas fa-exclamation-circle"></i> No retainer products found. Click <strong>Setup Service Catalog</strong> in the Products tab first.</p>
                     </div>
                 </div>
 
-                <!-- Billing Cadence -->
+                <!-- Engagement Builder: Packages -->
                 <div class="detail-panel" style="margin-bottom:16px">
-                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px">Billing Cadence</h3>
-                    <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-weight:400;margin-bottom:6px">
-                        <input type="radio" name="sc-cadence" value="annual" checked onchange="updateSignupSummary()" style="margin-top:3px;width:auto">
-                        <span><strong>Annual</strong> — 12-month commitment, billed upfront (10% off monthly rate)<br><span style="font-size:12px;color:#64748b">Client receives one invoice for the full year</span></span>
-                    </label>
-                    <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-weight:400">
-                        <input type="radio" name="sc-cadence" value="monthly" onchange="updateSignupSummary()" style="margin-top:3px;width:auto">
-                        <span><strong>Monthly</strong> — billed each month, cancel anytime<br><span style="font-size:12px;color:#64748b">Client receives an invoice each billing cycle</span></span>
-                    </label>
+                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Packages</h3>
+                    <p style="font-size:12px;color:#94a3b8;margin:0 0 12px">Monthly subscriptions — billed on the 1st of each month</p>
+                    <div id="sc-package-options">
+                        <p style="color:#94a3b8;font-size:13px">No package products found.</p>
+                    </div>
+                    <!-- Enterprise: custom price per engagement -->
+                    <div id="sc-enterprise-wrap" style="margin-top:10px;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;transition:border-color 0.15s">
+                        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:400;margin:0">
+                            <input type="checkbox" id="sc-enterprise-cb" onchange="toggleEnterpriseInput();updateSignupSummary()" style="width:auto;accent-color:#16a34a;flex-shrink:0">
+                            <span style="flex:1"><strong>Enterprise</strong> <span style="color:#64748b;font-size:12px">— Custom engagement pricing</span></span>
+                        </label>
+                        <div id="sc-enterprise-price-wrap" style="display:none;margin-top:10px">
+                            <div style="display:flex;align-items:center;gap:8px">
+                                <span style="font-size:16px;font-weight:600;color:#334155">$</span>
+                                <input type="number" id="sc-enterprise-price" min="0" step="100" placeholder="Price as discussed on call" oninput="updateSignupSummary()" style="flex:1;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:Inter,sans-serif">
+                            </div>
+                            <p style="font-size:11px;color:#94a3b8;margin:6px 0 0">Monthly subscription — billed on the 1st of each month</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Engagement Builder: Hourly -->
+                <div class="detail-panel" style="margin-bottom:16px">
+                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Add-Ons <span style="font-weight:400;font-style:italic">(One-Time)</span></h3>
+                    <p style="font-size:12px;color:#94a3b8;margin:0 0 12px">Fixed-price add-ons — invoiced immediately on signing</p>
+                    <div id="sc-hourly-options">
+                        <p style="color:#94a3b8;font-size:13px">No hourly products found.</p>
+                    </div>
                 </div>
 
                 <!-- Start Date -->
                 <div class="detail-panel" style="margin-bottom:16px">
-                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px">Start Date</h3>
+                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px">Engagement Start Date</h3>
                     <input type="date" id="sc-start" style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:Inter,sans-serif" oninput="updateSignupSummary()">
                 </div>
 
-                <!-- Add-Ons -->
+                <!-- Payment Method -->
                 <div class="detail-panel" style="margin-bottom:16px">
-                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px">Add-Ons <span style="font-weight:400;font-style:italic">(optional)</span></h3>
-                    <div id="sc-addon-options">
-                        <p style="color:#94a3b8;font-size:13px">No add-on products found.</p>
-                    </div>
+                    <h3 style="font-size:0.85rem;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px">Payment Method</h3>
+                    <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-weight:400;margin-bottom:8px">
+                        <input type="radio" name="sc-payment" value="autopay-card" checked onchange="updateSignupSummary()" style="margin-top:3px;width:auto">
+                        <span><strong>Autopay — Card</strong><br><span style="font-size:12px;color:#64748b">Card charged automatically on billing date</span></span>
+                    </label>
+                    <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-weight:400;margin-bottom:8px">
+                        <input type="radio" name="sc-payment" value="autopay-ach" onchange="updateSignupSummary()" style="margin-top:3px;width:auto">
+                        <span><strong>Autopay — ACH Bank Transfer</strong><br><span style="font-size:12px;color:#64748b">Bank account debited automatically (lower processing fees)</span></span>
+                    </label>
+                    <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-weight:400">
+                        <input type="radio" name="sc-payment" value="invoice" onchange="updateSignupSummary()" style="margin-top:3px;width:auto">
+                        <span><strong>Invoice (Net-15)</strong><br><span style="font-size:12px;color:#64748b">Client pays each invoice manually within 15 days</span></span>
+                    </label>
                 </div>
 
-                <!-- Rate Summary -->
+                <!-- Scope Summary -->
                 <div id="sc-summary" class="detail-panel" style="margin-bottom:16px;background:#f0fdf4;border:1px solid #bbf7d0;display:none">
-                    <h3 style="font-size:0.85rem;color:#16a34a;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px"><i class="fas fa-receipt"></i> Rate Summary</h3>
+                    <h3 style="font-size:0.85rem;color:#16a34a;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px"><i class="fas fa-receipt"></i> Engagement Summary</h3>
                     <div id="sc-summary-body"></div>
                 </div>
 
@@ -274,8 +373,8 @@
                     <textarea id="sc-notes" style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:Inter,sans-serif;min-height:80px;resize:vertical" placeholder="Any special terms, context, or notes to include in the agreement..."></textarea>
                 </div>
 
-                <button class="btn-gold" id="sc-submit" onclick="sendEnvelope()" style="width:100%;padding:14px;font-size:15px"><i class="fas fa-paper-plane"></i> Send Contract via Dropbox Sign</button>
-                <p style="font-size:12px;color:#94a3b8;text-align:center;margin-top:10px">The client will receive an email with a link to review and e-sign the agreement. You'll be CC'd if BL_ADMIN_EMAIL is set.</p>
+                <button class="btn-gold" id="sc-submit" onclick="sendEnvelope()" style="width:100%;padding:14px;font-size:15px"><i class="fas fa-paper-plane"></i> Send MSA via PandaDoc</button>
+                <p style="font-size:12px;color:#94a3b8;text-align:center;margin-top:10px">The client receives a Master Services Agreement via email. Once signed, a Stripe subscription is created automatically for the selected monthly services.</p>
             </div>
         </div>
     </div>
@@ -286,12 +385,17 @@
     <script>
     var API='/.netlify/functions/bl-billing';
     var SIGNUP_API='/.netlify/functions/bl-signup';
+    var LEADS_API='/.netlify/functions/bl-leads';
     var ADMIN_KEY='';
     var _subs=[];
     var _custs=[];
     var _invs=[];
     var _prods=[];
     var _prices=[];
+    var _contracts=[];
+    var _contractsLoaded=false;
+    var _leads=[];
+    var _leadsLoaded=false;
     var _existingClient={id:'',name:'',email:'',company:''};
 
     // ─── Auto-login if remembered ───
@@ -338,6 +442,7 @@
             _prods=data.products||[];
             _prices=data.prices||[];
             loadAll();
+            // NOTE: bl-leads function not yet deployed — skip auto-preload to avoid 404 on login
         }).catch(function(err){
             var errEl=document.getElementById('authError');
             errEl.textContent=err.message||'Authentication failed';
@@ -426,16 +531,19 @@
 
     // ─── Tabs ───
     function switchTab(tab){
-        ['newclient','subscriptions','customers','invoices','products'].forEach(function(t){
+        var tabs=['newclient','leads','contracts','subscriptions','customers','invoices','products'];
+        tabs.forEach(function(t){
             var el=document.getElementById('tab-'+t);
             if(el)el.classList.toggle('hidden',t!==tab);
         });
         document.querySelectorAll('.tab').forEach(function(t,i){
-            var tabs=['newclient','subscriptions','customers','invoices','products'];
             t.classList.toggle('active',tabs[i]===tab);
-            // Keep New Client green when active
-            if(tabs[i]==='newclient')t.style.color=tabs[i]===tab?'#16a34a':'#16a34a';
+            if(tabs[i]==='newclient')t.style.color='#16a34a';
         });
+        // Lazy-load contracts on first visit
+        if(tab==='contracts'&&!_contractsLoaded)loadContracts(document.getElementById('contractsRefreshBtn'));
+        // Lazy-load leads on first visit
+        if(tab==='leads'&&!_leadsLoaded)loadLeads(document.getElementById('leadsRefreshBtn'));
     }
 
     // ─── Render Subscriptions ───
@@ -499,13 +607,23 @@
         var filtered=_custs.filter(function(c){
             return ((c.name||'')+(c.email||'')+JSON.stringify(c.metadata||{})).toLowerCase().indexOf(q)!==-1;
         });
-        var h='<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Subscriptions</th><th>Metadata</th><th>Created</th><th>Actions</th></tr></thead><tbody>';
+        var h='<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Subscription</th><th>Metadata</th><th>Created</th><th>Actions</th></tr></thead><tbody>';
         if(filtered.length===0){
             h+='<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px">No customers found</td></tr>';
         }
         filtered.forEach(function(c){
-            var subCount=0;
-            if(c.subscriptions&&c.subscriptions.data)subCount=c.subscriptions.data.length;
+            var subs=(c.subscriptions&&c.subscriptions.data)||[];
+            var subCount=subs.length;
+            // Build subscription status badges
+            var subBadges='<span style="color:#94a3b8;font-size:12px">—</span>';
+            if(subCount>0){
+                subBadges=subs.map(function(s){
+                    var statusClass='badge-'+s.status.replace(/_/g,'-');
+                    var label=s.status.replace(/_/g,' ');
+                    var tier=(s.metadata&&s.metadata.tier)||'';
+                    return '<span class="badge '+statusClass+'" style="font-size:11px;margin:1px">'+(tier?esc(tier)+' — ':'')+label+'</span>';
+                }).join(' ');
+            }
             var metaStr='—';
             if(c.metadata&&Object.keys(c.metadata).length>0){
                 metaStr='<div style="font-size:11px;line-height:1.6">';
@@ -516,7 +634,7 @@
             h+='<td><strong>'+esc(c.name||'—')+'</strong></td>';
             h+='<td>'+esc(c.email||'—')+'</td>';
             h+='<td>'+esc(c.phone||'—')+'</td>';
-            h+='<td style="text-align:center">'+subCount+'</td>';
+            h+='<td>'+subBadges+'</td>';
             h+='<td>'+metaStr+'</td>';
             h+='<td style="font-size:12px;color:#64748b">'+fmtDate(c.created)+'</td>';
             h+='<td style="white-space:nowrap"><button class="btn-sm btn-outline" onclick="editCustomer(\''+c.id+'\')"><i class="fas fa-pen"></i> Edit</button> <button class="btn-sm btn-outline" onclick="sendPaymentLink(\''+c.id+'\')" title="Send payment link to client"><i class="fas fa-link"></i> Pay Link</button>';
@@ -1274,64 +1392,62 @@
     }
 
     function initSignupTab(){
-        // Tier products: have bl_tier metadata, annual prices only shown as the primary option
-        var tierPrices=_prices.filter(function(p){
-            return p.product&&typeof p.product==='object'&&p.product.metadata&&p.product.metadata.bl_tier;
-        });
-        var annualTierPrices=tierPrices.filter(function(p){return p.recurring&&p.recurring.interval==='year'});
-        var monthlyTierPrices=tierPrices.filter(function(p){return p.recurring&&p.recurring.interval==='month'});
+        // Separate prices by bl_category metadata
+        var retainerPrices=_prices.filter(function(p){return p.product&&typeof p.product==='object'&&(p.product.metadata||{}).bl_category==='retainer';});
+        var packagePrices =_prices.filter(function(p){return p.product&&typeof p.product==='object'&&(p.product.metadata||{}).bl_category==='package';});
+        var hourlyPrices  =_prices.filter(function(p){return p.product&&typeof p.product==='object'&&(p.product.metadata||{}).bl_category==='hourly';});
 
-        // Build tier order from actual prices (known order first, unknowns appended)
-        var knownOrder=['basic','professional','enterprise','test'];
-        var tierKeys={};
-        tierPrices.forEach(function(p){if(p.product.metadata.bl_tier)tierKeys[p.product.metadata.bl_tier]=true;});
-        var tierOrder=knownOrder.filter(function(t){return tierKeys[t];});
-        Object.keys(tierKeys).forEach(function(t){if(knownOrder.indexOf(t)===-1)tierOrder.push(t);});
-
-        var tierEl=document.getElementById('sc-tier-options');
-        if(!tierEl)return;
-
-        if(annualTierPrices.length===0&&monthlyTierPrices.length===0){
-            tierEl.innerHTML='<p style="color:#94a3b8;font-size:13px"><i class="fas fa-exclamation-circle"></i> No tier products found. Click <strong>Setup Tier Products</strong> in the Products tab first, then return here.</p>';
-        } else {
-            var h='';
-            tierOrder.forEach(function(tierKey){
-                var annP=annualTierPrices.find(function(p){return p.product.metadata.bl_tier===tierKey});
-                var monP=monthlyTierPrices.find(function(p){return p.product.metadata.bl_tier===tierKey});
-                if(!annP&&!monP)return;
-                var ref=annP||monP;
-                var name=ref.product.name;
-                var moAmt=monP?monP.unit_amount:Math.round((annP.unit_amount/12));
-                var yrAmt=annP?annP.unit_amount:Math.round(monP.unit_amount*12);
-                var priceId=annP?annP.id:(monP?monP.id:'');
-                h+='<label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-weight:400;margin-bottom:10px;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px" id="sc-tier-label-'+tierKey+'">';
-                h+='<input type="radio" name="sc-tier" value="'+tierKey+'" data-price-id="'+priceId+'" data-monthly="'+moAmt+'" data-annual="'+yrAmt+'" onchange="updateSignupSummary()" style="margin-top:3px;width:auto">';
-                h+='<span><strong>'+esc(name)+'</strong><br>';
-                h+='<span style="font-size:12px;color:#64748b">$'+fmt(moAmt)+'/mo &nbsp;·&nbsp; $'+fmt(yrAmt)+'/yr (annual)</span></span>';
-                h+='</label>';
-            });
-            tierEl.innerHTML=h||'<p style="color:#94a3b8;font-size:13px">No tier products found.</p>';
+        // Retainers — checkboxes
+        var retainerEl=document.getElementById('sc-retainer-options');
+        if(retainerEl){
+            if(retainerPrices.length===0){
+                retainerEl.innerHTML='<p style="color:#94a3b8;font-size:13px"><i class="fas fa-exclamation-circle"></i> No retainer products found. Click <strong>Setup Service Catalog</strong> in the Products tab first.</p>';
+            } else {
+                var rh='';
+                retainerPrices.forEach(function(p){
+                    var name=p.product.name;
+                    rh+='<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:400;margin-bottom:10px;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px" id="sc-ret-label-'+p.id+'">';
+                    rh+='<input type="checkbox" class="sc-retainer-cb" data-price-id="'+p.id+'" data-name="'+esc(name)+'" data-amount="'+p.unit_amount+'" onchange="updateSignupSummary()" style="width:auto;accent-color:#16a34a">';
+                    rh+='<span><strong>'+esc(name)+'</strong> <span style="color:#64748b;font-size:12px">— $'+fmt(p.unit_amount)+'/mo</span></span>';
+                    rh+='</label>';
+                });
+                retainerEl.innerHTML=rh;
+            }
         }
 
-        // Add-ons: prices where product has NO bl_tier metadata
-        var addonPrices=_prices.filter(function(p){
-            return !(p.product&&typeof p.product==='object'&&p.product.metadata&&p.product.metadata.bl_tier);
-        });
-        var addonEl=document.getElementById('sc-addon-options');
-        if(addonEl){
-            if(addonPrices.length===0){
-                addonEl.innerHTML='<p style="color:#94a3b8;font-size:13px">No add-on products found. Create them in the Products tab.</p>';
+        // Packages — checkboxes (one-time project billing, 50/50)
+        var packageEl=document.getElementById('sc-package-options');
+        if(packageEl){
+            if(packagePrices.length===0){
+                packageEl.innerHTML='<p style="color:#94a3b8;font-size:13px">No package products found.</p>';
             } else {
-                var ah='';
-                addonPrices.forEach(function(p){
-                    var name=p.product&&typeof p.product==='object'?p.product.name:p.product;
-                    var interval=p.recurring?p.recurring.interval:'one-time';
-                    ah+='<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:400;margin-bottom:8px">';
-                    ah+='<input type="checkbox" data-price-id="'+p.id+'" data-name="'+esc(name)+'" data-amount="'+p.unit_amount+'" data-interval="'+interval+'" onchange="updateSignupSummary()" style="width:auto">';
-                    ah+='<span>'+esc(name)+'<span style="color:#64748b;font-size:12px"> — $'+fmt(p.unit_amount)+'/'+interval+'</span></span>';
-                    ah+='</label>';
+                var ph='';
+                packagePrices.forEach(function(p){
+                    var name=p.product.name;
+                    ph+='<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:400;margin-bottom:10px;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px" id="sc-pkg-label-'+p.id+'">';
+                    ph+='<input type="checkbox" class="sc-package-cb" data-price-id="'+p.id+'" data-name="'+esc(name)+'" data-amount="'+p.unit_amount+'" onchange="togglePackageSelected(\''+p.id+'\');updateSignupSummary()" style="width:auto;accent-color:#16a34a">';
+                    ph+='<span><strong>'+esc(name)+'</strong> <span style="color:#64748b;font-size:12px">— $'+fmt(p.unit_amount)+'/mo</span></span>';
+                    ph+='</label>';
                 });
-                addonEl.innerHTML=ah;
+                packageEl.innerHTML=ph;
+            }
+        }
+
+        // Hourly — checkboxes + hours input
+        var hourlyEl=document.getElementById('sc-hourly-options');
+        if(hourlyEl){
+            if(hourlyPrices.length===0){
+                hourlyEl.innerHTML='<p style="color:#94a3b8;font-size:13px">No hourly products found.</p>';
+            } else {
+                var hh='';
+                hourlyPrices.forEach(function(p){
+                    var name=p.product.name;
+                    hh+='<div style="margin-bottom:8px;padding:8px 14px;border:2px solid #e2e8f0;border-radius:10px;display:flex;align-items:center;gap:10px" id="sc-hr-wrap-'+p.id+'">';
+                    hh+='<input type="checkbox" class="sc-hourly-cb" data-price-id="'+p.id+'" data-name="'+esc(name)+'" data-amount="'+p.unit_amount+'" onchange="toggleHourlyWrap(\''+p.id+'\');updateSignupSummary()" style="width:auto;flex-shrink:0;accent-color:#16a34a">';
+                    hh+='<span style="flex:1;font-size:14px"><strong>'+esc(name)+'</strong> <span style="color:#64748b;font-size:12px">$'+fmt(p.unit_amount)+' (one-time)</span></span>';
+                    hh+='</div>';
+                });
+                hourlyEl.innerHTML=hh;
             }
         }
 
@@ -1345,47 +1461,95 @@
         updateSignupSummary();
     }
 
+    function togglePackageSelected(priceId){
+        var cb=document.querySelector('.sc-package-cb[data-price-id="'+priceId+'"]');
+        var lbl=document.getElementById('sc-pkg-label-'+priceId);
+        if(!cb||!lbl)return;
+        lbl.style.borderColor=cb.checked?'#16a34a':'#e2e8f0';
+    }
+
+    function toggleHourlyWrap(priceId){
+        var cb=document.querySelector('.sc-hourly-cb[data-price-id="'+priceId+'"]');
+        var wrap=document.getElementById('sc-hr-wrap-'+priceId);
+        if(cb&&wrap)wrap.style.borderColor=cb.checked?'#16a34a':'#e2e8f0';
+    }
+
+    function toggleEnterpriseInput(){
+        var cb=document.getElementById('sc-enterprise-cb');
+        var wrap=document.getElementById('sc-enterprise-price-wrap');
+        var outer=document.getElementById('sc-enterprise-wrap');
+        if(!cb||!wrap)return;
+        wrap.style.display=cb.checked?'block':'none';
+        if(outer)outer.style.borderColor=cb.checked?'#16a34a':'#e2e8f0';
+        if(cb.checked){var inp=document.getElementById('sc-enterprise-price');if(inp)inp.focus();}
+    }
+
     function updateSignupSummary(){
-        var tierInput=document.querySelector('input[name="sc-tier"]:checked');
-        var cadenceInput=document.querySelector('input[name="sc-cadence"]:checked');
         var summaryEl=document.getElementById('sc-summary');
         var summaryBody=document.getElementById('sc-summary-body');
         if(!summaryEl||!summaryBody)return;
 
-        if(!tierInput){summaryEl.style.display='none';return;}
-
-        var moAmt=parseInt(tierInput.getAttribute('data-monthly'))||0;
-        var yrAmt=parseInt(tierInput.getAttribute('data-annual'))||0;
-        var isAnnual=cadenceInput?cadenceInput.value==='annual':true;
-        var tierName=tierInput.value.charAt(0).toUpperCase()+tierInput.value.slice(1);
-
-        // Highlight selected tier card
-        document.querySelectorAll('[id^="sc-tier-label-"]').forEach(function(el){el.style.borderColor='#e2e8f0';});
-        var activeLabel=document.getElementById('sc-tier-label-'+tierInput.value);
-        if(activeLabel)activeLabel.style.borderColor='#16a34a';
-
-        // Collect add-ons
-        var addons=[];
-        document.querySelectorAll('#sc-addon-options input[type="checkbox"]:checked').forEach(function(cb){
-            addons.push({
-                priceId:cb.getAttribute('data-price-id'),
-                name:cb.getAttribute('data-name'),
-                amount:parseInt(cb.getAttribute('data-amount'))||0,
-                interval:cb.getAttribute('data-interval')
-            });
+        // Collect selected retainers
+        var retainers=[];
+        document.querySelectorAll('.sc-retainer-cb:checked').forEach(function(cb){
+            retainers.push({priceId:cb.getAttribute('data-price-id'),name:cb.getAttribute('data-name'),amount:parseInt(cb.getAttribute('data-amount'))||0,category:'retainer'});
+            var lbl=document.getElementById('sc-ret-label-'+cb.getAttribute('data-price-id'));
+            if(lbl)lbl.style.borderColor='#16a34a';
+        });
+        document.querySelectorAll('.sc-retainer-cb:not(:checked)').forEach(function(cb){
+            var lbl=document.getElementById('sc-ret-label-'+cb.getAttribute('data-price-id'));
+            if(lbl)lbl.style.borderColor='#e2e8f0';
         });
 
-        var startDate=document.getElementById('sc-start').value||'—';
-        var addonMonthly=addons.reduce(function(sum,a){return sum+(a.interval==='year'?Math.round(a.amount/12):a.amount)},0);
+        // Collect selected packages
+        var packages=[];
+        document.querySelectorAll('.sc-package-cb:checked').forEach(function(cb){
+            packages.push({priceId:cb.getAttribute('data-price-id'),name:cb.getAttribute('data-name'),amount:parseInt(cb.getAttribute('data-amount'))||0,category:'package',billing:cb.getAttribute('data-billing')||'project'});
+        });
 
-        var h='<div class="detail-grid">';
-        h+='<div class="detail-item"><div class="di-label">Tier</div><div class="di-val">'+esc(tierName)+'</div></div>';
-        h+='<div class="detail-item"><div class="di-label">Cadence</div><div class="di-val">'+(isAnnual?'Annual':'Monthly')+'</div></div>';
-        h+='<div class="detail-item"><div class="di-label">Base Rate</div><div class="di-val">$'+fmt(moAmt)+'/mo'+(isAnnual?' · $'+fmt(yrAmt)+'/yr':'')+'</div></div>';
-        if(addons.length){h+='<div class="detail-item"><div class="di-label">Add-Ons</div><div class="di-val">+$'+fmt(addonMonthly)+'/mo</div></div>';}
-        h+='<div class="detail-item"><div class="di-label">Total</div><div class="di-val" style="font-size:18px;color:#16a34a">'+(isAnnual?'$'+fmt(yrAmt+addonMonthly*12)+'/yr':'$'+fmt(moAmt+addonMonthly)+'/mo')+'</div></div>';
-        h+='<div class="detail-item"><div class="di-label">Start Date</div><div class="di-val">'+esc(startDate)+'</div></div>';
-        h+='</div>';
+        // Collect enterprise (custom price)
+        var enterpriseItems=[];
+        var entCb=document.getElementById('sc-enterprise-cb');
+        if(entCb&&entCb.checked){
+            var entVal=parseFloat((document.getElementById('sc-enterprise-price')||{}).value)||0;
+            var entCents=Math.round(entVal*100);
+            if(entCents>0) enterpriseItems.push({priceId:'',name:'Enterprise',amount:entCents,category:'enterprise'});
+        }
+
+        // Collect selected add-ons (formerly hourly — fixed-price, one-time)
+        var hourlyItems=[];
+        document.querySelectorAll('.sc-hourly-cb:checked').forEach(function(cb){
+            hourlyItems.push({priceId:cb.getAttribute('data-price-id'),name:cb.getAttribute('data-name'),amount:parseInt(cb.getAttribute('data-amount'))||0,category:'hourly'});
+        });
+
+        if(retainers.length===0&&packages.length===0&&enterpriseItems.length===0&&hourlyItems.length===0){summaryEl.style.display='none';return;}
+
+        var startDate=document.getElementById('sc-start').value||'—';
+        var paymentInput=document.querySelector('input[name="sc-payment"]:checked');
+        var paymentLabel=paymentInput?{'autopay-card':'Autopay — Card','autopay-ach':'Autopay — ACH','invoice':'Invoice (Net-15)'}[paymentInput.value]||paymentInput.value:'—';
+
+        // Monthly total = retainers + packages + enterprise (all recurring monthly)
+        var totalMonthly=retainers.reduce(function(s,r){return s+r.amount},0)
+            +packages.reduce(function(s,p){return s+p.amount},0)
+            +enterpriseItems.reduce(function(s,e){return s+e.amount},0);
+        // Add-ons = fixed-price one-time items (invoiced immediately on signing)
+        var totalAddons=hourlyItems.reduce(function(s,h){return s+h.amount},0);
+
+        var h='<table style="border:none;font-size:13px;margin:0">';
+        retainers.forEach(function(r){h+='<tr><td style="border:none;padding:3px 0;color:#334155">'+esc(r.name)+'</td><td style="border:none;padding:3px 0 3px 16px;font-weight:600;color:#16a34a;white-space:nowrap">$'+fmt(r.amount)+'/mo</td></tr>';});
+        packages.forEach(function(p){
+            h+='<tr><td style="border:none;padding:3px 0;color:#334155">'+esc(p.name)+'</td><td style="border:none;padding:3px 0 3px 16px;font-weight:600;color:#7c3aed;white-space:nowrap">$'+fmt(p.amount)+'/mo</td></tr>';
+        });
+        enterpriseItems.forEach(function(e){h+='<tr><td style="border:none;padding:3px 0;color:#334155">'+esc(e.name)+'</td><td style="border:none;padding:3px 0 3px 16px;font-weight:600;color:#7c3aed;white-space:nowrap">$'+fmt(e.amount)+'/mo</td></tr>';});
+        hourlyItems.forEach(function(h2){h+='<tr><td style="border:none;padding:3px 0;color:#334155">'+esc(h2.name)+'</td><td style="border:none;padding:3px 0 3px 16px;font-weight:600;color:#64748b;white-space:nowrap">$'+fmt(h2.amount)+' (one-time)</td></tr>';});
+        h+='</table>';
+        if(totalMonthly||totalAddons){
+            h+='<div style="border-top:1px solid #bbf7d0;margin-top:10px;padding-top:10px;display:flex;flex-wrap:wrap;gap:16px">';
+            if(totalMonthly)h+='<span style="font-size:13px"><span style="color:#64748b">Monthly:</span> <strong>$'+fmt(totalMonthly)+'/mo</strong></span>';
+            if(totalAddons)h+='<span style="font-size:13px"><span style="color:#64748b">Add-Ons:</span> <strong>$'+fmt(totalAddons)+'</strong> <span style="color:#94a3b8;font-size:11px">(one-time, invoiced on signing)</span></span>';
+            h+='</div>';
+        }
+        h+='<div style="margin-top:8px;font-size:12px;color:#64748b">Start: <strong>'+esc(startDate)+'</strong> &nbsp;·&nbsp; Payment: <strong>'+esc(paymentLabel)+'</strong></div>';
         summaryBody.innerHTML=h;
         summaryEl.style.display='block';
     }
@@ -1401,6 +1565,20 @@
             // Reset existing selection so it doesn't bleed through
             _existingClient={id:'',name:'',email:'',company:''};
         }
+    }
+
+    function switchClientEntity(){
+        var sel=document.querySelector('input[name="sc-client-entity"]:checked');
+        var isCo=sel&&sel.value==='company';
+        var indiv=document.getElementById('sc-individual-fields');
+        var co=document.getElementById('sc-company-fields');
+        var indLbl=document.getElementById('sc-ct-individual-lbl');
+        var coLbl=document.getElementById('sc-ct-company-lbl');
+        if(indiv)indiv.classList.toggle('hidden',isCo);
+        if(co)co.classList.toggle('hidden',!isCo);
+        if(indLbl){indLbl.style.borderColor=isCo?'#e2e8f0':'#16a34a';indLbl.style.background=isCo?'':'#f0fdf4';}
+        if(coLbl){coLbl.style.borderColor=isCo?'#16a34a':'#e2e8f0';coLbl.style.background=isCo?'#f0fdf4':'';}
+        updateSignupSummary();
     }
 
     function buildCustomerList(){
@@ -1459,106 +1637,182 @@
     }
 
     function sendEnvelope(){
-        var tierInput=document.querySelector('input[name="sc-tier"]:checked');
-        var cadenceInput=document.querySelector('input[name="sc-cadence"]:checked');
         var clientTypeInput=document.querySelector('input[name="sc-client-type"]:checked');
         var isNew=!clientTypeInput||clientTypeInput.value==='new';
         var startDate=document.getElementById('sc-start').value;
         var notes=document.getElementById('sc-notes').value.trim();
+        var paymentInput=document.querySelector('input[name="sc-payment"]:checked');
+        var paymentVal=paymentInput?paymentInput.value:'autopay-card';
+        var collectionMethod=paymentVal==='invoice'?'send_invoice':'charge_automatically';
+        var paymentMethod=paymentVal==='autopay-ach'?'ach':'card';
 
-        // Resolve name/email/company/customerId based on mode
-        var name,email,company,customerId='';
+        // Resolve client info
+        var name,email,company,customerId='',clientType='individual';
+        var repFirstName='',repLastName='',repEmail='',repPhone='';
         if(isNew){
-            name=document.getElementById('sc-name').value.trim();
-            email=document.getElementById('sc-email').value.trim();
-            company=document.getElementById('sc-company').value.trim();
-            if(!name){toast('Enter client name','error');return;}
-            if(!email){toast('Enter client email','error');return;}
+            var entityInput=document.querySelector('input[name="sc-client-entity"]:checked');
+            clientType=entityInput?entityInput.value:'individual';
+            if(clientType==='company'){
+                company=document.getElementById('sc-co-name').value.trim();
+                repFirstName=document.getElementById('sc-rep-first').value.trim();
+                repLastName=document.getElementById('sc-rep-last').value.trim();
+                repEmail=document.getElementById('sc-rep-email').value.trim();
+                repPhone=document.getElementById('sc-rep-phone').value.trim();
+                if(!company){toast('Enter company name','error');return;}
+                if(!repFirstName||!repLastName){toast('Enter representative first and last name','error');return;}
+                if(!repEmail){toast('Enter representative email','error');return;}
+                if(!repPhone){toast('Enter representative phone','error');return;}
+                name=(repFirstName+' '+repLastName).trim();
+                email=repEmail;
+            } else {
+                name=document.getElementById('sc-name').value.trim();
+                email=document.getElementById('sc-email').value.trim();
+                company=document.getElementById('sc-company').value.trim();
+                if(!name){toast('Enter client name','error');return;}
+                if(!email){toast('Enter client email','error');return;}
+            }
         } else {
             if(!_existingClient.id){toast('Select an existing customer','error');return;}
-            name=_existingClient.name;
-            email=_existingClient.email;
-            company=_existingClient.company;
-            customerId=_existingClient.id;
-            if(!email){toast('Selected customer has no email — add one in the Customers tab first','error');return;}
+            name=_existingClient.name;email=_existingClient.email;
+            company=_existingClient.company;customerId=_existingClient.id;
+            if(!email){toast('Selected customer has no email — add one in Customers tab first','error');return;}
         }
-
-        if(!tierInput){toast('Select a service tier','error');return;}
         if(!startDate){toast('Select a start date','error');return;}
 
-        var tier=tierInput.value;
-        var cadence=cadenceInput?cadenceInput.value:'annual';
-        var priceId=tierInput.getAttribute('data-price-id');
-        var moAmt=parseInt(tierInput.getAttribute('data-monthly'))||0;
-        var yrAmt=parseInt(tierInput.getAttribute('data-annual'))||0;
-
-        var addons=[];
-        document.querySelectorAll('#sc-addon-options input[type="checkbox"]:checked').forEach(function(cb){
-            addons.push({
-                priceId:cb.getAttribute('data-price-id'),
-                name:cb.getAttribute('data-name'),
-                amount:parseInt(cb.getAttribute('data-amount'))||0,
-                interval:cb.getAttribute('data-interval')
-            });
+        // Build items array
+        var items=[];
+        document.querySelectorAll('.sc-retainer-cb:checked').forEach(function(cb){
+            items.push({priceId:cb.getAttribute('data-price-id'),name:cb.getAttribute('data-name'),amount:parseInt(cb.getAttribute('data-amount'))||0,category:'retainer'});
         });
+        document.querySelectorAll('.sc-package-cb:checked').forEach(function(cb){
+            items.push({priceId:cb.getAttribute('data-price-id'),name:cb.getAttribute('data-name'),amount:parseInt(cb.getAttribute('data-amount'))||0,category:'package'});
+        });
+        document.querySelectorAll('.sc-hourly-cb:checked').forEach(function(cb){
+            items.push({priceId:cb.getAttribute('data-price-id'),name:cb.getAttribute('data-name'),amount:parseInt(cb.getAttribute('data-amount'))||0,category:'hourly'});
+        });
+        var entCbSubmit=document.getElementById('sc-enterprise-cb');
+        if(entCbSubmit&&entCbSubmit.checked){
+            var entValSubmit=parseFloat((document.getElementById('sc-enterprise-price')||{}).value)||0;
+            var entCentsSubmit=Math.round(entValSubmit*100);
+            if(entCentsSubmit<=0){toast('Enter a price for Enterprise','error');return;}
+            items.push({priceId:'',name:'Enterprise',amount:entCentsSubmit,category:'enterprise'});
+        }
+
+        if(items.length===0){toast('Select at least one service','error');return;}
 
         var btn=document.getElementById('sc-submit');
         if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';}
 
-        var payload={
-            action:'create-envelope',
-            name:name,
-            email:email,
-            company:company,
-            tier:tier,
-            cadence:cadence,
-            startDate:startDate,
-            stripePriceId:priceId,
-            monthlyAmount:moAmt,
-            annualAmount:yrAmt,
-            addons:addons,
-            notes:notes
-        };
+        var payload={action:'create-envelope',name:name,email:email,company:company,items:items,
+            collectionMethod:collectionMethod,paymentMethod:paymentMethod,startDate:startDate,notes:notes,
+            clientType:clientType};
+        if(clientType==='company'){
+            payload.repFirstName=repFirstName;
+            payload.repLastName=repLastName;
+            payload.repEmail=repEmail;
+            payload.repPhone=repPhone;
+        }
         if(customerId)payload.customerId=customerId;
 
         signupApiCall(payload).then(function(data){
-            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Contract via Dropbox Sign';}
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send MSA via PandaDoc';}
             if(data.error){toast(data.error,'error');return;}
-            toast('Contract sent to '+email+'!','success');
-            // Clear new-client fields (existing-client mode keeps the dropdown as-is)
-            if(isNew){
-                ['sc-name','sc-email','sc-company','sc-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-            } else {
-                var notesEl=document.getElementById('sc-notes');
-                if(notesEl)notesEl.value='';
-            }
-            document.querySelectorAll('input[name="sc-tier"]').forEach(function(r){r.checked=false;});
-            document.querySelectorAll('#sc-addon-options input[type="checkbox"]').forEach(function(cb){cb.checked=false;});
+            toast('MSA sent to '+email+'!','success');
+            // Clear fields
+            if(isNew){['sc-name','sc-email','sc-company','sc-co-name','sc-rep-first','sc-rep-last','sc-rep-email','sc-rep-phone','sc-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});}
+            else{var n=document.getElementById('sc-notes');if(n)n.value='';}
+            document.querySelectorAll('.sc-retainer-cb,.sc-package-cb,.sc-hourly-cb').forEach(function(cb){cb.checked=false;cb.dispatchEvent(new Event('change'));});
+            var entCbReset=document.getElementById('sc-enterprise-cb');
+            if(entCbReset){entCbReset.checked=false;toggleEnterpriseInput();}
+            var entPriceReset=document.getElementById('sc-enterprise-price');
+            if(entPriceReset)entPriceReset.value='';
             document.getElementById('sc-summary').style.display='none';
-            // Show result
-            var msg='<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:20px;margin-top:16px">';
-            msg+='<div style="font-weight:700;color:#16a34a;margin-bottom:8px"><i class="fas fa-check-circle"></i> Contract sent successfully!</div>';
-            if(data.signatureRequestId)msg+='<div style="font-size:12px;color:#64748b">Signature Request ID: <code>'+esc(data.signatureRequestId)+'</code></div>';
-            msg+='<p style="font-size:13px;color:#475569;margin-top:8px">'+esc(name)+' will receive an email with a link to review and sign the agreement.</p>';
-            msg+='</div>';
-            var notesPanel=document.getElementById('sc-notes').closest('.detail-panel');
-            if(notesPanel)notesPanel.insertAdjacentHTML('afterend',msg);
+            // Show full-screen success modal
+            showMsaSentModal(name, email, data.signatureRequestId||'');
         }).catch(function(err){
-            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Contract via Dropbox Sign';}
-            toast(err.message||'Error sending contract','error');
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send MSA via PandaDoc';}
+            toast(err.message||'Error sending MSA','error');
         });
     }
 
-    function seedTierProducts(btn){
-        btn.disabled=true;btn.textContent='Setting up...';
-        apiCall({action:'seed-tier-products'}).then(function(data){
-            btn.disabled=false;btn.innerHTML='<i class="fas fa-layer-group"></i> Setup Tier Products';
+    function showMsaSentModal(clientName, clientEmail, envelopeId){
+        // Remove any existing instance
+        var existing=document.getElementById('msaSentModal');
+        if(existing)existing.remove();
+
+        var countdown=10;
+        var timer=null;
+
+        var html='<div id="msaSentModal" style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,0.7);backdrop-filter:blur(4px);animation:fadeInOverlay 0.2s ease">'
+            +'<div style="background:#fff;border-radius:20px;padding:48px 40px;max-width:520px;width:90%;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,0.3);animation:popIn 0.25s ease">'
+            // Big checkmark
+            +'<div style="width:80px;height:80px;background:#f0fdf4;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px">'
+            +'<i class="fas fa-check" style="font-size:36px;color:#16a34a"></i>'
+            +'</div>'
+            // Title
+            +'<h2 style="font-size:26px;font-weight:800;color:#0f172a;margin:0 0 8px">Document Submitted</h2>'
+            +'<p style="font-size:15px;color:#475569;margin:0 0 24px">The MSA has been sent to <strong>'+esc(clientName)+'</strong> at <strong>'+esc(clientEmail)+'</strong> for signature.</p>'
+            // Status badge
+            +'<div style="display:inline-flex;align-items:center;gap:8px;background:#fef9c3;border:1px solid #fde047;border-radius:20px;padding:6px 16px;margin-bottom:24px">'
+            +'<i class="fas fa-clock" style="color:#92400e;font-size:12px"></i>'
+            +'<span style="font-size:13px;font-weight:700;color:#92400e">PENDING SIGNATURE</span>'
+            +'</div>'
+            // Info text
+            +'<p style="font-size:13px;color:#64748b;margin:0 0 8px">Once signed, a Stripe subscription is created automatically and the client receives payment instructions.</p>'
+            +(envelopeId?'<p style="font-size:11px;color:#94a3b8;margin:0 0 28px">Envelope ID: <code style="user-select:all;font-size:11px">'+esc(envelopeId)+'</code></p>':'<div style="margin-bottom:28px"></div>')
+            // Buttons
+            +'<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">'
+            +'<button class="btn-gold" onclick="closeMsaSentModal();_contractsLoaded=false;switchTab(\'contracts\')" style="padding:12px 24px;font-size:14px"><i class="fas fa-file-contract"></i> View Contracts</button>'
+            +'<button class="btn-outline" onclick="closeMsaSentModal()" style="padding:12px 24px;font-size:14px">Send Another <span id="msaCountdown" style="color:#94a3b8;font-size:12px">('+countdown+'s)</span></button>'
+            +'</div>'
+            +'</div>'
+            +'</div>';
+
+        // Inject keyframe animations if not already present
+        if(!document.getElementById('msaModalStyles')){
+            var style=document.createElement('style');
+            style.id='msaModalStyles';
+            style.textContent='@keyframes fadeInOverlay{from{opacity:0}to{opacity:1}}@keyframes popIn{from{transform:scale(0.85);opacity:0}to{transform:scale(1);opacity:1}}';
+            document.head.appendChild(style);
+        }
+
+        document.body.insertAdjacentHTML('beforeend',html);
+
+        // Click overlay to close
+        document.getElementById('msaSentModal').addEventListener('click',function(e){
+            if(e.target===this)closeMsaSentModal();
+        });
+
+        // Auto-close countdown
+        timer=setInterval(function(){
+            countdown--;
+            var cd=document.getElementById('msaCountdown');
+            if(cd)cd.textContent='('+countdown+'s)';
+            if(countdown<=0){clearInterval(timer);closeMsaSentModal();}
+        },1000);
+
+        // Store timer ref on the element so closeMsaSentModal can clear it
+        document.getElementById('msaSentModal')._timer=timer;
+    }
+
+    function closeMsaSentModal(){
+        var modal=document.getElementById('msaSentModal');
+        if(!modal)return;
+        clearInterval(modal._timer);
+        modal.style.animation='fadeInOverlay 0.15s ease reverse';
+        setTimeout(function(){if(modal)modal.remove();},150);
+    }
+
+    function setupServiceCatalog(btn){
+        if(!confirm('Create retainer, package, and hourly service products in Stripe? Existing products with the same name will be skipped.'))return;
+        btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Setting up...';
+        apiCall({action:'setup-service-catalog'}).then(function(data){
+            btn.disabled=false;btn.innerHTML='<i class="fas fa-layer-group"></i> Setup Service Catalog';
             if(data.error){toast(data.error,'error');return;}
             var msg='';
             if(data.created&&data.created.length)msg+='Created: '+data.created.join(', ')+'. ';
             if(data.skipped&&data.skipped.length)msg+='Already existed: '+data.skipped.join(', ')+'.';
-            toast(msg||'Tier products ready','success');
-            // Reload products and reinit signup tab
+            toast(msg||'Service catalog ready','success');
             apiCall({action:'list-products'}).then(function(d){
                 if(d.products)_prods=d.products;
                 if(d.prices)_prices=d.prices;
@@ -1566,8 +1820,440 @@
                 initSignupTab();
             });
         }).catch(function(err){
-            btn.disabled=false;btn.innerHTML='<i class="fas fa-layer-group"></i> Setup Tier Products';
-            toast(err.message||'Error setting up tier products','error');
+            btn.disabled=false;btn.innerHTML='<i class="fas fa-layer-group"></i> Setup Service Catalog';
+            toast(err.message||'Error setting up catalog','error');
+        });
+    }
+
+    function setupAnnualPrices(btn){
+        if(!confirm('Add 10%-off annual prices to all monthly retainer & package products?\n\nProducts that already have an annual price will be skipped. Continue?'))return;
+        btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Adding annual prices...';
+        apiCall({action:'setup-annual-prices'}).then(function(data){
+            btn.disabled=false;btn.innerHTML='<i class="fas fa-calendar-check"></i> Setup Annual Prices';
+            if(data.error){toast(data.error,'error');return;}
+            var msg='';
+            if(data.created&&data.created.length)msg+='Created: '+data.created.join('; ')+'. ';
+            if(data.skipped&&data.skipped.length)msg+='Skipped: '+data.skipped.join('; ')+'.';
+            toast(msg||'Done — no changes needed','success');
+            apiCall({action:'list-products'}).then(function(d){
+                if(d.products)_prods=d.products;
+                if(d.prices)_prices=d.prices;
+                renderProducts();initSignupTab();
+            });
+        }).catch(function(err){
+            btn.disabled=false;btn.innerHTML='<i class="fas fa-calendar-check"></i> Setup Annual Prices';
+            toast(err.message||'Error setting up annual prices','error');
+        });
+    }
+
+    function migrateCatalog(btn){
+        if(!confirm('Migrate catalog?\n\n1. Archive old one-time packages (Business Launch, Brand & Marketing)\n2. Archive 7 old hourly services (Strategy, Financial, Legal, Marketing, HR, Tech, Bookkeeping)\n3. Seed new Basic/Professional monthly packages + 3 new hourly services\n\nExisting subscriptions are unaffected. Continue?'))return;
+        var orig='<i class="fas fa-random"></i> Migrate Catalog';
+        btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Archiving old...';
+        apiCall({action:'archive-old-catalog'}).then(function(a){
+            if(a.error){btn.disabled=false;btn.innerHTML=orig;toast(a.error,'error');return;}
+            btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Seeding new...';
+            return apiCall({action:'setup-service-catalog'}).then(function(s){
+                btn.disabled=false;btn.innerHTML=orig;
+                if(s.error){toast(s.error,'error');return;}
+                var msg='';
+                if(a.archived&&a.archived.length)msg+='Archived: '+a.archived.join(', ')+'. ';
+                if(s.created&&s.created.length)msg+='Created: '+s.created.join(', ')+'. ';
+                if(s.skipped&&s.skipped.length)msg+='Already existed: '+s.skipped.join(', ')+'.';
+                toast(msg||'Migration complete','success');
+                apiCall({action:'list-products'}).then(function(d){
+                    if(d.products)_prods=d.products;
+                    if(d.prices)_prices=d.prices;
+                    renderProducts();initSignupTab();
+                });
+            });
+        }).catch(function(err){
+            btn.disabled=false;btn.innerHTML=orig;
+            toast(err.message||'Migration error','error');
+        });
+    }
+
+    function archiveOldTiers(btn){
+        if(!confirm('Archive Basic, Professional, and Enterprise tier products in Stripe?\n\nThis deactivates those products and all their prices. Existing subscriptions are unaffected.'))return;
+        btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Archiving...';
+        apiCall({action:'archive-old-tiers'}).then(function(data){
+            btn.disabled=false;btn.innerHTML='<i class="fas fa-archive"></i> Archive Old Tiers';
+            if(data.error){toast(data.error,'error');return;}
+            var msg='';
+            if(data.archived&&data.archived.length)msg+='Archived: '+data.archived.join(', ')+'. ';
+            if(data.skipped&&data.skipped.length)msg+='Already inactive / not found: '+data.skipped.join(', ')+'.';
+            toast(msg||'Old tiers archived','success');
+            apiCall({action:'list-products'}).then(function(d){
+                if(d.products)_prods=d.products;
+                if(d.prices)_prices=d.prices;
+                renderProducts();
+                initSignupTab();
+            });
+        }).catch(function(err){
+            btn.disabled=false;btn.innerHTML='<i class="fas fa-archive"></i> Archive Old Tiers';
+            toast(err.message||'Error archiving old tiers','error');
+        });
+    }
+
+    // kept for backwards compat (not exposed in UI)
+    function seedTierProducts(btn){
+        btn.disabled=true;btn.textContent='Setting up...';
+        apiCall({action:'seed-tier-products'}).then(function(data){
+            btn.disabled=false;btn.textContent='Setup Tier Products';
+            if(data.error){toast(data.error,'error');return;}
+            toast('Tier products ready','success');
+            apiCall({action:'list-products'}).then(function(d){
+                if(d.products)_prods=d.products;
+                if(d.prices)_prices=d.prices;
+                renderProducts();initSignupTab();
+            });
+        }).catch(function(err){btn.disabled=false;btn.textContent='Setup Tier Products';toast(err.message||'Error','error');});
+    }
+
+    // ─── Leads ───
+    function leadsApiCall(payload){
+        return fetch(LEADS_API,{
+            method:'POST',
+            headers:{'Content-Type':'application/json','X-Admin-Key':ADMIN_KEY},
+            body:JSON.stringify(payload)
+        }).then(function(r){return r.json();});
+    }
+
+    function loadLeads(btn){
+        if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Loading...';}
+        leadsApiCall({action:'list-leads',includeConverted:true}).then(function(data){
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-sync-alt"></i> Refresh';}
+            if(data.error){toast(data.error,'error');return;}
+            _leads=data.leads||[];
+            _leadsLoaded=true;
+            renderLeads();
+            updateLeadsBadge();
+        }).catch(function(err){
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-sync-alt"></i> Refresh';}
+            toast(err.message||'Error loading leads','error');
+        });
+    }
+
+    function updateLeadsBadge(){
+        var newCount=_leads.filter(function(l){return l.status==='new';}).length;
+        var badge=document.getElementById('leadsBadge');
+        if(!badge)return;
+        if(newCount>0){badge.textContent=newCount;badge.classList.remove('hidden');}
+        else badge.classList.add('hidden');
+    }
+
+    function renderLeads(){
+        var q=((document.getElementById('leadSearch')||{}).value||'').toLowerCase();
+        var statusFilter=((document.getElementById('leadStatusFilter')||{}).value||'active');
+        var filtered=_leads.filter(function(l){
+            if(statusFilter==='active'){if(l.status==='converted'||l.status==='lost')return false;}
+            else if(statusFilter!=='all'){if(l.status!==statusFilter)return false;}
+            if(!q)return true;
+            var hay=(l.name+' '+l.email+' '+l.company+' '+l.service+' '+l.notes).toLowerCase();
+            return hay.indexOf(q)!==-1;
+        });
+        var h='<table><thead><tr><th>Lead</th><th>Contact</th><th>Interest</th><th>Budget</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead><tbody>';
+        if(filtered.length===0){
+            h+='<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px">No leads match those filters. Share <a href="/get-started" target="_blank" style="color:#2563eb">/get-started</a> to start capturing them.</td></tr>';
+        }
+        filtered.forEach(function(l){
+            var statusClass='badge-incomplete';
+            if(l.status==='new')statusClass='badge-trialing';
+            else if(l.status==='qualified'||l.status==='proposal')statusClass='badge-active';
+            else if(l.status==='converted')statusClass='badge-active';
+            else if(l.status==='lost')statusClass='badge-canceled';
+            var created=l.created?new Date(l.created).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'—';
+            var name=esc(l.name||'—')+(l.company?'<br><span style="font-size:12px;color:#64748b">'+esc(l.company)+'</span>':'');
+            var contact='<a href="mailto:'+esc(l.email||'')+'" style="color:#2563eb;text-decoration:none">'+esc(l.email||'—')+'</a>';
+            if(l.phone)contact+='<br><span style="font-size:12px;color:#64748b">'+esc(l.phone)+'</span>';
+            var interest=l.service?prettyService(l.service):'<span style="color:#94a3b8">—</span>';
+            var budget=l.budget?prettyBudget(l.budget):'<span style="color:#94a3b8">—</span>';
+            var statusSel='<select onchange="updateLeadStatus(\''+l.id+'\',this.value)" style="padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px">';
+            ['new','contacted','qualified','proposal','converted','lost'].forEach(function(s){
+                statusSel+='<option value="'+s+'"'+(l.status===s?' selected':'')+'>'+s+'</option>';
+            });
+            statusSel+='</select>';
+            var actions='';
+            if(l.status!=='converted'){
+                actions+='<button class="btn-gold btn-sm" onclick="convertLeadToClient(\''+l.id+'\')" title="Pre-fill New Client form"><i class="fas fa-arrow-right"></i> Convert</button> ';
+            }
+            actions+='<button class="btn-outline btn-sm" onclick="viewLeadNotes(\''+l.id+'\')" title="View notes"><i class="fas fa-sticky-note"></i></button> ';
+            actions+='<button class="btn-danger" style="padding:5px 10px" onclick="deleteLead(\''+l.id+'\')" title="Delete"><i class="fas fa-trash"></i></button>';
+            h+='<tr><td>'+name+'</td><td>'+contact+'</td><td>'+interest+'</td><td>'+budget+'</td><td><span class="badge '+statusClass+'" style="margin-right:6px">'+esc(l.status)+'</span>'+statusSel+'</td><td>'+created+'</td><td>'+actions+'</td></tr>';
+        });
+        h+='</tbody></table>';
+        document.getElementById('leadTable').innerHTML=h;
+    }
+
+    function prettyService(s){
+        var map={retainer:'Retainer / advisory',package:'Monthly package',website:'Website dev',crm:'CRM add-ons',brainstorm:'Brainstorm meeting',other:'Other / unsure'};
+        return esc(map[s]||s);
+    }
+    function prettyBudget(b){
+        var map={'under-500':'<$500/mo','500-1500':'$500–1.5K/mo','1500-5000':'$1.5K–5K/mo','5000-plus':'$5K+/mo',project:'One-time project','not-sure':'Not sure'};
+        return esc(map[b]||b);
+    }
+
+    function updateLeadStatus(leadId,status){
+        leadsApiCall({action:'update-lead-status',leadId:leadId,status:status}).then(function(d){
+            if(d.error){toast(d.error,'error');return;}
+            var l=_leads.find(function(x){return x.id===leadId;});
+            if(l)l.status=status;
+            toast('Status → '+status,'success');
+            updateLeadsBadge();
+            renderLeads();
+        }).catch(function(err){toast(err.message||'Error','error');});
+    }
+
+    function viewLeadNotes(leadId){
+        var l=_leads.find(function(x){return x.id===leadId;});
+        if(!l)return;
+        var h='<div class="modal-overlay" onclick="if(event.target===this)this.remove()">';
+        h+='<div class="modal" style="width:480px">';
+        h+='<h2>'+esc(l.name)+'</h2>';
+        h+='<p style="color:#64748b;font-size:13px;margin-bottom:16px">'+esc(l.email)+(l.phone?' · '+esc(l.phone):'')+'</p>';
+        h+='<label>Company</label><div style="padding:8px 0">'+esc(l.company||'—')+'</div>';
+        h+='<label>Interest</label><div style="padding:8px 0">'+prettyService(l.service||'')+'</div>';
+        h+='<label>Budget</label><div style="padding:8px 0">'+prettyBudget(l.budget||'')+'</div>';
+        h+='<label>Notes from form</label><div style="padding:10px 14px;background:#f8fafc;border-radius:8px;font-size:14px;white-space:pre-wrap;min-height:40px">'+esc(l.notes||'(none)')+'</div>';
+        h+='<div class="actions"><button class="btn-outline" onclick="this.closest(\'.modal-overlay\').remove()">Close</button></div>';
+        h+='</div></div>';
+        document.body.insertAdjacentHTML('beforeend',h);
+    }
+
+    function convertLeadToClient(leadId){
+        var l=_leads.find(function(x){return x.id===leadId;});
+        if(!l)return;
+        if(!confirm('Convert "'+l.name+'" to a client?\n\nThis clears the lead flag and pre-fills the New Client form. You still need to click Send MSA to actually send the contract.'))return;
+        leadsApiCall({action:'convert-lead',leadId:leadId}).then(function(d){
+            if(d.error){toast(d.error,'error');return;}
+            // Pre-fill the New Client form
+            prefillNewClientFromLead(l);
+            // Mark local state and switch tab
+            l.status='converted';
+            updateLeadsBadge();
+            switchTab('newclient');
+            toast('Lead converted — form pre-filled. Review and click Send MSA.','success');
+        }).catch(function(err){toast(err.message||'Error','error');});
+    }
+
+    function prefillNewClientFromLead(l){
+        try {
+            // Make sure we're in "new client" mode
+            var modeRadios=document.getElementsByName('sc-client-type');
+            for(var i=0;i<modeRadios.length;i++){if(modeRadios[i].value==='new')modeRadios[i].checked=true;}
+            if(typeof switchClientMode==='function')switchClientMode('new');
+            // Decide entity type — company if they entered a company on the form
+            var isCompany=!!l.company;
+            var entRadios=document.getElementsByName('sc-client-entity');
+            for(var j=0;j<entRadios.length;j++){entRadios[j].checked=entRadios[j].value===(isCompany?'company':'individual');}
+            if(typeof switchClientEntity==='function')switchClientEntity();
+            if(isCompany){
+                setVal('sc-co-name',l.company||'');
+                // Split name "First Last" → rep first/last
+                var parts=(l.name||'').trim().split(/\s+/);
+                setVal('sc-rep-first',parts[0]||'');
+                setVal('sc-rep-last',parts.slice(1).join(' ')||'');
+                setVal('sc-rep-email',l.email||'');
+                setVal('sc-rep-phone',l.phone||'');
+            } else {
+                setVal('sc-name',l.name||'');
+                setVal('sc-email',l.email||'');
+                setVal('sc-company',l.company||'');
+            }
+            // Append the form notes into the signup notes textarea so they're preserved
+            if(l.notes){
+                var notesEl=document.getElementById('sc-notes');
+                if(notesEl){
+                    var existing=notesEl.value.trim();
+                    notesEl.value=(existing?existing+'\n\n':'')+'From lead form: '+l.notes;
+                }
+            }
+            if(typeof updateSignupSummary==='function')updateSignupSummary();
+        } catch(e){ console.warn('prefill error:',e); }
+    }
+    function setVal(id,v){var el=document.getElementById(id);if(el)el.value=v;}
+
+    function deleteLead(leadId){
+        var l=_leads.find(function(x){return x.id===leadId;});
+        if(!l)return;
+        if(!confirm('Permanently delete "'+l.name+'"?\n\nThis removes the Stripe customer record entirely. Cannot be undone.'))return;
+        leadsApiCall({action:'delete-lead',leadId:leadId}).then(function(d){
+            if(d.error){toast(d.error,'error');return;}
+            _leads=_leads.filter(function(x){return x.id!==leadId;});
+            toast('Lead deleted','success');
+            updateLeadsBadge();
+            renderLeads();
+        }).catch(function(err){toast(err.message||'Error','error');});
+    }
+
+    // ─── Contracts ───
+    function loadContracts(btn){
+        if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Loading...';}
+        signupApiCall({action:'list-envelopes'}).then(function(data){
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-sync-alt"></i> Refresh';}
+            if(data.error){toast(data.error,'error');return;}
+            _contracts=data.envelopes||[];
+            _contractsLoaded=true;
+            renderContracts();
+        }).catch(function(err){
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-sync-alt"></i> Refresh';}
+            toast(err.message||'Error loading contracts','error');
+        });
+    }
+
+    function contractStatusBadge(status){
+        if(status==='signed')   return '<span class="badge badge-active">Signed</span>';
+        if(status==='declined') return '<span class="badge badge-past-due">Declined</span>';
+        if(status==='error')    return '<span class="badge badge-past-due">Error</span>';
+        return '<span class="badge badge-incomplete">Pending</span>';
+    }
+
+    function renderContracts(){
+        var el=document.getElementById('contractTable');
+        if(!el)return;
+        var filterVal=(document.getElementById('contractFilter')||{}).value||'all';
+        var list=filterVal==='bl'
+            ?_contracts.filter(function(c){return c.metadata&&c.metadata.source==='business-lab-admin'})
+            :_contracts;
+        if(list.length===0){
+            el.innerHTML='<p style="color:#94a3b8;font-size:13px;padding:20px 0">'+(filterVal==='bl'?'No Business Lab contracts found.':'No contracts found.')+'</p>';
+            return;
+        }
+        var h='<table><thead><tr><th>Client</th><th>Title</th><th>Status</th><th>Sent</th><th>Signed</th><th>Actions</th></tr></thead><tbody>';
+        list.forEach(function(c){
+            var isBL=c.metadata&&c.metadata.source==='business-lab-admin';
+            var blBadge=isBL?'<span style="background:#fef9c3;color:#854d0e;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;margin-left:6px;border:1px solid #fde047">BL</span>':'';
+            var testBadge=c.testMode?'<span style="background:#f1f5f9;color:#94a3b8;font-size:10px;padding:1px 6px;border-radius:4px;margin-left:4px">TEST</span>':'';
+            h+='<tr style="cursor:pointer" onclick="openContractModal(\''+esc(c.id)+'\')">';
+            h+='<td><strong>'+esc(c.clientName||'—')+'</strong>'+(c.clientEmail?'<div style="font-size:11px;color:#64748b">'+esc(c.clientEmail)+'</div>':'')+'</td>';
+            h+='<td>'+esc(c.title||'—')+blBadge+testBadge+'</td>';
+            h+='<td>'+contractStatusBadge(c.status)+'</td>';
+            h+='<td style="font-size:12px;color:#64748b">'+fmtDateTime(c.sentAt)+'</td>';
+            h+='<td style="font-size:12px;color:#64748b">'+(c.signedAt?fmtDateTime(c.signedAt):'—')+'</td>';
+            h+='<td style="white-space:nowrap" onclick="event.stopPropagation()">';
+            if(c.status==='signed'){
+                h+='<button class="btn-sm btn-outline" onclick="viewContractPdf(\''+esc(c.id)+'\',this)" title="View signed PDF"><i class="fas fa-file-pdf"></i> PDF</button> ';
+            }
+            if(c.status==='pending'){
+                h+='<button class="btn-sm btn-outline" onclick="resendEnvelope(\''+esc(c.id)+'\',\''+esc(c.clientEmail)+'\',this)" title="Resend reminder"><i class="fas fa-paper-plane"></i> Resend</button> ';
+            }
+            h+='<button class="btn-danger btn-sm" onclick="removeEnvelope(\''+esc(c.id)+'\',\''+esc(c.clientName||c.clientEmail)+'\',this)" title="Remove from list"><i class="fas fa-trash"></i></button>';
+            h+='</td></tr>';
+        });
+        h+='</tbody></table>';
+        el.innerHTML=h;
+    }
+
+    function openContractModal(id){
+        var c=_contracts.find(function(x){return x.id===id});
+        if(!c)return;
+        var tier=c.metadata&&c.metadata.tier?c.metadata.tier:'';
+        var cadence=c.metadata&&c.metadata.cadence?c.metadata.cadence:'';
+        var notes=c.metadata&&c.metadata.notes?c.metadata.notes:'';
+        var addons=[];
+        try{addons=JSON.parse(c.metadata&&c.metadata.addons||'[]')}catch(_){}
+
+        var h='<div class="modal-overlay" onclick="if(event.target===this)this.remove()">';
+        h+='<div class="modal" style="width:620px">';
+        h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">';
+        h+='<h2 style="margin:0;font-size:1.1rem">'+esc(c.title||'Contract')+'</h2>';
+        h+='<button class="btn-outline btn-sm" onclick="this.closest(\'.modal-overlay\').remove()" style="flex-shrink:0">✕ Close</button>';
+        h+='</div>';
+
+        // Status + dates
+        h+='<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px">';
+        h+=contractStatusBadge(c.status);
+        if(c.testMode)h+='<span class="badge badge-canceled">Test Envelope</span>';
+        h+='</div>';
+
+        // Details grid
+        h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">';
+        h+='<div style="background:#f8fafc;border-radius:8px;padding:12px"><div style="font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Client</div><div style="font-size:13px;font-weight:600">'+esc(c.clientName||'—')+'</div><div style="font-size:12px;color:#64748b">'+esc(c.clientEmail||'')+'</div></div>';
+        h+='<div style="background:#f8fafc;border-radius:8px;padding:12px"><div style="font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Timeline</div><div style="font-size:12px">Sent: <strong>'+fmtDateTime(c.sentAt)+'</strong></div><div style="font-size:12px">Signed: <strong>'+(c.signedAt?fmtDateTime(c.signedAt):'—')+'</strong></div></div>';
+        if(tier)h+='<div style="background:#f8fafc;border-radius:8px;padding:12px"><div style="font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Tier</div><div style="font-size:13px;font-weight:600;text-transform:capitalize">'+esc(tier)+(cadence?' — '+esc(cadence):'')+'</div></div>';
+        if(addons.length)h+='<div style="background:#f8fafc;border-radius:8px;padding:12px"><div style="font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Add-Ons</div><div style="font-size:12px">'+addons.map(function(a){return esc(a.name||a.priceId)}).join(', ')+'</div></div>';
+        h+='</div>';
+
+        if(notes){
+            h+='<div style="background:#fefce8;border:1px solid #fde047;border-radius:8px;padding:12px;margin-bottom:18px;font-size:13px"><strong>Notes:</strong> '+esc(notes)+'</div>';
+        }
+
+        // Envelope ID
+        h+='<div style="font-size:11px;color:#94a3b8;margin-bottom:18px">Envelope ID: <code style="user-select:all">'+esc(c.id)+'</code></div>';
+
+        // Actions
+        h+='<div style="display:flex;gap:10px;flex-wrap:wrap">';
+        if(c.status==='signed'){
+            h+='<button class="btn-gold" id="pdfBtn-'+esc(c.id)+'" onclick="viewContractPdf(\''+esc(c.id)+'\',this)"><i class="fas fa-file-pdf"></i> View Signed PDF</button>';
+        }
+        if(c.status==='pending'){
+            h+='<button class="btn-outline" onclick="resendEnvelope(\''+esc(c.id)+'\',\''+esc(c.clientEmail)+'\',this)"><i class="fas fa-paper-plane"></i> Resend to Signer</button>';
+        }
+        h+='<button class="btn-outline" onclick="this.closest(\'.modal-overlay\').remove()">Close</button>';
+        h+='<button class="btn-danger btn-sm" style="margin-left:auto" onclick="removeEnvelope(\''+esc(c.id)+'\',\''+esc(c.clientName||c.clientEmail)+'\',this)"><i class="fas fa-trash"></i> Remove from list</button>';
+        h+='</div>';
+
+        h+='</div></div>';
+        document.body.insertAdjacentHTML('beforeend',h);
+    }
+
+    function viewContractPdf(id,btn){
+        if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Getting URL...';}
+        signupApiCall({action:'get-envelope-pdf',signatureRequestId:id}).then(function(data){
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-file-pdf"></i> '+(btn.id?'View Signed PDF':'PDF');}
+            if(data.error){toast(data.error,'error');return;}
+            if(!data.fileUrl){toast('No PDF available yet','error');return;}
+            window.open(data.fileUrl,'_blank');
+        }).catch(function(err){
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-file-pdf"></i> PDF';}
+            toast(err.message||'Error fetching PDF','error');
+        });
+    }
+
+    function resendEnvelope(id,email,btn){
+        if(!confirm('Resend signing reminder to '+email+'?'))return;
+        if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';}
+        signupApiCall({action:'resend-envelope',signatureRequestId:id,email:email}).then(function(data){
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Resend';}
+            if(data.error){toast(data.error,'error');return;}
+            toast('Reminder sent to '+email,'success');
+        }).catch(function(err){
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Resend';}
+            toast(err.message||'Error sending reminder','error');
+        });
+    }
+
+    function removeEnvelope(id,label,btn){
+        var contract=_contracts.find(function(c){return c.id===id;});
+        var isPending=contract&&contract.status==='pending';
+        var confirmMsg='Remove "'+label+'" from your list?';
+        if(isPending)confirmMsg+='\n\nThis envelope is still pending. It will be canceled first, then removed.';
+        confirmMsg+='\n\nThis deletes the envelope from PandaDoc. If the document was already completed, download the signed PDF first.';
+        if(!confirm(confirmMsg))return;
+        if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i>';}
+
+        var doRemove=function(){
+            return signupApiCall({action:'remove-envelope',signatureRequestId:id});
+        };
+
+        var chain=isPending
+            ?signupApiCall({action:'cancel-envelope',signatureRequestId:id}).then(doRemove)
+            :doRemove();
+
+        chain.then(function(data){
+            if(data&&data.error){
+                if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-trash"></i>';}
+                toast(data.error,'error');return;
+            }
+            _contracts=_contracts.filter(function(c){return c.id!==id;});
+            renderContracts();
+            var overlay=document.querySelector('.modal-overlay');
+            if(overlay)overlay.remove();
+            toast('Envelope removed','success');
+        }).catch(function(err){
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-trash"></i>';}
+            toast(err.message||'Error removing envelope','error');
         });
     }
 

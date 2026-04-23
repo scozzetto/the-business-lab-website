@@ -1,0 +1,24 @@
+{
+  "name": "main-working",
+  "version": "1.0.0",
+  "description": "Professional consulting website for Fortune 500 wellness consulting services.",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scozzetto/the-business-lab-website.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/scozzetto/the-business-lab-website/issues"
+  },
+  "homepage": "https://github.com/scozzetto/the-business-lab-website#readme",
+  "dependencies": {
+    "stripe": "^22.0.2",
+    "nodemailer": "^6.9.9"
+  }
+}

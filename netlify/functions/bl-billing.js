@@ -65,7 +65,8 @@ exports.handler = async (event) => {
                 const params = {
                     limit: body.limit || 100,
                     status: body.status || 'all',
-                    expand: ['data.customer', 'data.items.data.price.product']
+                    // NOTE: 'data.items.data.price.product' is 5 levels — Stripe max is 4. Keep at price level.
+                    expand: ['data.customer', 'data.items.data.price']
                 };
                 if (body.customerId) params.customer = body.customerId;
                 const subs = await stripe.subscriptions.list(params);
@@ -360,6 +361,133 @@ exports.handler = async (event) => {
                     payment_method_types: body.paymentMethods || ['card', 'us_bank_account']
                 });
                 return respond(200, { success: true, clientSecret: setupIntent.client_secret });
+            }
+
+            // ─── SETUP SERVICE CATALOG (v2 authoritative list) ───
+            case 'setup-service-catalog': {
+                const CATALOG_V2 = [
+                    // Monthly Retainers — recurring subscriptions
+                    { name: 'Legal Team on Standby',            category: 'retainer', billing: 'monthly',  amount: 57500  },
+                    { name: 'Business Team on Standby',         category: 'retainer', billing: 'monthly',  amount: 75000  },
+                    // Packages — one-time project fee, 50/50 billing
+                    { name: '1st Step — 1st Floor Essentials',  category: 'package',  billing: 'project',  amount: 850000 },
+                    { name: '2nd Step — The Next Level',        category: 'package',  billing: 'project',  amount: 800000 },
+                    // Enterprise — custom price per engagement (no fixed price seeded)
+                    { name: 'Enterprise',                       category: 'package',  billing: 'project-custom', amount: null },
+                    // Hourly Services
+                    { name: 'Corporate Setup / Services',           category: 'hourly', billing: 'hourly', amount: 35000 },
+                    { name: 'Business Set-up & Design',             category: 'hourly', billing: 'hourly', amount: 35000 },
+                    { name: 'Web / Internet / Email Services',      category: 'hourly', billing: 'hourly', amount: 35000 },
+                    { name: 'Style Guide',                          category: 'hourly', billing: 'hourly', amount: 30000 },
+                    { name: 'Operations Manual & How-To Guide',     category: 'hourly', billing: 'hourly', amount: 30000 },
+                    { name: 'Accounting Setup / Services',          category: 'hourly', billing: 'hourly', amount: 17500 },
+                    { name: 'Marketing Setup / Services',           category: 'hourly', billing: 'hourly', amount: 22500 },
+                    { name: 'Lease Negotiation',                    category: 'hourly', billing: 'hourly', amount: 37500 },
+                    { name: 'Contract Development / Update',        category: 'hourly', billing: 'hourly', amount: 50000 },
+                ];
+                const existingProds = await stripe.products.list({ limit: 100, active: true });
+                const existingV2 = {};
+                existingProds.data.forEach(p => {
+                    if (p.metadata && p.metadata.bl_catalog === 'v2') existingV2[p.name] = p;
+                });
+                const created = [], skipped = [];
+                for (const item of CATALOG_V2) {
+                    if (existingV2[item.name]) { skipped.push(item.name); continue; }
+                    const product = await stripe.products.create({
+                        name: item.name,
+                        metadata: { bl_category: item.category, bl_billing: item.billing, bl_catalog: 'v2' }
+                    });
+                    if (item.billing === 'monthly') {
+                        await stripe.prices.create({
+                            product: product.id, unit_amount: item.amount, currency: 'usd',
+                            recurring: { interval: 'month' },
+                            metadata: { bl_category: item.category, bl_billing: 'monthly', bl_catalog: 'v2' }
+                        });
+                    } else if (item.billing === 'project' && item.amount) {
+                        await stripe.prices.create({
+                            product: product.id, unit_amount: item.amount, currency: 'usd',
+                            // one-time price (no recurring)
+                            metadata: { bl_category: item.category, bl_billing: 'project', bl_catalog: 'v2' }
+                        });
+                    } else if (item.billing === 'hourly' && item.amount) {
+                        await stripe.prices.create({
+                            product: product.id, unit_amount: item.amount, currency: 'usd',
+                            metadata: { bl_category: item.category, bl_billing: 'hourly', bl_catalog: 'v2' }
+                        });
+                    }
+                    // project-custom (Enterprise): no price — priced per engagement
+                    created.push(item.name);
+                }
+                return respond(200, { success: true, created, skipped });
+            }
+
+            // ─── SETUP ANNUAL PRICES (10% discount on all monthly subscription products) ───
+            case 'setup-annual-prices': {
+                // Find every active product tagged as retainer or package
+                const allProds = await stripe.products.list({ limit: 100, active: true });
+                const monthlyProds = allProds.data.filter(p =>
+                    p.metadata &&
+                    (p.metadata.bl_category === 'retainer' || p.metadata.bl_category === 'package')
+                );
+
+                const created = [], skipped = [];
+                for (const prod of monthlyProds) {
+                    const prices = await stripe.prices.list({ product: prod.id, active: true, limit: 20 });
+                    const monthlyPrice = prices.data.find(p => p.recurring && p.recurring.interval === 'month');
+                    const annualPrice  = prices.data.find(p => p.recurring && p.recurring.interval === 'year');
+
+                    if (!monthlyPrice) {
+                        skipped.push(prod.name + ' (no monthly price found)');
+                        continue;
+                    }
+                    if (annualPrice) {
+                        skipped.push(prod.name + ' (annual price already exists)');
+                        continue;
+                    }
+
+                    // 10% off annual: monthly × 12 × 0.90
+                    const annualAmount = Math.round(monthlyPrice.unit_amount * 12 * 0.90);
+                    await stripe.prices.create({
+                        product:    prod.id,
+                        unit_amount: annualAmount,
+                        currency:   'usd',
+                        recurring:  { interval: 'year' },
+                        metadata: {
+                            bl_category:         prod.metadata.bl_category || '',
+                            bl_billing:          'annual',
+                            bl_discount:         '10pct',
+                            bl_monthly_price_id: monthlyPrice.id
+                        }
+                    });
+                    created.push(`${prod.name} — $${(annualAmount / 100).toFixed(2)}/yr (was $${(monthlyPrice.unit_amount * 12 / 100).toFixed(2)})`);
+                }
+                return respond(200, { success: true, created, skipped });
+            }
+
+            // ─── ARCHIVE OLD CATALOG (bl_category products without bl_catalog:"v2") ───
+            case 'archive-old-catalog': {
+                const allCatalogProds = await stripe.products.list({ limit: 100, active: true });
+                const toArchive = allCatalogProds.data.filter(p =>
+                    p.metadata && p.metadata.bl_category && p.metadata.bl_catalog !== 'v2'
+                );
+                const archived = [];
+                for (const prod of toArchive) {
+                    await stripe.products.update(prod.id, { active: false });
+                    archived.push(prod.name);
+                }
+                return respond(200, { success: true, archived });
+            }
+
+            // ─── ARCHIVE OLD TIERS (bl_tier products) ───
+            case 'archive-old-tiers': {
+                const allTierProds = await stripe.products.list({ limit: 100, active: true });
+                const tierToArchive = allTierProds.data.filter(p => p.metadata && p.metadata.bl_tier);
+                const archivedTiers = [];
+                for (const prod of tierToArchive) {
+                    await stripe.products.update(prod.id, { active: false });
+                    archivedTiers.push(prod.name);
+                }
+                return respond(200, { success: true, archived: archivedTiers });
             }
 
             // ─── SEED TIER PRODUCTS ───

@@ -1,6 +1,7 @@
 [build]
   publish = "."
   command = "echo 'Business Lab static site ready for deployment'"
+  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "18"
@@ -52,6 +53,11 @@
   status = 200
 
 [[redirects]]
+  from = "/software-systems"
+  to = "/software-systems.html"
+  status = 200
+
+[[redirects]]
   from = "/contracts/service-agreement"
   to = "/contracts/service-agreement.html"
   status = 200
@@ -64,6 +70,11 @@
 [[redirects]]
   from = "/admin/contract-generator"
   to = "/admin/contract-generator.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/billing"
+  to = "/admin/billing.html"
   status = 200
 
 # Catch-all redirect for SPA behavior
