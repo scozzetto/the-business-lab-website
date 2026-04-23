@@ -185,8 +185,14 @@ exports.handler = async (event) => {
             // ─── CANCEL SUBSCRIPTION ───
             case 'cancel-subscription': {
                 if (!body.subscriptionId) return respond(400, { error: 'subscriptionId required' });
-                const canceled = await stripe.subscriptions.cancel(body.subscriptionId);
-                return respond(200, { success: true, subscription: canceled });
+                try {
+                    const canceled = await stripe.subscriptions.cancel(body.subscriptionId);
+                    return respond(200, { success: true, subscription: canceled });
+                } catch (err) {
+                    // Already deleted (e.g. customer was deleted in Stripe dashboard) — treat as success
+                    if (err.code === 'resource_missing') return respond(200, { success: true, alreadyGone: true });
+                    throw err;
+                }
             }
 
             // ─── LIST INVOICES ───
