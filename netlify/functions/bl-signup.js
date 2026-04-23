@@ -188,6 +188,11 @@ exports.handler = async (event) => {
                     repPhone:         meta.rep_phone || '',
                 };
 
+                // Guard: if no services were found in metadata, refuse to create a blank contract
+                if (items.length === 0) {
+                    return respond(400, { error: 'No services found in the original contract metadata. Please send a fresh contract from the New Client tab with services selected.' });
+                }
+
                 // Note: PandaDoc API does not allow deleting sent documents on most plans.
                 // We create the replacement first, then attempt deletion (best-effort).
                 // If deletion fails, the old document remains in PandaDoc — admin can void it manually.
