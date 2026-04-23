@@ -145,20 +145,41 @@ exports.handler = async (event) => {
 
                 const docId = body.signatureRequestId;
 
-                // Fetch existing document for metadata + recipient name
-                const oldDoc    = await pdGet(pdKey, `/public/v1/documents/${docId}`);
-                const meta      = oldDoc.metadata || {};
-                const origRec   = (oldDoc.recipients || []).find(r => r.role === 'Client') || (oldDoc.recipients || [])[0] || {};
-                const origFirst = origRec.first_name || meta.rep_first || '';
-                const origLast  = origRec.last_name  || meta.rep_last  || '';
+                // Frontend passes its cached metadata + title to avoid relying on
+                // PandaDoc GET returning metadata (some plans/versions omit it).
+                // Fall back to fetching from PandaDoc if nothing was passed.
+                let meta     = body.contractMetadata && Object.keys(body.contractMetadata).length > 0
+                    ? body.contractMetadata
+                    : null;
+                let docTitle = body.contractTitle || '';
 
-                // Fallback: parse name from document title ("MSA — {name} — YYYY-MM-DD")
-                const titleMatch = (oldDoc.name || '').match(/MSA\s*[—\-]+\s*(.+?)\s*[—\-]+\s*\d{4}-\d{2}-\d{2}/);
+                if (!meta) {
+                    const oldDoc = await pdGet(pdKey, `/public/v1/documents/${docId}`);
+                    meta     = oldDoc.metadata || {};
+                    docTitle = docTitle || oldDoc.name || '';
+                    console.log('replace-envelope: fetched metadata from PandaDoc, keys:', Object.keys(meta).join(','));
+                } else {
+                    console.log('replace-envelope: using frontend-passed metadata, keys:', Object.keys(meta).join(','));
+                }
+
+                // Fetch recipients to get original signer name (not in metadata)
+                let origFirst = meta.rep_first || '';
+                let origLast  = meta.rep_last  || '';
+                if (!origFirst && !origLast) {
+                    try {
+                        const oldDoc2 = await pdGet(pdKey, `/public/v1/documents/${docId}`);
+                        const origRec = (oldDoc2.recipients || []).find(r => r.role === 'Client') || (oldDoc2.recipients || [])[0] || {};
+                        origFirst = origRec.first_name || meta.rep_first || '';
+                        origLast  = origRec.last_name  || meta.rep_last  || '';
+                    } catch (_) { /* ignore — will fall back to title */ }
+                }
+
+                // Parse name from document title as final fallback
+                const titleMatch = docTitle.match(/MSA\s*[—\-]+\s*(.+?)\s*[—\-]+\s*\d{4}-\d{2}-\d{2}/);
                 const titleName  = titleMatch ? titleMatch[1].trim() : '';
                 const origName   = (origFirst + ' ' + origLast).trim() || titleName;
 
                 const isCompany = meta.client_type === 'company';
-                // For individual contracts, company name may have been entered as the "name" field
                 const company   = meta.company || (isCompany ? titleName : '');
 
                 // Reconstruct items from compact metadata ("priceId:category[:amount]")
