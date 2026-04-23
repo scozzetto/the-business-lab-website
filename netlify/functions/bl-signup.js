@@ -403,6 +403,21 @@ async function waitForDocumentReady(apiKey, docId, maxMs = 15000) {
 
 // ─── PandaDoc API helpers ─────────────────────────────────────────────────────
 
+// Convert PandaDoc field-validation objects into a readable string.
+// e.g. {recipients:[{email:["Enter a valid email address."]}]}
+//   → "recipients[0].email: Enter a valid email address."
+function flattenPdErrors(obj, prefix) {
+    if (!obj || typeof obj !== 'object') return String(obj || '');
+    if (Array.isArray(obj)) {
+        return obj.map((v, i) => flattenPdErrors(v, prefix ? `${prefix}[${i}]` : `[${i}]`)).filter(Boolean).join('; ');
+    }
+    return Object.entries(obj).map(([k, v]) => {
+        const key = prefix ? `${prefix}.${k}` : k;
+        if (Array.isArray(v) && v.every(x => typeof x === 'string')) return `${key}: ${v.join(', ')}`;
+        return flattenPdErrors(v, key);
+    }).filter(Boolean).join('; ');
+}
+
 function pdRequest(apiKey, method, path, body) {
     const bodyStr = body ? JSON.stringify(body) : null;
     return new Promise((resolve, reject) => {
@@ -423,11 +438,24 @@ function pdRequest(apiKey, method, path, body) {
                 try {
                     const parsed = JSON.parse(raw);
                     if (res.statusCode >= 400) {
-                        // parsed.detail can be an object — stringify it so Error.message is readable
-                        const detail = parsed.detail;
-                        const msg = (detail && typeof detail === 'object' ? JSON.stringify(detail) : detail)
-                            || parsed.message || parsed.type || `PandaDoc error ${res.statusCode}`;
                         console.error(`PandaDoc ${res.statusCode} ${method} ${path}:`, raw.slice(0, 500));
+                        // Build a readable error message from the various PandaDoc error formats
+                        const detail = parsed.detail;
+                        let msg;
+                        if (detail && typeof detail === 'object') {
+                            // Field-level validation: {recipients: [{email: ["Enter a valid…"]}]}
+                            msg = flattenPdErrors(detail);
+                        } else if (detail) {
+                            msg = detail;
+                        } else if (parsed.message) {
+                            msg = parsed.message;
+                        } else if (parsed.type) {
+                            msg = parsed.type;
+                        } else {
+                            // Top-level field errors (no detail wrapper)
+                            const topLevel = flattenPdErrors(parsed);
+                            msg = topLevel || `PandaDoc error ${res.statusCode}`;
+                        }
                         reject(new Error(msg));
                     } else {
                         resolve(parsed);
