@@ -1649,6 +1649,11 @@
     }
 
     function sendEnvelope(){
+        // Sync field visibility with current radio state (browser autofill can change
+        // radio values without firing the change event, leaving fields out of sync)
+        if(typeof switchClientEntity==='function')switchClientEntity();
+        if(typeof switchClientMode==='function')switchClientMode();
+
         var clientTypeInput=document.querySelector('input[name="sc-client-type"]:checked');
         var isNew=!clientTypeInput||clientTypeInput.value==='new';
         var startDate=document.getElementById('sc-start').value;
