@@ -76,10 +76,14 @@ exports.handler = async (event) => {
                         : d.status === 'document.draft'                            ? 'draft'
                         : 'pending';
                     const signerName = ((recipient.first_name || '') + ' ' + (recipient.last_name || '')).trim();
+                    // PandaDoc list API often omits first/last name — fall back to parsing from title
+                    // Title format: "The Business Lab — MSA — {clientName} — YYYY-MM-DD"
+                    const titleMatch = (d.name || '').match(/MSA\s*[—\-]+\s*(.+?)\s*[—\-]+\s*\d{4}-\d{2}-\d{2}/);
+                    const clientName = signerName || (titleMatch ? titleMatch[1].trim() : '');
                     return {
                         id:           d.id,
                         title:        d.name || '',
-                        clientName:   signerName,
+                        clientName,
                         clientEmail:  recipient.email || '',
                         signerStatus: recipient.has_completed ? 'signed' : 'awaiting_signature',
                         status,
