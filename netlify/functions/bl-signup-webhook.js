@@ -67,21 +67,27 @@ exports.handler = async (event) => {
         return { statusCode: 200, body: 'ok' };
     }
 
-    const eventType = payload.event;
-    const data      = payload.data || {};
+    // PandaDoc sends events as an array: [{ event, data }]
+    // Normalise to an array so a single object also works.
+    const events = Array.isArray(payload) ? payload : [payload];
 
-    console.log('PandaDoc webhook received:', eventType, '| status:', data.status, '| doc:', data.id);
+    for (const evt of events) {
+        const eventType = evt.event;
+        const data      = evt.data || {};
 
-    // Only process completed documents
-    if (eventType !== 'document_state_changed' || data.status !== 'document.completed') {
-        return { statusCode: 200, body: 'ok' };
-    }
+        console.log('PandaDoc webhook received:', eventType, '| status:', data.status, '| doc:', data.id);
 
-    try {
-        await handleDocumentCompleted(data, stripeKey);
-    } catch (err) {
-        console.error('handleDocumentCompleted failed:', err.message, err.stack);
-        // Still ACK — we don't want PandaDoc hammering retries. Investigate in logs.
+        if (eventType !== 'document_state_changed' || data.status !== 'document.completed') {
+            console.log('Skipping event:', eventType, data.status);
+            continue;
+        }
+
+        try {
+            await handleDocumentCompleted(data, stripeKey);
+        } catch (err) {
+            console.error('handleDocumentCompleted failed:', err.message, err.stack);
+            // Still ACK — we don't want PandaDoc hammering retries. Investigate in logs.
+        }
     }
 
     return { statusCode: 200, body: 'ok' };
