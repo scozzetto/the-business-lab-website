@@ -2151,7 +2151,7 @@
                 h+='<button class="btn-sm btn-outline" onclick="viewContractPdf(\''+esc(c.id)+'\',this)" title="View signed PDF"><i class="fas fa-file-pdf"></i> PDF</button> ';
             }
             if(c.status==='pending'){
-                h+='<button class="btn-sm btn-outline" onclick="resendEnvelope(\''+esc(c.id)+'\',\''+esc(c.clientEmail)+'\',this)" title="Resend reminder"><i class="fas fa-paper-plane"></i> Resend</button> ';
+                h+='<button class="btn-sm btn-outline" onclick="openResendModal(\''+esc(c.id)+'\',\''+esc(c.clientEmail)+'\',\''+esc(c.clientName||'')+'\')"><i class="fas fa-paper-plane"></i> Resend</button> ';
             }
             h+='<button class="btn-danger btn-sm" onclick="removeEnvelope(\''+esc(c.id)+'\',\''+esc(c.clientName||c.clientEmail)+'\',this)" title="Remove from list"><i class="fas fa-trash"></i></button>';
             h+='</td></tr>';
@@ -2203,7 +2203,7 @@
             h+='<button class="btn-gold" id="pdfBtn-'+esc(c.id)+'" onclick="viewContractPdf(\''+esc(c.id)+'\',this)"><i class="fas fa-file-pdf"></i> View Signed PDF</button>';
         }
         if(c.status==='pending'){
-            h+='<button class="btn-outline" onclick="resendEnvelope(\''+esc(c.id)+'\',\''+esc(c.clientEmail)+'\',this)"><i class="fas fa-paper-plane"></i> Resend to Signer</button>';
+            h+='<button class="btn-outline" onclick="openResendModal(\''+esc(c.id)+'\',\''+esc(c.clientEmail)+'\',\''+esc(c.clientName||'')+'\')"><i class="fas fa-paper-plane"></i> Resend to Signer</button>';
         }
         h+='<button class="btn-outline" onclick="this.closest(\'.modal-overlay\').remove()">Close</button>';
         h+='<button class="btn-danger btn-sm" style="margin-left:auto" onclick="removeEnvelope(\''+esc(c.id)+'\',\''+esc(c.clientName||c.clientEmail)+'\',this)"><i class="fas fa-trash"></i> Remove from list</button>';
@@ -2240,17 +2240,54 @@
         });
     }
 
-    function resendEnvelope(id,email,btn){
-        if(!confirm('Resend signing reminder to '+email+'?'))return;
+    function openResendModal(id, currentEmail, clientName){
+        var existing=document.getElementById('resendModal');
+        if(existing)existing.remove();
+        var h='<div id="resendModal" class="modal-overlay" onclick="if(event.target===this)this.remove()">';
+        h+='<div class="modal" style="width:460px">';
+        h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">';
+        h+='<h2 style="margin:0;font-size:1.1rem"><i class="fas fa-paper-plane" style="color:#d4af37;margin-right:8px"></i>Resend MSA</h2>';
+        h+='<button class="btn-outline btn-sm" onclick="document.getElementById(\'resendModal\').remove()">✕ Close</button>';
+        h+='</div>';
+        h+='<p style="font-size:13px;color:#475569;margin:0 0 18px">Sending to <strong>'+esc(clientName||'client')+'</strong>. Update the email if needed — if changed, the old contract is replaced with a fresh one sent to the new address.</p>';
+        h+='<label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Recipient Email</label>';
+        h+='<input id="resendEmailInput" type="email" value="'+esc(currentEmail||'')+'" autocomplete="off" style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:Inter,sans-serif;box-sizing:border-box" onkeydown="if(event.key===\'Enter\')submitResend(\''+esc(id)+'\',\''+esc(currentEmail||')+'\')">';
+        h+='<p id="resendEmailNote" style="font-size:11px;color:#94a3b8;margin:6px 0 0">Same email = reminder only &nbsp;|&nbsp; New email = delete old contract + send fresh one</p>';
+        h+='<div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end">';
+        h+='<button class="btn-outline" onclick="document.getElementById(\'resendModal\').remove()">Cancel</button>';
+        h+='<button class="btn-gold" id="resendSubmitBtn" onclick="submitResend(\''+esc(id)+'\',\''+esc(currentEmail||'')+'\')"><i class="fas fa-paper-plane"></i> Send</button>';
+        h+='</div>';
+        h+='</div></div>';
+        document.body.insertAdjacentHTML('beforeend',h);
+        setTimeout(function(){var inp=document.getElementById('resendEmailInput');if(inp){inp.focus();inp.select();}},50);
+    }
+
+    function submitResend(id, originalEmail){
+        var newEmail=((document.getElementById('resendEmailInput')||{}).value||'').trim();
+        if(!newEmail||!newEmail.includes('@')){toast('Enter a valid email','error');return;}
+        var btn=document.getElementById('resendSubmitBtn');
         if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';}
-        signupApiCall({action:'resend-envelope',signatureRequestId:id,email:email}).then(function(data){
-            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Resend';}
-            if(data.error){toast(data.error,'error');return;}
-            toast('Reminder sent to '+email,'success');
-        }).catch(function(err){
-            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Resend';}
-            toast(err.message||'Error sending reminder','error');
-        });
+        var emailChanged=newEmail.toLowerCase()!==originalEmail.toLowerCase();
+        if(emailChanged){
+            signupApiCall({action:'replace-envelope',signatureRequestId:id,newEmail:newEmail}).then(function(data){
+                var m=document.getElementById('resendModal');if(m)m.remove();
+                if(data.error){toast(data.error,'error');return;}
+                toast('New MSA sent to '+newEmail,'success');
+                loadContracts();
+            }).catch(function(err){
+                if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send';}
+                toast(err.message||'Error replacing contract','error');
+            });
+        } else {
+            signupApiCall({action:'resend-envelope',signatureRequestId:id}).then(function(data){
+                var m=document.getElementById('resendModal');if(m)m.remove();
+                if(data.error){toast(data.error,'error');return;}
+                toast('Reminder sent to '+newEmail,'success');
+            }).catch(function(err){
+                if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send';}
+                toast(err.message||'Error sending reminder','error');
+            });
+        }
     }
 
     function removeEnvelope(id,label,btn){

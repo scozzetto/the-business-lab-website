@@ -119,7 +119,7 @@ exports.handler = async (event) => {
                 }
             }
 
-            // ─── RESEND ENVELOPE (reminder) ───
+            // ─── RESEND ENVELOPE (reminder — same email) ───
             case 'resend-envelope': {
                 if (!body.signatureRequestId) return respond(400, { error: 'signatureRequestId required' });
                 try {
@@ -133,6 +133,69 @@ exports.handler = async (event) => {
                     console.warn('resend-envelope /send blocked (sandbox?):', sendErr.message);
                 }
                 return respond(200, { success: true });
+            }
+
+            // ─── REPLACE ENVELOPE (corrected email — delete old + create new) ───
+            case 'replace-envelope': {
+                if (!body.signatureRequestId) return respond(400, { error: 'signatureRequestId required' });
+                if (!body.newEmail) return respond(400, { error: 'newEmail required' });
+
+                const templateId = process.env.PANDADOC_TEMPLATE_UUID;
+                if (!templateId) return respond(500, { error: 'PANDADOC_TEMPLATE_UUID not configured' });
+
+                const docId = body.signatureRequestId;
+
+                // Fetch existing document for metadata + recipient name
+                const oldDoc     = await pdGet(pdKey, `/public/v1/documents/${docId}`);
+                const meta       = oldDoc.metadata || {};
+                const origRec    = (oldDoc.recipients || []).find(r => r.role === 'Client') || (oldDoc.recipients || [])[0] || {};
+                const origFirst  = origRec.first_name || meta.rep_first || '';
+                const origLast   = origRec.last_name  || meta.rep_last  || '';
+                const origName   = (origFirst + ' ' + origLast).trim();
+
+                const isCompany  = meta.client_type === 'company';
+
+                // Reconstruct items from compact metadata ("priceId:category[:amount]")
+                const compactKeys = Object.keys(meta).filter(k => /^item\d+$/.test(k)).sort();
+                const items = compactKeys.map(k => {
+                    const parts  = (meta[k] || '').split(':');
+                    const cat    = parts[1] || 'package';
+                    const amount = cat === 'enterprise' ? (parseInt(parts[2]) || 0) : 0;
+                    return { priceId: parts[0] || '', category: cat, amount, name: cat === 'enterprise' ? 'Enterprise — Custom' : '' };
+                }).filter(i => i.priceId || i.category === 'enterprise');
+
+                const newData = {
+                    name:             origName,
+                    email:            isCompany ? (meta.rep_email || '') : body.newEmail,
+                    phone:            isCompany ? (meta.rep_phone || '') : (meta.phone || ''),
+                    company:          meta.company          || '',
+                    clientType:       meta.client_type      || 'individual',
+                    collectionMethod: meta.collection_method|| 'charge_automatically',
+                    paymentMethod:    meta.payment_method   || 'card',
+                    startDate:        meta.start_date       || '',
+                    notes:            meta.notes            || '',
+                    customerId:       meta.customer_id      || '',
+                    items,
+                    // Company rep fields — update email to corrected address
+                    repFirstName:     meta.rep_first || origFirst,
+                    repLastName:      meta.rep_last  || origLast,
+                    repEmail:         isCompany ? body.newEmail : '',
+                    repPhone:         meta.rep_phone || '',
+                };
+
+                // Delete old document (best-effort)
+                try {
+                    await pdDelete(pdKey, `/public/v1/documents/${docId}`);
+                    console.log('replace-envelope: deleted old doc', docId);
+                } catch (delErr) {
+                    console.warn('replace-envelope: could not delete old doc:', delErr.message);
+                }
+
+                // Create replacement
+                const newDoc = await createAndSendDocument(pdKey, templateId, newData);
+                const newId  = newDoc.uuid || newDoc.id;
+                console.log('replace-envelope: new doc created', newId, '→', body.newEmail);
+                return respond(200, { success: true, signatureRequestId: newId });
             }
 
             // ─── CANCEL / REMOVE ENVELOPE ───
