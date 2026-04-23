@@ -95,9 +95,24 @@ exports.handler = async (event) => {
             // ─── GET ENVELOPE PDF ───
             case 'get-envelope-pdf': {
                 if (!body.signatureRequestId) return respond(400, { error: 'signatureRequestId required' });
-                // Returns a temporary S3 URL to the PDF
-                const dl = await pdGet(pdKey, `/public/v1/documents/${body.signatureRequestId}/download?hard_copy=false`);
-                return respond(200, { success: true, fileUrl: dl.file_url || dl, expiresAt: null });
+                // PandaDoc /download returns raw PDF binary — proxy it directly.
+                // The browser receives it as a blob and opens it in a new tab.
+                try {
+                    const pdfBuf = await pdDownload(pdKey, `/public/v1/documents/${body.signatureRequestId}/download`);
+                    return {
+                        statusCode: 200,
+                        headers: {
+                            ...corsHeaders(),
+                            'Content-Type': 'application/pdf',
+                            'Content-Disposition': 'inline; filename="signed-msa.pdf"'
+                        },
+                        body: pdfBuf.toString('base64'),
+                        isBase64Encoded: true
+                    };
+                } catch (pdfErr) {
+                    console.error('get-envelope-pdf error:', pdfErr.message);
+                    return respond(500, { error: 'Could not download PDF: ' + pdfErr.message });
+                }
             }
 
             // ─── RESEND ENVELOPE (reminder) ───
@@ -432,6 +447,31 @@ function pdRequest(apiKey, method, path, body) {
 function pdGet(apiKey, path)           { return pdRequest(apiKey, 'GET',    path, null); }
 function pdPost(apiKey, path, body)    { return pdRequest(apiKey, 'POST',   path, body); }
 function pdDelete(apiKey, path)        { return pdRequest(apiKey, 'DELETE', path, null); }
+
+// Returns raw Buffer for binary endpoints (e.g. /download which sends PDF bytes)
+function pdDownload(apiKey, path) {
+    return new Promise((resolve, reject) => {
+        const req = https.request({
+            hostname: 'api.pandadoc.com',
+            path,
+            method: 'GET',
+            headers: { 'Authorization': 'API-Key ' + apiKey }
+        }, (res) => {
+            const chunks = [];
+            res.on('data', c => chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(c)));
+            res.on('end', () => {
+                const buf = Buffer.concat(chunks);
+                if (res.statusCode >= 400) {
+                    reject(new Error('PandaDoc download failed: HTTP ' + res.statusCode + ' — ' + buf.slice(0, 100).toString()));
+                } else {
+                    resolve(buf);
+                }
+            });
+        });
+        req.on('error', reject);
+        req.end();
+    });
+}
 
 // ─── Standard helpers ─────────────────────────────────────────────────────────
 

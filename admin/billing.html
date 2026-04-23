@@ -2208,14 +2208,28 @@
     }
 
     function viewContractPdf(id,btn){
-        if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Getting URL...';}
-        signupApiCall({action:'get-envelope-pdf',signatureRequestId:id}).then(function(data){
-            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-file-pdf"></i> '+(btn.id?'View Signed PDF':'PDF');}
-            if(data.error){toast(data.error,'error');return;}
-            if(!data.fileUrl){toast('No PDF available yet','error');return;}
-            window.open(data.fileUrl,'_blank');
+        var origLabel=btn?(btn.id?'<i class="fas fa-file-pdf"></i> View Signed PDF':'<i class="fas fa-file-pdf"></i> PDF'):'';
+        if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Loading...';}
+        // Backend returns raw PDF binary (base64-encoded), so use fetch+blob instead of signupApiCall
+        fetch('/.netlify/functions/bl-signup',{
+            method:'POST',
+            headers:{'Content-Type':'application/json','x-admin-key':_adminKey},
+            body:JSON.stringify({action:'get-envelope-pdf',signatureRequestId:id})
+        }).then(function(res){
+            if(!res.ok){
+                return res.text().then(function(t){
+                    try{var j=JSON.parse(t);throw new Error(j.error||'PDF download failed ('+res.status+')');}
+                    catch(e2){if(e2.message&&e2.message.indexOf('PDF')===-1)throw e2;throw new Error('PDF download failed: HTTP '+res.status);}
+                });
+            }
+            return res.blob();
+        }).then(function(blob){
+            if(btn){btn.disabled=false;btn.innerHTML=origLabel;}
+            var url=URL.createObjectURL(blob);
+            window.open(url,'_blank');
+            setTimeout(function(){URL.revokeObjectURL(url);},60000);
         }).catch(function(err){
-            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-file-pdf"></i> PDF';}
+            if(btn){btn.disabled=false;btn.innerHTML=origLabel;}
             toast(err.message||'Error fetching PDF','error');
         });
     }
