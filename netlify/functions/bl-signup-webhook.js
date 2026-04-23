@@ -190,6 +190,12 @@ async function handleDocumentCompleted(data, stripeKey) {
         if (reuse) {
             customerId = reuse.id;
             console.log('Reusing existing customer:', customerId);
+            // Update the customer name/company if signing as a company
+            // (e.g. Silvio signs on behalf of "Birmingham Place" — customer should reflect the company)
+            if (isCompany && company && reuse.name !== clientName) {
+                await stripe.customers.update(customerId, { name: clientName });
+                console.log('Updated customer name to:', clientName);
+            }
         } else {
             const customerMeta = {
                 company,
@@ -225,8 +231,8 @@ async function handleDocumentCompleted(data, stripeKey) {
         for (const ent of enterprise) {
             if (!ent.priceId && ent.amount > 0) {
                 const engProduct = await stripe.products.create({
-                    name: `Enterprise — ${clientName}`,
-                    metadata: { bl_category: 'enterprise', bl_billing: 'monthly', document_id: documentId }
+                    name: 'Enterprise — Custom',
+                    metadata: { bl_category: 'enterprise', bl_billing: 'monthly', document_id: documentId, client: clientName }
                 });
                 const monthlyPrice = await stripe.prices.create({
                     product:    engProduct.id,
