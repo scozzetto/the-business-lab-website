@@ -42,6 +42,16 @@
   status = 200
 
 [[redirects]]
+  from = "/payment-confirmed"
+  to = "/payment-confirmed.html"
+  status = 200
+
+[[redirects]]
+  from = "/get-started"
+  to = "/get-started.html"
+  status = 200
+
+[[redirects]]
   from = "/tenant-dashboard"
   to = "/tenant-dashboard.html"
   status = 200

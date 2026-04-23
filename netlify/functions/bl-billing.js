@@ -345,9 +345,12 @@ exports.handler = async (event) => {
             // ─── ARCHIVE PRODUCT (deactivates product + all its active prices) ───
             case 'archive-product': {
                 if (!body.productId) return respond(400, { error: 'productId required' });
+                // Unset default_price so Stripe lets us archive every price
+                try { await stripe.products.update(body.productId, { default_price: '' }); } catch (e) { console.warn('unset default_price failed:', e.message); }
                 const priceList = await stripe.prices.list({ product: body.productId, active: true, limit: 100 });
                 for (const pr of priceList.data) {
-                    await stripe.prices.update(pr.id, { active: false });
+                    try { await stripe.prices.update(pr.id, { active: false }); }
+                    catch (e) { console.warn('price archive failed:', pr.id, e.message); }
                 }
                 const archivedProduct = await stripe.products.update(body.productId, { active: false });
                 return respond(200, { success: true, product: archivedProduct });
@@ -528,6 +531,242 @@ exports.handler = async (event) => {
                     created.push(t.name);
                 }
                 return respond(200, { success: true, created, skipped });
+            }
+
+            // ─── ARCHIVE OLD TIERS (Basic / Professional / Enterprise) ───
+            case 'archive-old-tiers': {
+                const OLD_IDS = [
+                    'prod_UMfxBJIBureo9M', // Enterprise
+                    'prod_UMfxmmLIPgqBI6', // Professional
+                    'prod_UMfxjPiuCOZ7cG', // Basic
+                ];
+                const archived = [], skipped = [];
+                for (const productId of OLD_IDS) {
+                    try {
+                        const prod = await stripe.products.retrieve(productId);
+                        if (!prod.active) { skipped.push(prod.name || productId); continue; }
+                        try { await stripe.products.update(productId, { default_price: '' }); } catch (e) { /* ignore */ }
+                        const prices = await stripe.prices.list({ product: productId, active: true, limit: 100 });
+                        for (const pr of prices.data) {
+                            try { await stripe.prices.update(pr.id, { active: false }); }
+                            catch (e) { console.warn('price archive failed:', pr.id, e.message); }
+                        }
+                        await stripe.products.update(productId, { active: false });
+                        archived.push(prod.name || productId);
+                    } catch (err) {
+                        console.error('archive-old-tiers error for', productId, ':', err.message);
+                        skipped.push(productId);
+                    }
+                }
+                return respond(200, { success: true, archived, skipped });
+            }
+
+            // ─── ARCHIVE OLD CATALOG (pre-monthly packages + 7 old hourly) ───
+            case 'archive-old-catalog': {
+                const OLD_NAMES = [
+                    'Business Launch Package',
+                    'Brand & Marketing Package',
+                    'Strategy & Business Planning',
+                    'Financial Advisory',
+                    'Legal & Compliance Review',
+                    'Marketing Strategy',
+                    'HR & Staffing',
+                    'Technology & Systems',
+                    'Bookkeeping & Accounting',
+                ];
+                const wanted = new Set(OLD_NAMES.map(n => n.toLowerCase()));
+                const all = await stripe.products.list({ limit: 100, active: true });
+                const archived = [], skipped = [];
+                for (const prod of all.data) {
+                    if (!wanted.has((prod.name || '').toLowerCase())) continue;
+                    try {
+                        try { await stripe.products.update(prod.id, { default_price: '' }); } catch (e) { /* ignore */ }
+                        const prices = await stripe.prices.list({ product: prod.id, active: true, limit: 100 });
+                        for (const pr of prices.data) {
+                            try { await stripe.prices.update(pr.id, { active: false }); }
+                            catch (e) { console.warn('price archive failed:', pr.id, e.message); }
+                        }
+                        await stripe.products.update(prod.id, { active: false });
+                        archived.push(prod.name);
+                    } catch (err) {
+                        console.error('archive-old-catalog error for', prod.name, ':', err.message);
+                        skipped.push(prod.name);
+                    }
+                }
+                return respond(200, { success: true, archived, skipped });
+            }
+
+            // ─── SETUP SERVICE CATALOG (retainers / packages / hourly) ───
+            case 'setup-service-catalog': {
+                const catalog = [
+                    // Retainers (monthly)
+                    { name: 'Startup Retainer',                          category: 'retainer', amount: 57500,  interval: 'month' },
+                    { name: 'Growth Retainer',                           category: 'retainer', amount: 75000,  interval: 'month' },
+                    // Packages (monthly service tiers)
+                    { name: 'Basic Package',                             category: 'package',  amount: 30000,  interval: 'month' },
+                    { name: 'Professional Package',                      category: 'package',  amount: 50000,  interval: 'month' },
+                    // Hourly
+                    { name: 'Website Development',                       category: 'hourly',   amount: 12500,  interval: null    },
+                    { name: 'CRM Add-ons',                               category: 'hourly',   amount: 12500,  interval: null    },
+                    { name: 'Business Integration Brainstorm Meetings',  category: 'hourly',   amount: 5000,   interval: null    },
+                ];
+                const existing = await stripe.products.list({ limit: 100, active: true });
+                const existingByName = {};
+                existing.data.forEach(p => { existingByName[p.name.toLowerCase()] = true; });
+                const created = [], skipped = [];
+                for (const item of catalog) {
+                    if (existingByName[item.name.toLowerCase()]) { skipped.push(item.name); continue; }
+                    const product = await stripe.products.create({
+                        name: item.name,
+                        metadata: { bl_category: item.category }
+                    });
+                    const priceData = {
+                        product: product.id,
+                        unit_amount: item.amount,
+                        currency: 'usd',
+                        metadata: { bl_category: item.category }
+                    };
+                    if (item.interval === 'month') priceData.recurring = { interval: 'month' };
+                    await stripe.prices.create(priceData);
+                    created.push(item.name);
+                }
+                return respond(200, { success: true, created, skipped });
+            }
+
+            // ─── CREATE MANUAL SUBSCRIPTION (skips e-signature) ───
+            case 'create-manual-subscription': {
+                if (!body.email)  return respond(400, { error: 'email required' });
+                const items = body.items || [];
+                if (!items.length) return respond(400, { error: 'items required' });
+
+                const clientType = body.clientType || 'individual';
+                const isCompany  = clientType === 'company';
+                const clientName  = isCompany ? (body.company || body.name) : body.name;
+                const clientEmail = isCompany ? (body.repEmail || body.email) : body.email;
+                if (!clientName)  return respond(400, { error: 'name or company required' });
+
+                const collectionMethod = body.collectionMethod || 'charge_automatically';
+                const paymentMethod    = body.paymentMethod    || 'card';
+                const pmTypes = paymentMethod === 'ach'
+                    ? ['us_bank_account', 'card']
+                    : ['card', 'us_bank_account'];
+
+                const retainers    = items.filter(i => i.category === 'retainer');
+                const packages     = items.filter(i => i.category === 'package');
+                const monthlyItems = [...retainers, ...packages];
+
+                // Find or create Stripe customer
+                let customerId = body.customerId || null;
+                if (!customerId) {
+                    const found = await stripe.customers.list({ email: clientEmail, limit: 5 });
+                    // Reuse only if they're not already flagged as an active lead
+                    const reuse = found.data.find(c => !c.metadata.bl_lead_status);
+                    if (reuse) {
+                        customerId = reuse.id;
+                        console.log('manual-sub: reusing customer', customerId);
+                    } else {
+                        const custMeta = { client_type: clientType, source: 'manual-admin' };
+                        if (body.company) custMeta.company = body.company;
+                        if (isCompany) {
+                            if (body.repFirstName) custMeta.rep_first_name = body.repFirstName;
+                            if (body.repLastName)  custMeta.rep_last_name  = body.repLastName;
+                            if (body.repEmail)     custMeta.rep_email      = body.repEmail;
+                            if (body.repPhone)     custMeta.rep_phone      = body.repPhone;
+                        }
+                        const newCust = await stripe.customers.create({
+                            name:     clientName,
+                            email:    clientEmail,
+                            phone:    (isCompany ? body.repPhone : body.phone) || undefined,
+                            metadata: custMeta
+                        });
+                        customerId = newCust.id;
+                        console.log('manual-sub: created customer', customerId);
+                    }
+                }
+
+                // Compute trial end — next 1st of month, at least 14 days out
+                function computeTrialEnd() {
+                    const min = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+                    const y = min.getUTCFullYear(), m = min.getUTCMonth(), d = min.getUTCDate();
+                    const next1st = (d === 1 && min.getUTCHours() === 0)
+                        ? new Date(Date.UTC(y, m, 1))
+                        : new Date(Date.UTC(y, m + 1, 1));
+                    return Math.floor(next1st.getTime() / 1000);
+                }
+
+                // Resolve trial end from startDate or default
+                let trialEnd;
+                if (body.startDate) {
+                    const startTs = Math.floor(new Date(body.startDate + 'T00:00:00').getTime() / 1000);
+                    trialEnd = startTs > Math.floor(Date.now() / 1000) ? startTs : computeTrialEnd();
+                } else {
+                    trialEnd = computeTrialEnd();
+                }
+
+                let checkoutUrl    = null;
+                let subscriptionId = null;
+
+                if (monthlyItems.length > 0) {
+                    const subItems = monthlyItems.filter(i => i.priceId).map(i => ({ price: i.priceId }));
+                    if (!subItems.length) return respond(400, { error: 'Monthly items missing priceId' });
+
+                    const subParams = {
+                        customer:          customerId,
+                        items:             subItems,
+                        trial_end:         trialEnd,
+                        payment_behavior:  'default_incomplete',
+                        collection_method: collectionMethod,
+                        payment_settings: {
+                            save_default_payment_method: 'on_subscription',
+                            payment_method_types: pmTypes
+                        },
+                        metadata: {
+                            source: 'manual-admin',
+                            notes:  (body.notes || '').slice(0, 500)
+                        }
+                    };
+                    if (collectionMethod === 'send_invoice') {
+                        subParams.days_until_due = 15;
+                    }
+                    const subscription = await stripe.subscriptions.create(subParams);
+                    subscriptionId = subscription.id;
+                    console.log('manual-sub: subscription created', subscriptionId);
+
+                    if (collectionMethod === 'charge_automatically') {
+                        // Autopay: create Checkout session so client can add payment method
+                        const setupOpts = {
+                            mode:                 'setup',
+                            customer:             customerId,
+                            payment_method_types: pmTypes,
+                            setup_intent_data: {
+                                metadata: { subscription_id: subscriptionId, customer_id: customerId }
+                            },
+                            success_url: 'https://thebusiness-lab.com/payment-confirmed?session_id={CHECKOUT_SESSION_ID}',
+                            cancel_url:  'https://thebusiness-lab.com',
+                            metadata:    { subscription_id: subscriptionId }
+                        };
+                        if (pmTypes.includes('us_bank_account')) {
+                            setupOpts.payment_method_options = {
+                                us_bank_account: { financial_connections: { permissions: ['payment_method'] } }
+                            };
+                        }
+                        const session  = await stripe.checkout.sessions.create(setupOpts);
+                        checkoutUrl    = session.url;
+                        console.log('manual-sub: checkout session', session.id);
+                    }
+                    // Invoice mode: Stripe auto-emails first invoice per Billing settings
+                }
+
+                return respond(200, {
+                    success: true,
+                    customerId,
+                    subscriptionId,
+                    checkoutUrl,   // null for invoice mode
+                    collectionMethod,
+                    trialEndDate: new Date(trialEnd * 1000).toLocaleDateString('en-US', {
+                        month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC'
+                    })
+                });
             }
 
             default:

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started | The Business Lab</title>
+    <meta name="description" content="Tell us about your business and we'll put together a plan. Fast, free, no commitment.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);color:#0f172a;min-height:100vh;padding:40px 20px}
+        h1,h2{font-family:'Playfair Display',serif}
+
+        .wrap{max-width:680px;margin:0 auto}
+        .header{text-align:center;color:#fff;margin-bottom:30px}
+        .header a{color:#d4af37;text-decoration:none;font-size:13px;letter-spacing:1px;text-transform:uppercase}
+        .header h1{font-size:2.3rem;margin-top:12px;color:#fff}
+        .header p{color:#cbd5e1;font-size:15px;margin-top:10px;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.5}
+
+        .card{background:#fff;border-radius:18px;padding:40px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+        .card h2{font-size:1.4rem;margin-bottom:6px;color:#0f172a}
+        .card .subtitle{color:#64748b;font-size:14px;margin-bottom:26px}
+
+        label{display:block;font-size:13px;font-weight:600;color:#334155;margin:16px 0 6px}
+        label .req{color:#dc2626}
+        input, select, textarea{width:100%;padding:12px 16px;border:1px solid #e2e8f0;border-radius:10px;font-size:15px;font-family:Inter,sans-serif;background:#fff;transition:border-color .15s,box-shadow .15s}
+        input:focus, select:focus, textarea:focus{outline:none;border-color:#d4af37;box-shadow:0 0 0 3px rgba(212,175,55,.15)}
+        textarea{min-height:90px;resize:vertical}
+        .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        @media(max-width:520px){.row{grid-template-columns:1fr}}
+
+        .submit{margin-top:28px;width:100%;padding:15px;background:#d4af37;color:#0f172a;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;letter-spacing:.3px}
+        .submit:hover{background:#b8962e}
+        .submit:disabled{opacity:.55;cursor:wait}
+
+        .privacy{text-align:center;color:#94a3b8;font-size:12px;margin-top:14px}
+
+        .success{text-align:center;padding:20px 0}
+        .success .check{width:72px;height:72px;margin:0 auto 16px;background:#dcfce7;color:#16a34a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px}
+        .success h2{color:#16a34a;margin-bottom:10px}
+        .success p{color:#475569;font-size:14px;line-height:1.6;max-width:420px;margin:0 auto}
+        .success .cta{display:inline-block;margin-top:24px;padding:12px 28px;background:#0f172a;color:#fff;text-decoration:none;border-radius:10px;font-weight:600;font-size:14px}
+
+        .err{background:#fef2f2;color:#dc2626;padding:10px 14px;border-radius:8px;font-size:13px;margin-top:10px;display:none}
+        .err.show{display:block}
+
+        .trust{display:flex;justify-content:center;gap:24px;margin-top:18px;color:#94a3b8;font-size:12px}
+        .trust span{display:flex;align-items:center;gap:6px}
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="header">
+            <a href="/">← The Business Lab</a>
+            <h1>Let's build your business.</h1>
+            <p>Tell us a bit about where you are today. We'll review and send you a tailored plan within one business day — no commitment, no sales pitch.</p>
+        </div>
+
+        <div class="card">
+            <div id="formView">
+                <h2>Get Started</h2>
+                <div class="subtitle">Takes about 90 seconds.</div>
+
+                <label>Full Name <span class="req">*</span></label>
+                <input id="f-name" placeholder="Jane Smith" autocomplete="name">
+
+                <label>Email <span class="req">*</span></label>
+                <input id="f-email" type="email" placeholder="jane@acme.com" autocomplete="email">
+
+                <div class="row">
+                    <div>
+                        <label>Phone</label>
+                        <input id="f-phone" type="tel" placeholder="248-555-1234" autocomplete="tel">
+                    </div>
+                    <div>
+                        <label>Company</label>
+                        <input id="f-company" placeholder="Acme Corp" autocomplete="organization">
+                    </div>
+                </div>
+
+                <label>What do you need help with?</label>
+                <select id="f-service">
+                    <option value="">— Select one —</option>
+                    <option value="retainer">Ongoing retainer / advisory</option>
+                    <option value="package">Monthly service package (Basic / Professional)</option>
+                    <option value="website">Website development</option>
+                    <option value="crm">CRM add-ons / integration</option>
+                    <option value="brainstorm">Business integration brainstorm</option>
+                    <option value="other">Something else / not sure</option>
+                </select>
+
+                <label>Budget range</label>
+                <select id="f-budget">
+                    <option value="">— Select one —</option>
+                    <option value="under-500">Under $500 / month</option>
+                    <option value="500-1500">$500 – $1,500 / month</option>
+                    <option value="1500-5000">$1,500 – $5,000 / month</option>
+                    <option value="5000-plus">$5,000+ / month</option>
+                    <option value="project">One-time project (hourly)</option>
+                    <option value="not-sure">Not sure yet</option>
+                </select>
+
+                <label>Anything else we should know?</label>
+                <textarea id="f-notes" placeholder="Where you are now, what's blocking you, timing, etc."></textarea>
+
+                <div class="err" id="errMsg"></div>
+
+                <button class="submit" id="submitBtn" onclick="submitLead()">Send it over →</button>
+                <div class="privacy">By submitting you agree to be contacted about your inquiry. We never sell your info.</div>
+
+                <div class="trust">
+                    <span><i class="fas fa-shield-alt"></i> Private &amp; secure</span>
+                    <span><i class="fas fa-bolt"></i> 1-day response</span>
+                    <span><i class="fas fa-phone"></i> 248-775-5058</span>
+                </div>
+            </div>
+
+            <div id="successView" style="display:none" class="success">
+                <div class="check"><i class="fas fa-check"></i></div>
+                <h2>Got it — thanks!</h2>
+                <p>We've received your info and will reach out within one business day. If you'd rather chat sooner, call us at <strong>248-775-5058</strong>.</p>
+                <a class="cta" href="/">Back to home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    var API='/.netlify/functions/bl-leads';
+
+    function showErr(msg){
+        var el=document.getElementById('errMsg');
+        el.textContent=msg;
+        el.classList.add('show');
+    }
+    function clearErr(){ document.getElementById('errMsg').classList.remove('show'); }
+
+    function submitLead(){
+        clearErr();
+        var name    = document.getElementById('f-name').value.trim();
+        var email   = document.getElementById('f-email').value.trim();
+        var phone   = document.getElementById('f-phone').value.trim();
+        var company = document.getElementById('f-company').value.trim();
+        var service = document.getElementById('f-service').value;
+        var budget  = document.getElementById('f-budget').value;
+        var notes   = document.getElementById('f-notes').value.trim();
+
+        if(!name){ showErr('Please enter your name.'); return; }
+        if(!email){ showErr('Please enter your email.'); return; }
+        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ showErr('That email doesn\'t look right.'); return; }
+
+        var btn=document.getElementById('submitBtn');
+        btn.disabled=true;
+        btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+        fetch(API,{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({
+                action:'submit-lead',
+                name:name, email:email, phone:phone, company:company,
+                serviceInterest:service, budgetRange:budget, notes:notes
+            })
+        }).then(function(r){ return r.json().then(function(j){ return {status:r.status, body:j}; }); })
+          .then(function(r){
+            if(r.status===200 && r.body.success){
+                document.getElementById('formView').style.display='none';
+                document.getElementById('successView').style.display='block';
+                window.scrollTo({top:0,behavior:'smooth'});
+            } else {
+                showErr(r.body.error || 'Something went wrong. Try again or call 248-775-5058.');
+                btn.disabled=false;
+                btn.innerHTML='Send it over →';
+            }
+          }).catch(function(){
+            showErr('Connection error. Try again or call 248-775-5058.');
+            btn.disabled=false;
+            btn.innerHTML='Send it over →';
+          });
+    }
+    </script>
+</body>
+</html>

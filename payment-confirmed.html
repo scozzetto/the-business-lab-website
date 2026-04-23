@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Method Confirmed — The Business Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;background:#0f172a;color:#f8fafc;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+  .card{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:48px 40px;max-width:480px;width:100%;text-align:center}
+  .icon{width:72px;height:72px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:32px}
+  h1{font-size:24px;font-weight:700;color:#f8fafc;margin-bottom:8px}
+  .sub{font-size:15px;color:#94a3b8;line-height:1.6;margin-bottom:32px}
+  .detail{background:#0f172a;border:1px solid #334155;border-radius:10px;padding:16px 20px;margin-bottom:32px;text-align:left}
+  .detail p{font-size:13px;color:#64748b;margin-bottom:4px}
+  .detail strong{font-size:14px;color:#f8fafc}
+  .btn{display:inline-block;background:#d4af37;color:#0f172a;font-weight:700;font-size:14px;padding:12px 28px;border-radius:8px;text-decoration:none}
+  .footer{margin-top:28px;font-size:12px;color:#475569}
+  .footer a{color:#64748b;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="icon">✓</div>
+  <h1>You're all set!</h1>
+  <p class="sub">Your payment method has been saved. Your Business Lab subscription will activate automatically when your trial ends.</p>
+
+  <div class="detail" id="trialDetail" style="display:none">
+    <p>Trial ends</p>
+    <strong id="trialDateStr">—</strong>
+  </div>
+
+  <a href="https://thebusiness-lab.com" class="btn">Go to The Business Lab →</a>
+
+  <p class="footer">
+    Questions? <a href="mailto:support@TheBusiness-Lab.com">support@TheBusiness-Lab.com</a> · 248-775-5058
+  </p>
+</div>
+
+<script>
+// Pull session_id from URL if present (future: could verify via API)
+(function() {
+  // Show a friendly trial-end date if we can compute it from the URL
+  // For now just show the confirmation without the trial date detail panel
+  // Phase 2B will enhance this with subscription details via Stripe API
+})();
+</script>
+</body>
+</html>
