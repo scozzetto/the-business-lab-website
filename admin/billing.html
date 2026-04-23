@@ -2240,74 +2240,35 @@
         });
     }
 
-    // _resendContract holds the full contract object for the modal currently open
-    var _resendContract = null;
-
     function openResendModal(id, currentEmail, clientName){
-        // Store full contract so submitResend can pass metadata to backend
-        _resendContract = _contracts.find(function(x){return x.id===id;}) || null;
-
         var existing=document.getElementById('resendModal');
         if(existing)existing.remove();
         var h='<div id="resendModal" class="modal-overlay" onclick="if(event.target===this)this.remove()">';
-        h+='<div class="modal" style="width:460px">';
-        h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">';
-        h+='<h2 style="margin:0;font-size:1.1rem"><i class="fas fa-paper-plane" style="color:#d4af37;margin-right:8px"></i>Resend MSA</h2>';
-        h+='<button class="btn-outline btn-sm" onclick="document.getElementById(\'resendModal\').remove()">✕ Close</button>';
-        h+='</div>';
-        h+='<p style="font-size:13px;color:#475569;margin:0 0 18px">Sending to <strong>'+esc(clientName||'client')+'</strong>. Update the email if needed — if changed, the old contract is replaced with a fresh one sent to the new address.</p>';
-        h+='<label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Recipient Email</label>';
-        h+='<input id="resendEmailInput" type="email" value="'+esc(currentEmail||'')+'" autocomplete="off" style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:Inter,sans-serif;box-sizing:border-box" onkeydown="if(event.key===\'Enter\')document.getElementById(\'resendSubmitBtn\').click()">';
-        h+='<p style="font-size:11px;color:#94a3b8;margin:6px 0 0">Same email = reminder only &nbsp;|&nbsp; New email = delete old contract + send fresh one</p>';
-        h+='<div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end">';
+        h+='<div class="modal" style="width:420px;text-align:center">';
+        h+='<div style="width:60px;height:60px;background:#fef9ec;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">';
+        h+='<i class="fas fa-paper-plane" style="font-size:24px;color:#d4af37"></i></div>';
+        h+='<h2 style="margin:0 0 8px;font-size:1.1rem">Resend Signing Reminder</h2>';
+        h+='<p style="font-size:13px;color:#475569;margin:0 0 20px">A reminder email will be sent to <strong>'+esc(currentEmail||clientName||'the signer')+'</strong>.</p>';
+        h+='<p style="font-size:12px;color:#94a3b8;margin:0 0 24px">Need to send to a different email? Remove this contract and create a new one from the New Client tab.</p>';
+        h+='<div style="display:flex;gap:10px;justify-content:center">';
         h+='<button class="btn-outline" onclick="document.getElementById(\'resendModal\').remove()">Cancel</button>';
-        h+='<button class="btn-gold" id="resendSubmitBtn" onclick="submitResend(\''+esc(id)+'\',\''+esc(currentEmail||'')+'\')"><i class="fas fa-paper-plane"></i> Send</button>';
+        h+='<button class="btn-gold" id="resendSubmitBtn" onclick="submitResend(\''+esc(id)+'\',\''+esc(currentEmail||'')+'\')"><i class="fas fa-paper-plane"></i> Send Reminder</button>';
         h+='</div>';
         h+='</div></div>';
         document.body.insertAdjacentHTML('beforeend',h);
-        setTimeout(function(){var inp=document.getElementById('resendEmailInput');if(inp){inp.focus();inp.select();}},50);
     }
 
-    function submitResend(id, originalEmail){
-        var newEmail=((document.getElementById('resendEmailInput')||{}).value||'').trim();
-        if(!newEmail||!newEmail.includes('@')){toast('Enter a valid email','error');return;}
+    function submitResend(id, email){
         var btn=document.getElementById('resendSubmitBtn');
         if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';}
-        var emailChanged=newEmail.toLowerCase()!==originalEmail.toLowerCase();
-        if(emailChanged){
-            // Pass contract title + metadata from the frontend so the backend
-            // doesn't have to rely on PandaDoc's GET endpoint returning metadata
-            var contractTitle    = _resendContract ? (_resendContract.title || '') : '';
-            var contractMetadata = _resendContract ? (_resendContract.metadata || {}) : {};
-            signupApiCall({
-                action:'replace-envelope',
-                signatureRequestId:id,
-                newEmail:newEmail,
-                contractTitle:contractTitle,
-                contractMetadata:contractMetadata
-            }).then(function(data){
-                var m=document.getElementById('resendModal');if(m)m.remove();
-                if(data.error){toast(data.error,'error');return;}
-                if(data.note){
-                    toast('New MSA sent to '+newEmail+'. Void the old one in PandaDoc if needed.','success');
-                } else {
-                    toast('New MSA sent to '+newEmail,'success');
-                }
-                loadContracts();
-            }).catch(function(err){
-                if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send';}
-                toast(err.message||'Error replacing contract','error');
-            });
-        } else {
-            signupApiCall({action:'resend-envelope',signatureRequestId:id}).then(function(data){
-                var m=document.getElementById('resendModal');if(m)m.remove();
-                if(data.error){toast(data.error,'error');return;}
-                toast('Reminder sent to '+newEmail,'success');
-            }).catch(function(err){
-                if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send';}
-                toast(err.message||'Error sending reminder','error');
-            });
-        }
+        signupApiCall({action:'resend-envelope',signatureRequestId:id}).then(function(data){
+            var m=document.getElementById('resendModal');if(m)m.remove();
+            if(data.error){toast(data.error,'error');return;}
+            toast('Reminder sent to '+email,'success');
+        }).catch(function(err){
+            if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Reminder';}
+            toast(err.message||'Error sending reminder','error');
+        });
     }
 
     function removeEnvelope(id,label,btn){
