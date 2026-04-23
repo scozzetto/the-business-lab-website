@@ -2213,7 +2213,7 @@
         // Backend returns raw PDF binary (base64-encoded), so use fetch+blob instead of signupApiCall
         fetch('/.netlify/functions/bl-signup',{
             method:'POST',
-            headers:{'Content-Type':'application/json','x-admin-key':_adminKey},
+            headers:{'Content-Type':'application/json','x-admin-key':ADMIN_KEY},
             body:JSON.stringify({action:'get-envelope-pdf',signatureRequestId:id})
         }).then(function(res){
             if(!res.ok){
