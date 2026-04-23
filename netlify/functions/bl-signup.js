@@ -135,7 +135,7 @@ exports.handler = async (event) => {
                 return respond(200, { success: true });
             }
 
-            // ─── REPLACE ENVELOPE (corrected email — delete old + create new) ───
+            // ─── REPLACE ENVELOPE (corrected email — create new, mark old as replaced) ───
             case 'replace-envelope': {
                 if (!body.signatureRequestId) return respond(400, { error: 'signatureRequestId required' });
                 if (!body.newEmail) return respond(400, { error: 'newEmail required' });
@@ -146,14 +146,20 @@ exports.handler = async (event) => {
                 const docId = body.signatureRequestId;
 
                 // Fetch existing document for metadata + recipient name
-                const oldDoc     = await pdGet(pdKey, `/public/v1/documents/${docId}`);
-                const meta       = oldDoc.metadata || {};
-                const origRec    = (oldDoc.recipients || []).find(r => r.role === 'Client') || (oldDoc.recipients || [])[0] || {};
-                const origFirst  = origRec.first_name || meta.rep_first || '';
-                const origLast   = origRec.last_name  || meta.rep_last  || '';
-                const origName   = (origFirst + ' ' + origLast).trim();
+                const oldDoc    = await pdGet(pdKey, `/public/v1/documents/${docId}`);
+                const meta      = oldDoc.metadata || {};
+                const origRec   = (oldDoc.recipients || []).find(r => r.role === 'Client') || (oldDoc.recipients || [])[0] || {};
+                const origFirst = origRec.first_name || meta.rep_first || '';
+                const origLast  = origRec.last_name  || meta.rep_last  || '';
 
-                const isCompany  = meta.client_type === 'company';
+                // Fallback: parse name from document title ("MSA — {name} — YYYY-MM-DD")
+                const titleMatch = (oldDoc.name || '').match(/MSA\s*[—\-]+\s*(.+?)\s*[—\-]+\s*\d{4}-\d{2}-\d{2}/);
+                const titleName  = titleMatch ? titleMatch[1].trim() : '';
+                const origName   = (origFirst + ' ' + origLast).trim() || titleName;
+
+                const isCompany = meta.client_type === 'company';
+                // For individual contracts, company name may have been entered as the "name" field
+                const company   = meta.company || (isCompany ? titleName : '');
 
                 // Reconstruct items from compact metadata ("priceId:category[:amount]")
                 const compactKeys = Object.keys(meta).filter(k => /^item\d+$/.test(k)).sort();
@@ -168,7 +174,7 @@ exports.handler = async (event) => {
                     name:             origName,
                     email:            isCompany ? (meta.rep_email || '') : body.newEmail,
                     phone:            isCompany ? (meta.rep_phone || '') : (meta.phone || ''),
-                    company:          meta.company          || '',
+                    company,
                     clientType:       meta.client_type      || 'individual',
                     collectionMethod: meta.collection_method|| 'charge_automatically',
                     paymentMethod:    meta.payment_method   || 'card',
@@ -176,26 +182,34 @@ exports.handler = async (event) => {
                     notes:            meta.notes            || '',
                     customerId:       meta.customer_id      || '',
                     items,
-                    // Company rep fields — update email to corrected address
                     repFirstName:     meta.rep_first || origFirst,
                     repLastName:      meta.rep_last  || origLast,
                     repEmail:         isCompany ? body.newEmail : '',
                     repPhone:         meta.rep_phone || '',
                 };
 
-                // Delete old document (best-effort)
-                try {
-                    await pdDelete(pdKey, `/public/v1/documents/${docId}`);
-                    console.log('replace-envelope: deleted old doc', docId);
-                } catch (delErr) {
-                    console.warn('replace-envelope: could not delete old doc:', delErr.message);
-                }
-
-                // Create replacement
+                // Note: PandaDoc API does not allow deleting sent documents on most plans.
+                // We create the replacement first, then attempt deletion (best-effort).
+                // If deletion fails, the old document remains in PandaDoc — admin can void it manually.
                 const newDoc = await createAndSendDocument(pdKey, templateId, newData);
                 const newId  = newDoc.uuid || newDoc.id;
                 console.log('replace-envelope: new doc created', newId, '→', body.newEmail);
-                return respond(200, { success: true, signatureRequestId: newId });
+
+                let oldDeleted = false;
+                try {
+                    await pdDelete(pdKey, `/public/v1/documents/${docId}`);
+                    oldDeleted = true;
+                    console.log('replace-envelope: deleted old doc', docId);
+                } catch (delErr) {
+                    console.warn('replace-envelope: old doc not deleted (plan restriction?):', delErr.message);
+                }
+
+                return respond(200, {
+                    success: true,
+                    signatureRequestId: newId,
+                    oldDeleted,
+                    note: oldDeleted ? null : 'Old contract could not be deleted automatically — void it manually in PandaDoc if needed.'
+                });
             }
 
             // ─── CANCEL / REMOVE ENVELOPE ───

@@ -2272,7 +2272,12 @@
             signupApiCall({action:'replace-envelope',signatureRequestId:id,newEmail:newEmail}).then(function(data){
                 var m=document.getElementById('resendModal');if(m)m.remove();
                 if(data.error){toast(data.error,'error');return;}
-                toast('New MSA sent to '+newEmail,'success');
+                if(data.note){
+                    // New doc created but old one couldn't be auto-deleted
+                    toast('New MSA sent to '+newEmail+'. Delete the old contract manually in PandaDoc.','success');
+                } else {
+                    toast('New MSA sent to '+newEmail,'success');
+                }
                 loadContracts();
             }).catch(function(err){
                 if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send';}
